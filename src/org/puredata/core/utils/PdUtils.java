@@ -43,11 +43,11 @@ public class PdUtils {
 		}
 		int err = PdBase.sendMessage("pd", "open", filename, directory);
 		if (err != 0) {
-			throw new IOException("unable to open patch, error code "+err);
+			throw new IOException("unable to open patch, error code " + err);
 		}
 		String patch = "pd-" + filename;
 		if (!PdBase.exists(patch)) {
-			throw new IOException("patch "+file.getPath()+" didn't open, no idea why");
+			throw new IOException("patch " + file.getPath() + " didn't open, no idea why");
 		}
 		return patch;
 	}

@@ -19,7 +19,7 @@
  *      design of JACK, the JACK Audio Connection Kit.
  *      
  *    - The release method is mostly there as a reminder that some sort of cleanup might be necessary; for the time being,
- *      it only releases the resources held by the print handler and cancels all subscription.  Shutting down pd itself
+ *      it only releases the resources held by the print handler and cancels all subscriptions.  Shutting down pd itself
  *      wouldn't make sense because it might be needed in the future, at which point the native library may not be reloaded.
  *      If you're concerned about resources held by pd, make sure to call closePatch when you're done with a patch.
  *      
@@ -54,7 +54,7 @@ public final class PdBase {
 	 * Note:  It would be nice to free pd's I/O buffers here, but sys_close_audio doesn't seem
 	 * to do that, so we'll just skip this for now.
 	 */
-	public static void release() {
+	public synchronized static void release() {
 		setReceiver(null);
 		for (Long ptr: bindings.values()) {
 			unbindSymbol(ptr);
@@ -202,6 +202,7 @@ public final class PdBase {
 	 * @return default pd block size, DEFDACBLKSIZE (currently 64) (aka number of samples per tick per channel)
 	 */
 	public native static int blockSize();
+	
 	
 	private static int processArgs(Object[] args) {
 		int maxArgs = startMessage();

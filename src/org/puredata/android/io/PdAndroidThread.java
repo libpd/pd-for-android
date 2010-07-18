@@ -35,6 +35,7 @@ public class PdAndroidThread extends Thread {
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
 	private PdAndroidThread(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
+		super("Pd_Rendering_Thread");
 		int bufferSizePerChannel = PdBase.blockSize() * ticksPerBuffer;
 		if (nIn > 0) {
 			int inFormat = getInFormat(nIn);

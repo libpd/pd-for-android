@@ -1,116 +1,116 @@
-/home/peter/dev-tools/pdandroid/obj/local/armeabi/objs/pdnative/g_toggle.o: \
- /home/peter/dev-tools/pdandroid/jni/g_toggle.c \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdlib.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs_elf.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/string.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/malloc.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/alloca.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/strings.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdint.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/_types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/_types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/posix_types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/stddef.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/compiler.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/posix_types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/kernel.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysmacros.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/memory.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdio.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/ctype.h \
- /home/peter/dev-tools/pdandroid/jni/m_pd.h \
- /home/peter/dev-tools/pdandroid/jni/g_canvas.h \
- /home/peter/dev-tools/pdandroid/jni/g_all_guis.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/math.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/limits.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/limits.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/limits.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/internal_types.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/limits.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/unistd.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/select.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/time.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/time.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysconf.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/capability.h \
- /home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/pathconf.h
+/home/peter/Documents/pd-for-android/obj/local/armeabi/objs/pdnative/g_toggle.o: \
+ /home/peter/Documents/pd-for-android/jni/g_toggle.c \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdlib.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs_elf.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/string.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/malloc.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/alloca.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/strings.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdint.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/_types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/_types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/posix_types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/stddef.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/compiler.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/posix_types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/kernel.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysmacros.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/memory.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdio.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/ctype.h \
+ /home/peter/Documents/pd-for-android/jni/m_pd.h \
+ /home/peter/Documents/pd-for-android/jni/g_canvas.h \
+ /home/peter/Documents/pd-for-android/jni/g_all_guis.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/math.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/limits.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/limits.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/limits.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/internal_types.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/limits.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/unistd.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/select.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/time.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/time.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysconf.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/capability.h \
+ /usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/pathconf.h
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdlib.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdlib.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs_elf.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/cdefs_elf.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/string.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/string.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/malloc.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/malloc.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/alloca.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/alloca.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/strings.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/strings.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdint.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdint.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/_types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/_types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/_types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/_types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/posix_types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/posix_types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/stddef.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/stddef.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/compiler.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/compiler.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/posix_types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/posix_types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/asm/types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/kernel.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/kernel.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysmacros.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysmacros.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/memory.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/memory.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdio.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/stdio.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/ctype.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/ctype.h:
 
-/home/peter/dev-tools/pdandroid/jni/m_pd.h:
+/home/peter/Documents/pd-for-android/jni/m_pd.h:
 
-/home/peter/dev-tools/pdandroid/jni/g_canvas.h:
+/home/peter/Documents/pd-for-android/jni/g_canvas.h:
 
-/home/peter/dev-tools/pdandroid/jni/g_all_guis.h:
+/home/peter/Documents/pd-for-android/jni/g_all_guis.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/math.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/math.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/limits.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/limits.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/limits.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/limits.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/limits.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/limits.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/internal_types.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/internal_types.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/limits.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/machine/limits.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/unistd.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/unistd.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/select.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/select.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/time.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/time.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/time.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/time.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysconf.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/sys/sysconf.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/capability.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/linux/capability.h:
 
-/home/peter/dev-tools/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/pathconf.h:
+/usr/local/android-ndk-r4b/build/platforms/android-5/arch-arm/usr/include/pathconf.h:
