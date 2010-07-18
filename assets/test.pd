@@ -1,0 +1,23 @@
+#N canvas 629 273 450 300 10;
+#X obj 165 66 osc~ 300;
+#X obj 232 73 noise~;
+#X obj 191 127 dac~;
+#X msg 323 37 \; pd dsp 1;
+#X obj 322 15 loadbang;
+#X obj 299 142 metro 1000;
+#X obj 299 269 print PD_RUNS;
+#X obj 203 238 realtime;
+#X obj 225 172 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 245 209 sel 1;
+#X obj 202 208 sel 0;
+#X connect 0 0 2 0;
+#X connect 1 0 2 1;
+#X connect 4 0 3 0;
+#X connect 4 0 5 0;
+#X connect 5 0 8 0;
+#X connect 7 0 6 0;
+#X connect 8 0 9 0;
+#X connect 8 0 10 0;
+#X connect 9 0 7 1;
+#X connect 10 0 7 0;

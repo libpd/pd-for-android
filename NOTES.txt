@@ -1,0 +1,15 @@
+
+* You'll probably need to adjust the path for ndk-build in jni/Makefile.
+
+* The current version of PdAndroidTest expects to find pd patches in /sdcard.
+  Some sample patches are in /assets.
+
+* If you experience audio glitches, play with the parameters in
+  res/values/audio.xml.
+
+* The Java bindings for pd do not depend on Android.  Just compile a shared
+  library with -DUSEAPI_JAVA and -DJAVA.  The files in src/org/puredata that
+  do not have "Android" in their name form the Java side of the bindings.
+
+Peter Brinkmann (peter.brinkmann@gmail.com)
+
