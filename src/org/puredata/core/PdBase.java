@@ -13,7 +13,7 @@
  *      it is designed to be fairly robust in that it is thread-safe and does as much error checking as I find reasonable
  *      at this level.  Client code is still responsible for proper dimensioning of buffers and such, though.
  *      
- *    - {@link PdUtils} is an example of how to wrap PdNative in higher-level functionality.
+ *    - {@link PdUtils} is an example of how to wrap PdBase in higher-level functionality.
  *    
  *    - The basic idea is to turn pd into a library that essentially offers a rendering callback (process) mimicking the
  *      design of JACK, the JACK Audio Connection Kit.
@@ -52,7 +52,7 @@ public final class PdBase {
 	 * releases resources held by native bindings (PdReceiver object and subscriptions); otherwise, the state of pd will remain unaffected
 	 * 
 	 * Note:  It would be nice to free pd's I/O buffers here, but sys_close_audio doesn't seem
-	 * to do that, so we'll just skip this for now.
+	 * to do that, and so we'll just skip this for now.
 	 */
 	public synchronized static void release() {
 		setReceiver(null);
@@ -63,7 +63,7 @@ public final class PdBase {
 	}
 	
 	/**
-	 * sets handler for printing from pd
+	 * sets handler for receiving messages from pd
 	 * 
 	 * @param handler
 	 */

@@ -33,7 +33,7 @@ public class PdUtils {
 	 * 
 	 * @param filename
 	 * @param directory
-	 * @return  pd symbol representing patch
+	 * @return pd symbol representing patch
 	 * @throws IOException in case patch fails to open
 	 */
 	public static String openPatch(String filename, String directory) throws IOException {
