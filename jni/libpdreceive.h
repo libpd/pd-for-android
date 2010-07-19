@@ -5,14 +5,13 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#ifndef __S_AUDIO_JAVA_H__
-#define __S_AUDIO_JAVA_H__
+#ifndef __X_LIBPDREC_H__
+#define __X_LIBPDREC_H__
 
-int java_open_audio(int, int, int);
-int java_close_audio();
-int java_send_dacs();
-void java_getdevs(char *, int *, char *, int *, int *, int, int);
-void java_listdevs();
+#include "m_pd.h"
+
+void libpdreceive_setup();
+void *libpdreceive_new(t_symbol *);
 
 #endif
 

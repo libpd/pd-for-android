@@ -185,7 +185,7 @@ void sys_setvirtualalarm( void);
 #define API_SGI 6
 #define API_AUDIOUNIT 7
 #define API_ESD 8
-#define API_JAVA 9
+#define API_LIBPD 9
 
 #ifdef __linux__
 #define API_DEFAULT API_OSS
@@ -208,9 +208,9 @@ void sys_setvirtualalarm( void);
 #define API_DEFAULT API_SGI
 #define API_DEFSTRING "SGI Digital Media"
 #endif
-#ifdef JAVA
-#define API_DEFAULT API_JAVA
-#define API_DEFSTRING "Java"
+#ifdef LIBPD
+#define API_DEFAULT API_LIBPD
+#define API_DEFSTRING "libpd"
 #endif
 #define DEFAULTAUDIODEV 0
 

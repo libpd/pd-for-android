@@ -372,9 +372,9 @@ void sys_close_audio(void)
         esd_close_audio();
     else
 #endif
-#ifdef USEAPI_JAVA
-    if (sys_audioapiopened == API_JAVA)
-        java_close_audio();
+#ifdef USEAPI_LIBPD
+    if (sys_audioapiopened == API_LIBPD)
+        libpd_close_audio();
     else
 #endif
         post("sys_close_audio: unknown API %d", sys_audioapiopened);
@@ -451,9 +451,9 @@ void sys_reopen_audio( void)
             chindev, naudiooutdev, audiooutdev, naudiooutdev, choutdev, rate);
     else 
 #endif
-#ifdef USEAPI_JAVA
-    if (sys_audioapi == API_JAVA)
-        outcome = java_open_audio((naudioindev, naudioindev, rate));
+#ifdef USEAPI_LIBPD
+    if (sys_audioapi == API_LIBPD)
+        outcome = libpd_open_audio((naudioindev, naudioindev, rate));
     else
 #endif
     if (sys_audioapi == API_NONE)
@@ -537,9 +537,9 @@ int sys_send_dacs(void)
         return (esd_send_dacs());
     else
 #endif
-#ifdef USEAPI_JAVA
-    if (sys_audioapi == API_JAVA)
-        return (java_send_dacs());
+#ifdef USEAPI_LIBPD
+    if (sys_audioapi == API_LIBPD)
+        return (libpd_send_dacs());
     else
 #endif
     post("unknown API");    
@@ -639,10 +639,10 @@ static void audio_getdevs(char *indevlist, int *nindevs,
     }
     else
 #endif
-#ifdef USEAPI_JAVA
-    if (sys_audioapi == API_JAVA)
+#ifdef USEAPI_LIBPD
+    if (sys_audioapi == API_LIBPD)
     {
-        java_getdevs(indevlist, nindevs, outdevlist, noutdevs, canmulti,
+        libpd_getdevs(indevlist, nindevs, outdevlist, noutdevs, canmulti,
             maxndev, devdescsize);
     }
     else
@@ -856,8 +856,8 @@ void sys_listdevs(void )
         sys_listaudiodevs();
     else
 #endif
-#ifdef USEAPI_JAVA
-    if (sys_audioapi == API_JAVA)
+#ifdef USEAPI_LIBPD
+    if (sys_audioapi == API_LIBPD)
         sys_listaudiodevs();
     else
 #endif
@@ -962,8 +962,8 @@ void sys_get_audio_apis(char *buf)
 #ifdef USEAPI_ESD
     sprintf(buf + strlen(buf), "{ESD %d} ", API_ESD); n++;
 #endif
-#ifdef USEAPI_JAVA
-    sprintf(buf + strlen(buf), "{Java %d} ", API_JAVA); n++;
+#ifdef USEAPI_LIBPD
+    sprintf(buf + strlen(buf), "{libpd %d} ", API_LIBPD); n++;
 #endif
     strcat(buf, "}");
         /* then again, if only one API (or none) we don't offer any choice. */

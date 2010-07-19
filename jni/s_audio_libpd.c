@@ -5,23 +5,24 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#ifdef USEAPI_JAVA
+#ifdef USEAPI_LIBPD
 
 #include <stdio.h>
+#include "s_audio_libpd.h"
 
-int java_open_audio(int nin, int nout, int sr) {
+int libpd_open_audio(int nin, int nout, int sr) {
   return 0;
 }
 
-int java_close_audio() {
+int libpd_close_audio() {
   return 0;
 }
 
-int java_send_dacs() {
+int libpd_send_dacs() {
   return 0;
 }
 
-void java_getdevs(char *indevlist, int *nindevs, char *outdevlist,
+void libpd_getdevs(char *indevlist, int *nindevs, char *outdevlist,
     int *noutdevs, int *canmulti, int maxndev, int devdescsize) {
   sprintf(indevlist, "NONE");
   sprintf(outdevlist, "NONE");
@@ -29,7 +30,7 @@ void java_getdevs(char *indevlist, int *nindevs, char *outdevlist,
   *canmulti = 0;
 }
 
-void java_listdevs() {
+void libpd_listdevs() {
   // do nothing
 }
 

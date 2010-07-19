@@ -1,4 +1,4 @@
-#N canvas 588 394 450 300 10;
+#N canvas 589 394 450 300 10;
 #X obj 165 66 osc~ 300;
 #X obj 232 73 noise~;
 #X obj 191 127 dac~;
@@ -17,6 +17,7 @@
 #X obj 323 212 symbol hello;
 #X obj 61 144 r foo;
 #X obj 118 143 r bar;
+#X obj 312 268 print print;
 #X connect 0 0 2 0;
 #X connect 1 0 2 1;
 #X connect 4 0 3 0;
@@ -30,6 +31,7 @@
 #X connect 9 0 6 0;
 #X connect 12 0 13 0;
 #X connect 12 0 10 0;
+#X connect 12 0 16 0;
 #X connect 13 0 10 0;
 #X connect 14 0 11 0;
 #X connect 15 0 10 0;

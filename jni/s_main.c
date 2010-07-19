@@ -365,8 +365,8 @@ static char *(usagemessage[]) = {
 "-esd             -- use Enlightenment Sound Daemon (ESD) API\n",
 #endif
 
-#ifdef USEAPI_JAVA
-"-java         -- use Java API\n",
+#ifdef USEAPI_LIBPD
+"-libpd         -- use libpd API\n",
 #endif
 
 "      (default audio API for this platform:  ", API_DEFSTRING, ")\n\n",
@@ -683,10 +683,10 @@ int sys_argparse(int argc, char **argv)
             argc--; argv++;
         }
 #endif
-#ifdef USEAPI_JAVA
-        else if (!strcmp(*argv, "-java"))
+#ifdef USEAPI_LIBPD
+        else if (!strcmp(*argv, "-libpd"))
         {
-        	sys_set_audio_api(API_JAVA);
+        	sys_set_audio_api(API_LIBPD);
         	argc--; argv++;
         }
 #endif

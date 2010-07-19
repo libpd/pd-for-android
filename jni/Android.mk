@@ -5,10 +5,10 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := pdnative
 
 LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL \
-									-DJAVA -DUSEAPI_JAVA -DANDROID
+									-DLIBPD -DUSEAPI_LIBPD -DANDROID
 
 LOCAL_SRC_FILES := \
-  z_java.c z_java_utils.c x_javarec.c s_audio_java.c \
+  z_jni.c z_libpd.c libpdreceive.c s_audio_libpd.c \
   g_canvas.c g_graph.c g_text.c g_rtext.c g_array.c g_template.c \
   g_io.c g_scalar.c g_traversal.c g_guiconnect.c g_readwrite.c \
   g_editor.c g_all_guis.c g_bang.c g_hdial.c g_hslider.c g_mycanvas.c \

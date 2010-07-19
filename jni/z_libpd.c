@@ -5,24 +5,35 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#ifdef USEAPI_JAVA
+#ifdef USEAPI_LIBPD
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
-#include "m_pd.h"
+#include "z_libpd.h"
+#include "libpdreceive.h"
 #include "s_stuff.h"
-#include "x_javarec.h"
-#include "z_java_utils.h"
 
 void pd_init();
 int sys_startgui(const char *guipath);  // do we really need this?
 
+t_libpd_printhook libpd_printhook = NULL;
+t_libpd_banghook libpd_banghook = NULL;
+t_libpd_floathook libpd_floathook = NULL;
+t_libpd_symbolhook libpd_symbolhook = NULL;
+t_libpd_listhook libpd_listhook = NULL;
+t_libpd_messagehook libpd_messagehook = NULL;
+
 static int ticks_per_buffer;
 
-void java_utils_init(void (*printhook)(const char *)) {
+static void *get_object(const char *s) {
+  t_pd *x = gensym(s)->s_thing;
+  return x;
+}
+
+void libpd_init() {
   // are all these settings necessary?
-  sys_printhook = (t_printhook) printhook;
+  sys_printhook = (t_printhook) libpd_printhook;
   sys_externalschedlib = 0;
   sys_schedblocksize = DEFDACBLKSIZE;
   sys_printtostderr = 0;
@@ -36,12 +47,12 @@ void java_utils_init(void (*printhook)(const char *)) {
   sys_nmidiout = 0;
   sys_time = 0;
   pd_init();
-  javareceive_setup();
-  sys_set_audio_api(API_JAVA);
+  libpdreceive_setup();
+  sys_set_audio_api(API_LIBPD);
   sys_startgui(NULL);
 }
 
-int java_utils_open_audio(int inChans, int outChans, int sampleRate, int tpb) {
+int libpd_init_audio(int inChans, int outChans, int sampleRate, int tpb) {
   ticks_per_buffer = tpb;
   int indev[MAXAUDIOINDEV], inch[MAXAUDIOINDEV],
        outdev[MAXAUDIOOUTDEV], outch[MAXAUDIOOUTDEV];
@@ -77,22 +88,22 @@ static const t_float float_to_short = SHRT_MAX,
   } \
   return 0;
 
-int java_utils_process_short(short *inBuffer, short *outBuffer) {
+int libpd_process_short(short *inBuffer, short *outBuffer) {
   PROCESS(* short_to_float, * float_to_short)
 }
 
-int java_utils_process_float(float *inBuffer, float *outBuffer) {
+int libpd_process_float(float *inBuffer, float *outBuffer) {
   PROCESS(,)
 }
 
-int java_utils_process_double(double *inBuffer, double *outBuffer) {
+int libpd_process_double(double *inBuffer, double *outBuffer) {
   PROCESS(,)
 }
 
 static t_atom argv[MAXMSGLENGTH], *curr;
 static int argc;
 
-int java_utils_start_message() {
+int libpd_start_message() {
   argc = 0;
   curr = argv;
   return MAXMSGLENGTH;
@@ -100,23 +111,23 @@ int java_utils_start_message() {
 
 #define ADD_ARG(f) f(curr, x); curr++; argc++;
 
-void java_utils_add_float(float x) {
+void libpd_add_float(float x) {
   ADD_ARG(SETFLOAT);
 }
 
-void java_utils_add_symbol(const char *s) {
+void libpd_add_symbol(const char *s) {
   t_symbol *x = gensym(s);
   ADD_ARG(SETSYMBOL);
 }
 
-int java_utils_finish_list(const char *recv) {
+int libpd_finish_list(const char *recv) {
   t_pd *dest = gensym(recv)->s_thing;
   if (dest == NULL) return -1;
   pd_list(dest, &s_list, argc, argv);
   return 0;
 }
 
-int java_utils_finish_message(const char *recv, const char *msg) {
+int libpd_finish_message(const char *recv, const char *msg) {
   t_pd *dest = gensym(recv)->s_thing;
   if (dest == NULL) return -1;
   t_symbol *sym = gensym(msg);
@@ -124,9 +135,51 @@ int java_utils_finish_message(const char *recv, const char *msg) {
   return 0;
 }
 
-void *java_utils_get_object(const char *s) {
-  t_pd *x = gensym(s)->s_thing;
-  return x;
+void *libpd_bind(const char *sym) {
+  return libpdreceive_new(gensym(sym));
+}
+
+int libpd_unbind(void *p) {
+  pd_free((t_pd *)p);
+  return 0;
+}
+
+int libpd_symbol(const char *recv, const char *sym) {
+  void *obj = get_object(recv);
+  if (obj != NULL) {
+    pd_symbol(obj, gensym(sym));
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
+int libpd_float(const char *recv, float x) {
+  void *obj = get_object(recv);
+  if (obj != NULL) {
+    pd_float(obj, x);
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
+int libpd_bang(const char *recv) {
+  void *obj = get_object(recv);
+  if (obj != NULL) {
+    libpd_bang(obj);
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
+int libpd_blocksize() {
+  return DEFDACBLKSIZE;
+}
+
+int libpd_exists(const char *sym) {
+  return get_object(sym) != NULL;
 }
 
 #endif
