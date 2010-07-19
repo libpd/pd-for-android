@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 #include "m_pd.h"
-#include "libpdreceive.h"
+#include "x_libpdreceive.h"
 #include "z_libpd.h"
 
 static t_class *libpdrec_class;

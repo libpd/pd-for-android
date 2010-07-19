@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include "z_libpd.h"
-#include "libpdreceive.h"
+#include "x_libpdreceive.h"
 #include "s_stuff.h"
 
 void pd_init();
