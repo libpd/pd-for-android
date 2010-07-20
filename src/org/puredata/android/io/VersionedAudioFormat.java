@@ -72,7 +72,7 @@ public final class VersionedAudioFormat {
 	}
 	
 	public static int getInFormat(int inChannels) {
-		return hasEclair ? FormatEclair.getInFormat(inChannels) : FormatDonut.getInFormat(inChannels);
+		return hasEclair ? FormatEclair.getInFormat(inChannels) : FormatDonut.getInFormat(inChannels); // crucial: lazy class loading
 	}
 	
 	public static int getOutFormat(int outChannels) {
