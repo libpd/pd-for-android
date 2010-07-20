@@ -22,14 +22,11 @@ import org.puredata.core.utils.PdListener;
 import org.puredata.core.utils.PdUtils;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.res.Resources;
-import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
-import android.widget.Toast;
 
 
 public class PdAndroidTest extends Activity {
@@ -68,10 +65,13 @@ public class PdAndroidTest extends Activity {
 			Log.i("Pd Dispatch", s);
 		}
 	};
+	private WakeLock wakeLock = null;
 
 	@Override
 	protected void onStart() {
 		super.onStart();
+		PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+		wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "pd wakelock");
 		dispatch.addListener("spam", new TestListener("Spam"));
 		dispatch.addListener("eggs", new TestListener("Eggs"));
 		PdBase.setReceiver(dispatch);
@@ -87,6 +87,7 @@ public class PdAndroidTest extends Activity {
 	protected void onResume() {
 		super.onResume();
 		setContentView(R.layout.main);
+		wakeLock.acquire();
 		Resources res = getResources();
 		try {
 			PdAndroidThread.startThread(res.getInteger(R.integer.sampleRate),
@@ -108,6 +109,7 @@ public class PdAndroidTest extends Activity {
 	protected void onPause() {
 		super.onPause();
 		PdAndroidThread.stopThread();
+		wakeLock.release();
 	}
 
 	protected void onStop() {
