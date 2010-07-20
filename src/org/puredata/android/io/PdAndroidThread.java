@@ -68,7 +68,7 @@ public class PdAndroidThread extends Thread {
 		super("Pd_Rendering_Thread");
 		int bufferSizePerChannel = PdBase.blockSize() * ticksPerBuffer;
 		if (nIn > 0) {
-			int inFormat = getInFormat(nIn);
+			int inFormat = VersionedAudioFormat.getInFormat(nIn);
 			int minRecBufferSize = AudioRecord.getMinBufferSize(sampleRate, inFormat, ENCODING);
 			if (minRecBufferSize > 0) {
 				inBufferSize = bufferSizePerChannel * nIn;
@@ -83,7 +83,7 @@ public class PdAndroidThread extends Thread {
 			}
 		}
 		if (nOut > 0) {
-			int outFormat = getOutFormat(nOut);
+			int outFormat = VersionedAudioFormat.getOutFormat(nOut);
 			int minTrackBufferSize = AudioTrack.getMinBufferSize(sampleRate, outFormat, ENCODING);
 			if (minTrackBufferSize > 0) {
 				outBufferSize = bufferSizePerChannel * nOut;
@@ -124,25 +124,6 @@ public class PdAndroidThread extends Thread {
 			}
 		}
 		return x;
-	}
-
-	private int getInFormat(int inChannels) {
-		switch (inChannels) {
-		case 1: return AudioFormat.CHANNEL_IN_MONO;
-		case 2: return AudioFormat.CHANNEL_IN_STEREO;
-		default: throw new IllegalArgumentException("illegal number of input channels: " + inChannels);
-		}
-	}
-
-	private int getOutFormat(int outChannels) {
-		switch (outChannels) {
-		case 1: return AudioFormat.CHANNEL_OUT_MONO;
-		case 2: return AudioFormat.CHANNEL_OUT_STEREO;
-		case 4: return AudioFormat.CHANNEL_OUT_QUAD;
-		case 6: return AudioFormat.CHANNEL_OUT_5POINT1;
-		case 8: return AudioFormat.CHANNEL_OUT_7POINT1;
-		default: throw new IllegalArgumentException("illegal number of output channels: " + outChannels);
-		}
 	}
 
 	/**

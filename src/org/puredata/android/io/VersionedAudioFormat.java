@@ -1,0 +1,81 @@
+/**
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ * 
+ * For information on usage and redistribution, and for a DISCLAIMER OF ALL
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ * 
+ */
+
+package org.puredata.android.io;
+
+import android.media.AudioFormat;
+import android.os.Build;
+import android.util.Log;
+
+// Idea from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
+public final class VersionedAudioFormat {
+
+	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
+	
+	private VersionedAudioFormat() {
+		// do nothing
+	}
+	
+	private static class FormatEclair {
+		
+		static {
+			Log.i("Pd Version", "loading class for Eclair");
+		}
+		
+		static int getInFormat(int inChannels) {
+			switch (inChannels) {
+			case 1: return AudioFormat.CHANNEL_IN_MONO;
+			case 2: return AudioFormat.CHANNEL_IN_STEREO;
+			default: throw new IllegalArgumentException("illegal number of input channels: " + inChannels);
+			}
+		}
+
+		static int getOutFormat(int outChannels) {
+			switch (outChannels) {
+			case 1: return AudioFormat.CHANNEL_OUT_MONO;
+			case 2: return AudioFormat.CHANNEL_OUT_STEREO;
+			case 4: return AudioFormat.CHANNEL_OUT_QUAD;
+			case 6: return AudioFormat.CHANNEL_OUT_5POINT1;
+			case 8: return AudioFormat.CHANNEL_OUT_7POINT1;
+			default: throw new IllegalArgumentException("illegal number of output channels: " + outChannels);
+			}
+		}
+	}
+	
+	private static class FormatDonut {
+		
+		static {
+			Log.i("Pd Version", "loading class for Donut");
+		}
+		
+		static int getInFormat(int inChannels) {
+			switch (inChannels) {
+			case 1: return AudioFormat.CHANNEL_CONFIGURATION_MONO;
+			case 2: return AudioFormat.CHANNEL_CONFIGURATION_STEREO;
+			default: throw new IllegalArgumentException("illegal number of input channels: " + inChannels);
+			}
+		}
+
+		static int getOutFormat(int outChannels) {
+			switch (outChannels) {
+			case 1: return AudioFormat.CHANNEL_CONFIGURATION_MONO;
+			case 2: return AudioFormat.CHANNEL_CONFIGURATION_STEREO;
+			default: throw new IllegalArgumentException("illegal number of output channels: " + outChannels);
+			}
+		}
+	}
+	
+	public static int getInFormat(int inChannels) {
+		return hasEclair ? FormatEclair.getInFormat(inChannels) : FormatDonut.getInFormat(inChannels);
+	}
+	
+	public static int getOutFormat(int outChannels) {
+		return hasEclair ? FormatEclair.getOutFormat(outChannels) : FormatDonut.getOutFormat(outChannels);
+	}
+}
