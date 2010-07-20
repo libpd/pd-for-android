@@ -50,8 +50,11 @@ void libpd_init() {
   pd_init();
   libpdreceive_setup();
   sys_set_audio_api(API_LIBPD);
-  sys_setextrapath("/sdcard/pd-externals");
   sys_startgui(NULL);
+}
+
+void libpd_setextrapath(const char *s) {
+  sys_setextrapath(s);
 }
 
 int libpd_init_audio(int inChans, int outChans, int sampleRate, int tpb) {

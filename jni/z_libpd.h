@@ -12,6 +12,7 @@
 
 
 void libpd_init();
+void libpd_setextrapath(const char *s);
 int libpd_blocksize();
 int libpd_init_audio(int, int, int, int);
 int libpd_process_short(short *, short *);

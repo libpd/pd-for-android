@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     org_puredata_core_PdBase
+ * Method:    setExtraPath
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setExtraPath
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     org_puredata_core_PdBase
  * Method:    setReceiver
  * Signature: (Lorg/puredata/core/PdReceiver;)V
  */
