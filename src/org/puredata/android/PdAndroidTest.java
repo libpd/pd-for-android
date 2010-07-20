@@ -68,21 +68,6 @@ public class PdAndroidTest extends Activity {
 			Log.i("Pd Dispatch", s);
 		}
 	};
-	
-	private PdAndroidService pdService = null;
-	private ServiceConnection pdConnection = new ServiceConnection() {
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			pdService = null;
-			Toast.makeText(getApplicationContext(), "disconnected from service", Toast.LENGTH_SHORT).show();
-		}
-		
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			pdService = ((PdAndroidService.PdBinder) service).getService();
-			Toast.makeText(getApplicationContext(), "connected to service " + pdService, Toast.LENGTH_SHORT).show();
-		}
-	};
 
 	@Override
 	protected void onStart() {
@@ -111,7 +96,6 @@ public class PdAndroidTest extends Activity {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		bindService(new Intent(this, PdAndroidService.class), pdConnection, Context.BIND_AUTO_CREATE);
 		
 		PdBase.sendBang("foo");
 		PdBase.sendFloat("foo", 3.1415f);
@@ -124,7 +108,6 @@ public class PdAndroidTest extends Activity {
 	protected void onPause() {
 		super.onPause();
 		PdAndroidThread.stopThread();
-		unbindService(pdConnection);
 	}
 
 	protected void onStop() {
