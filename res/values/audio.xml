@@ -5,5 +5,5 @@
 	<integer name="inChannels">1</integer>
 	<integer name="outChannels">2</integer>
 	<integer name="sampleRate">22050</integer>
-	<integer name="ticksPerBuffer">64</integer>
+	<integer name="ticksPerBuffer">8</integer>
 </resources>

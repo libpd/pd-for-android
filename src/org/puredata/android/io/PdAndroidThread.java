@@ -28,11 +28,41 @@ import android.util.Log;
 
 public class PdAndroidThread extends Thread {
 
+	private final Object lock = new Object();
 	private static PdAndroidThread thread = null;
 	private AudioRecord audioIn = null;
 	private AudioTrack audioOut = null;
-	private int inBufferSize = 0, outBufferSize = 0;
+	private int inBufferSize = 0, outBufferSize = 0, auxBufferSize = 0, auxChunkSize = 0;
+	private short inBuffer[], outBuffer[], auxBuffer[];
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+	
+	// reading the audio input in a separate thread seems like a bit of a hack, but it's necessary because
+	// AudioRecord.read occasionally seems to block on my Droid X, even though it's not supposed to
+	private class InputThread extends Thread {
+		@Override
+		public void run() {
+			Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
+			int auxReadPos = 0, auxWritePos = 0, nRead = 0;
+			while (!Thread.interrupted()) {
+				while (nRead < inBufferSize) {
+					audioIn.read(auxBuffer, auxWritePos, auxChunkSize);
+					nRead += auxChunkSize;
+					auxWritePos += auxChunkSize;
+					if (auxWritePos >= auxBufferSize) {
+						auxWritePos = 0;
+					}
+				}						
+				synchronized (lock) {
+					System.arraycopy(auxBuffer, auxReadPos, inBuffer, 0, inBufferSize);
+				}
+				nRead -= inBufferSize;
+				auxReadPos += inBufferSize;
+				if (auxReadPos >= auxBufferSize) {
+					auxReadPos = 0;
+				}
+			}
+		}
+	}
 
 	private PdAndroidThread(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
 		super("Pd_Rendering_Thread");
@@ -42,9 +72,11 @@ public class PdAndroidThread extends Thread {
 			int minRecBufferSize = AudioRecord.getMinBufferSize(sampleRate, inFormat, ENCODING);
 			if (minRecBufferSize > 0) {
 				inBufferSize = bufferSizePerChannel * nIn;
+				auxChunkSize = minRecBufferSize / 2;
+				auxBufferSize = leastCommonMultiple(auxChunkSize, inBufferSize);
 				int recBufferSize = bufferSize(inBufferSize, minRecBufferSize);
 				audioIn = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, inFormat, ENCODING, recBufferSize);
-				Log.v("Pd Thread", "rec buf: "+recBufferSize+", in buf: " + inBufferSize);
+				Log.v("Pd Thread", "rec buf: " + minRecBufferSize+", in buf: " + inBufferSize);
 			} else {
 				nIn = 0;
 				Log.w("PdThread", "unable to open input device; running without audio input");
@@ -64,19 +96,34 @@ public class PdAndroidThread extends Thread {
 				Log.w("PdThread", "unable to open output device; running without audio output");
 			}
 		}
-		
+		inBuffer = new short[inBufferSize];
+		outBuffer = new short[outBufferSize];
+		auxBuffer = new short[auxBufferSize];
+
 		int err = PdBase.openAudio(nIn, nOut, sampleRate, ticksPerBuffer);
 		if (err != 0) {
 			throw new IOException("Pd error code " + err);
 		}
 	}
-
+	
 	private int bufferSize(int baseSize, int minSize) throws IOException {
 		int size = minSize;
 		while (size < 2 * baseSize) {
 			size *= 2;
 		}
 		return size;
+	}
+
+	private int leastCommonMultiple(int a, int b) {
+		int x = a, y = b;
+		while (x != y) {
+			if (x < y) {
+				x += a;
+			} else {
+				y += b;
+			}
+		}
+		return x;
 	}
 
 	private int getInFormat(int inChannels) {
@@ -97,7 +144,7 @@ public class PdAndroidThread extends Thread {
 		default: throw new IllegalArgumentException("illegal number of output channels: " + outChannels);
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @return true if and only if there is a running audio thread
@@ -105,7 +152,7 @@ public class PdAndroidThread extends Thread {
 	public synchronized static boolean isRunning() {
 		return thread != null && thread.getState() != Thread.State.TERMINATED;
 	}
-	
+
 	/**
 	 * initializes audio i/o for Pd and Android, launches audio rendering thread
 	 * 
@@ -121,6 +168,7 @@ public class PdAndroidThread extends Thread {
 			int ticksPerBuffer, boolean restart) throws IOException {
 		if (isRunning() && !restart) return;
 		stopThread();
+		PdUtils.computeAudio(true);
 		thread = new PdAndroidThread(sampleRate, inChannels, outChannels, ticksPerBuffer);
 		thread.start();
 	}
@@ -138,20 +186,33 @@ public class PdAndroidThread extends Thread {
 		}
 		thread = null;
 	}
- 
+
 	@Override
 	public void run() {
 		Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
-		PdUtils.computeAudio(true);
-		if (audioIn != null) audioIn.startRecording();
+		InputThread inputThread = null;
+		if (audioIn != null) {
+			audioIn.startRecording();
+			inputThread = new InputThread();
+			inputThread.start();
+		}
 		if (audioOut != null) audioOut.play();
-		short[] inBuffer = new short[inBufferSize];
-		short[] outBuffer = new short[outBufferSize];
 		int err = 0;
 		while (!Thread.interrupted() && err == 0) {
-			if (audioIn != null) audioIn.read(inBuffer, 0, inBufferSize);
-			err = PdBase.process(inBuffer, outBuffer);
+			synchronized (lock) {
+				// inBuffer is filled in the input thread, hence the lock
+				err = PdBase.process(inBuffer, outBuffer);			
+			}
 			if (audioOut != null) audioOut.write(outBuffer, 0, outBufferSize);
+		}
+
+		if (inputThread != null) {
+			inputThread.interrupt();
+			try {
+				inputThread.join();
+			} catch (InterruptedException e) {
+				// do nothing
+			}
 		}
 		if (audioIn != null) audioIn.release();
 		if (audioOut != null) audioOut.release();
