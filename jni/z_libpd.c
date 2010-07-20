@@ -31,13 +31,14 @@ static void *get_object(const char *s) {
   return x;
 }
 
+/* this is called instead of sys_main() to start things */
 void libpd_init() {
   // are all these settings necessary?
   sys_printhook = (t_printhook) libpd_printhook;
   sys_externalschedlib = 0;
   sys_schedblocksize = DEFDACBLKSIZE;
   sys_printtostderr = 0;
-  sys_usestdpath = 0;
+  sys_usestdpath = 1;
   sys_debuglevel = 0;
   sys_verbose = 0;
   sys_noloadbang = 0;
@@ -49,6 +50,7 @@ void libpd_init() {
   pd_init();
   libpdreceive_setup();
   sys_set_audio_api(API_LIBPD);
+  sys_setextrapath("/sdcard/pd-externals");
   sys_startgui(NULL);
 }
 
