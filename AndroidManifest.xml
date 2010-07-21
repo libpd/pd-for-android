@@ -10,7 +10,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".service.PdService" android:enabled="true" />
+        <service android:name=".service.PdService" android:enabled="true">
+        	<intent-filter>
+        		<action android:name="org.puredata.android.service.LAUNCH" />
+        	</intent-filter>
+        </service>
     </application>
     <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="7" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />

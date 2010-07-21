@@ -101,7 +101,7 @@ public class PdServiceTest extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		bindService(new Intent(this, PdService.class), connection, BIND_AUTO_CREATE);
+		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
 	}
 
 	@Override
