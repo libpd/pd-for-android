@@ -5,8 +5,6 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#ifdef USEAPI_LIBPD
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
@@ -49,7 +47,7 @@ void libpd_init() {
   sys_time = 0;
   pd_init();
   libpdreceive_setup();
-  sys_set_audio_api(API_LIBPD);
+  sys_set_audio_api(API_DUMMY);
   sys_startgui(NULL);
 }
 
@@ -187,4 +185,3 @@ int libpd_exists(const char *sym) {
   return get_object(sym) != NULL;
 }
 
-#endif

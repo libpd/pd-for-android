@@ -5,24 +5,23 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#ifdef USEAPI_LIBPD
+#ifdef USEAPI_DUMMY
 
 #include <stdio.h>
-#include "s_audio_libpd.h"
 
-int libpd_open_audio(int nin, int nout, int sr) {
+int dummy_open_audio(int nin, int nout, int sr) {
   return 0;
 }
 
-int libpd_close_audio() {
+int dummy_close_audio() {
   return 0;
 }
 
-int libpd_send_dacs() {
+int dummy_send_dacs() {
   return 0;
 }
 
-void libpd_getdevs(char *indevlist, int *nindevs, char *outdevlist,
+void dummy_getdevs(char *indevlist, int *nindevs, char *outdevlist,
     int *noutdevs, int *canmulti, int maxndev, int devdescsize) {
   sprintf(indevlist, "NONE");
   sprintf(outdevlist, "NONE");
@@ -30,7 +29,7 @@ void libpd_getdevs(char *indevlist, int *nindevs, char *outdevlist,
   *canmulti = 0;
 }
 
-void libpd_listdevs() {
+void dummy_listdevs() {
   // do nothing
 }
 

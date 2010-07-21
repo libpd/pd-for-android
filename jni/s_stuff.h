@@ -185,7 +185,7 @@ void sys_setvirtualalarm( void);
 #define API_SGI 6
 #define API_AUDIOUNIT 7
 #define API_ESD 8
-#define API_LIBPD 9
+#define API_DUMMY 9
 
 #ifdef __linux__
 #define API_DEFAULT API_OSS
@@ -208,9 +208,9 @@ void sys_setvirtualalarm( void);
 #define API_DEFAULT API_SGI
 #define API_DEFSTRING "SGI Digital Media"
 #endif
-#ifdef LIBPD
-#define API_DEFAULT API_LIBPD
-#define API_DEFSTRING "libpd"
+#ifdef USEAPI_DUMMY
+#define API_DEFAULT API_DUMMY
+#define API_DEFSTRING "dummy"
 #endif
 #define DEFAULTAUDIODEV 0
 
@@ -287,6 +287,14 @@ void esd_reportidle(void);
 void esd_getdevs(char *indevlist, int *nindevs,
     char *outdevlist, int *noutdevs, int *canmulti, 
     	int maxndev, int devdescsize);
+
+int dummy_open_audio(int naudioindev, int *audioindev, int nchindev,
+    int *chindev, int naudiooutdev, int *audiooutdev, int nchoutdev,
+    int *choutdev, int rate);
+int dummy_close_audio(void);
+int dummy_send_dacs(void);
+void dummy_getdevs(char *, int *, char *, int *, int *, int, int);
+void dummy_listdevs(void);
 
 void sys_listmididevs(void);
 void sys_set_midi_api(int whichapi);

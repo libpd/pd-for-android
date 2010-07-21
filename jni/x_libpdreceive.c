@@ -5,8 +5,6 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#ifdef USEAPI_LIBPD
-
 #include <stdio.h>
 #include "m_pd.h"
 #include "x_libpdreceive.h"
@@ -68,4 +66,3 @@ void libpdreceive_setup() {
   class_addanything(libpdrec_class, libpdrecanything);
 }
 
-#endif
