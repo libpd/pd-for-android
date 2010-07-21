@@ -13,7 +13,8 @@ import android.media.AudioFormat;
 import android.os.Build;
 import android.util.Log;
 
-// Idea from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
+// Cute little hack to support multiple versions of the Android API, based on an idea
+// from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 public final class VersionedAudioFormat {
 
 	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
@@ -48,7 +49,7 @@ public final class VersionedAudioFormat {
 		}
 	}
 	
-	private static class FormatDonut {
+	private static class FormatCupcake {
 		
 		static {
 			Log.i("Pd Version", "loading class for Donut");
@@ -72,10 +73,10 @@ public final class VersionedAudioFormat {
 	}
 	
 	public static int getInFormat(int inChannels) {
-		return hasEclair ? FormatEclair.getInFormat(inChannels) : FormatDonut.getInFormat(inChannels); // crucial: lazy class loading
+		return hasEclair ? FormatEclair.getInFormat(inChannels) : FormatCupcake.getInFormat(inChannels); // crucial: lazy class loading
 	}
 	
 	public static int getOutFormat(int outChannels) {
-		return hasEclair ? FormatEclair.getOutFormat(outChannels) : FormatDonut.getOutFormat(outChannels);
+		return hasEclair ? FormatEclair.getOutFormat(outChannels) : FormatCupcake.getOutFormat(outChannels);
 	}
 }
