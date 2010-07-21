@@ -26,10 +26,10 @@ import android.os.Process;
 import android.util.Log;
 
 
-public class PdAndroidThread extends Thread {
+public class PdAudioThread extends Thread {
 
 	private final Object lock = new Object();
-	private static PdAndroidThread thread = null;
+	private static PdAudioThread thread = null;
 	private AudioRecord audioIn = null;
 	private AudioTrack audioOut = null;
 	private int inBufferSize = 0, outBufferSize = 0, auxBufferSize = 0, auxChunkSize = 0;
@@ -64,7 +64,7 @@ public class PdAndroidThread extends Thread {
 		}
 	}
 
-	private PdAndroidThread(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
+	private PdAudioThread(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
 		super("Pd_Rendering_Thread");
 		int bufferSizePerChannel = PdBase.blockSize() * ticksPerBuffer;
 		if (nIn > 0) {
@@ -150,7 +150,7 @@ public class PdAndroidThread extends Thread {
 		if (isRunning() && !restart) return;
 		stopThread();
 		PdUtils.computeAudio(true);
-		thread = new PdAndroidThread(sampleRate, inChannels, outChannels, ticksPerBuffer);
+		thread = new PdAudioThread(sampleRate, inChannels, outChannels, ticksPerBuffer);
 		thread.start();
 	}
 

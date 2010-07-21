@@ -15,7 +15,7 @@ package org.puredata.android;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.puredata.android.io.PdAndroidThread;
+import org.puredata.android.io.PdAudioThread;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
@@ -90,7 +90,7 @@ public class PdAndroidTest extends Activity {
 		wakeLock.acquire();
 		Resources res = getResources();
 		try {
-			PdAndroidThread.startThread(res.getInteger(R.integer.sampleRate),
+			PdAudioThread.startThread(res.getInteger(R.integer.sampleRate),
 					res.getInteger(R.integer.inChannels),
 					res.getInteger(R.integer.outChannels),
 					res.getInteger(R.integer.ticksPerBuffer), false);
@@ -108,7 +108,7 @@ public class PdAndroidTest extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		PdAndroidThread.stopThread();
+		PdAudioThread.stopThread();
 		wakeLock.release();
 	}
 
