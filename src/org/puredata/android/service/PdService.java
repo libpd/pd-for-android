@@ -36,37 +36,37 @@ import android.util.Log;
 public class PdService extends Service {
 
 	private WakeLock wakeLock = null;
-	
+
 	private static final String PD_SERVICE = "Pd Service";
-	
+
 	public static final int START_AUDIO = 1;
 	public static final int STOP_AUDIO = 2;
 	public static final int SUBSCRIBE = 3;
 	public static final int UNSUBSCRIBE = 4;
 	public static final int SEND_MESSAGE = 5;
-	
+
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
 		public void print(String s) {
 			Log.i(PD_SERVICE, s);
 		}
 	};
-	
-	private class MsgListener implements PdListener {
+
+	private class ClientLink implements PdListener {
 
 		private final String source;
 		private final Messenger receiver;
-		
-		MsgListener(String symbol, Messenger receiver) {
+
+		ClientLink(String symbol, Messenger receiver) {
 			this.source = symbol;
 			this.receiver = receiver;
 		}
-		
+
 		private void remove() {
-			Log.e(PD_SERVICE, "removing dead receiver " + receiver + ", symbol " + source);
+			Log.e(PD_SERVICE, "removing unresponsive receiver " + receiver + ", symbol " + source);
 			dispatcher.removeListener(source, this);
 		}
-		
+
 		@Override
 		public void receiveBang() {
 			try {
@@ -112,7 +112,7 @@ public class PdService extends Service {
 			}
 		}
 	}
-	
+
 	private final PdReceiver sender = new PdReceiver() {
 		@Override
 		public void print(String s) {
@@ -144,15 +144,17 @@ public class PdService extends Service {
 			PdBase.sendSymbol(source, symbol);
 		}	
 	};
-	
+
 	private final Messenger receiver = new Messenger(new Handler() {
 		@Override
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
 			case START_AUDIO:
-				PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-				wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "pd wakelock");
-				wakeLock.acquire();
+				if (wakeLock == null) {
+					PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+					wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "pd wakelock");
+					wakeLock.acquire();
+				}
 				Resources res = getResources();
 				try {
 					PdAudioThread.startThread(res.getInteger(R.integer.sampleRate), res.getInteger(R.integer.inChannels), 
@@ -163,15 +165,17 @@ public class PdService extends Service {
 				break;
 			case STOP_AUDIO:
 				PdAudioThread.stopThread();
+				dispatcher.release();
 				if (wakeLock != null) {
 					wakeLock.release();
+					wakeLock = null;
 				}
 				stopSelf();
 				break;
 			case SUBSCRIBE:
 				Messenger m = msg.replyTo;
 				String sym = (String) msg.obj;
-				dispatcher.addListener(sym, new MsgListener(sym, m));
+				dispatcher.addListener(sym, new ClientLink(sym, m));
 				break;
 			case UNSUBSCRIBE:
 				// TODO: implement this
@@ -180,22 +184,23 @@ public class PdService extends Service {
 				PdMessage.evaluateMessage(msg, sender);
 				break;
 			default:
+				Log.w(PD_SERVICE, "unknown message: " + msg.toString());
 				break;
 			}
 		};
 	});
-	
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		PdBase.setReceiver(dispatcher);
 	};
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return receiver.getBinder();
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();

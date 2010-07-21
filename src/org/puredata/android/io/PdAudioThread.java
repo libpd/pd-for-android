@@ -28,6 +28,7 @@ import android.util.Log;
 
 public class PdAudioThread extends Thread {
 
+	private final static String TAG = "Pd Audio";
 	private final Object lock = new Object();
 	private static PdAudioThread thread = null;
 	private AudioRecord audioIn = null;
@@ -195,7 +196,17 @@ public class PdAudioThread extends Thread {
 				// do nothing
 			}
 		}
-		if (audioIn != null) audioIn.release();
-		if (audioOut != null) audioOut.release();
+		if (audioIn != null) {
+			audioIn.stop();
+			audioIn.release();
+			audioIn = null;
+			Log.i(TAG, "shutting down audio recorder");
+		}
+		if (audioOut != null) {
+			audioOut.stop();
+			audioOut.release();
+			audioOut = null;
+			Log.i(TAG, "shutting down audio track");
+		}
 	}
 }

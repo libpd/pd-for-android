@@ -68,14 +68,14 @@ public class PdServiceTest extends Activity {
 		}
 	};
 
-	private Messenger sender = null;
-
 	private final Messenger receiver = new Messenger(new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			PdMessage.evaluateMessage(msg, evaluator);
 		};
 	});
 
+	private Messenger sender = null;
+	
 	private final ServiceConnection connection = new ServiceConnection() {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
@@ -86,17 +86,11 @@ public class PdServiceTest extends Activity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			sender = new Messenger(service);
 			try {
-				Message message = Message.obtain(null, PdService.SUBSCRIBE);
-				message.obj = "spam";
-				message.replyTo = receiver;
-				sender.send(message);
-				message = Message.obtain(null, PdService.SUBSCRIBE);
-				message.obj = "eggs";
-				message.replyTo = receiver;
-				sender.send(message);
+				subscribe("spam");
+				subscribe("eggs");
 				Resources res = getResources();
 				String p = res.getString(R.string.patch);
-				message = PdMessage.anyMessage("pd", "open", new Object[] {p, res.getString(R.string.folder)});
+				Message message = PdMessage.anyMessage("pd", "open", new Object[] {p, res.getString(R.string.folder)});
 				patch = "pd-" + p;
 				sender.send(message);
 				message = Message.obtain(null, PdService.START_AUDIO);
@@ -117,6 +111,13 @@ public class PdServiceTest extends Activity {
 		}
 	};
 
+	private void subscribe(String symbol) throws RemoteException {
+		Message message = Message.obtain(null, PdService.SUBSCRIBE);
+		message.obj = symbol;
+		message.replyTo = receiver;
+		sender.send(message);
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
