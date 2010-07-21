@@ -4,8 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := pdnative
 
-LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL \
-									-DLIBPD -DUSEAPI_LIBPD -DANDROID
+LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
 
 LOCAL_SRC_FILES := \
   z_jni.c z_libpd.c x_libpdreceive.c s_audio_libpd.c \

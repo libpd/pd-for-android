@@ -5,8 +5,6 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#ifdef USEAPI_LIBPD
-
 #include <stdio.h>
 #include <pthread.h>
 #include <jni.h>
@@ -333,6 +331,4 @@ JNIEXPORT int JNICALL Java_org_puredata_core_PdBase_unbindSymbol
   return libpd_unbind((void *)ptr);
   // even naughtier, using a pointer from Java
 }
-
-#endif
 
