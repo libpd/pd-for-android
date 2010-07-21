@@ -13,8 +13,8 @@ package org.puredata.android;
 
 import java.util.Arrays;
 
-import org.puredata.android.service.PdMessage;
 import org.puredata.android.service.PdService;
+import org.puredata.android.service.PdServiceHub;
 import org.puredata.core.PdReceiver;
 
 import android.app.Activity;
@@ -22,9 +22,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
@@ -34,7 +32,7 @@ public class PdServiceTest extends Activity {
 	private static final String PD_TEST = "Pd Test";
 	private String patch = null;
 
-	private final PdReceiver evaluator = new PdReceiver() {
+	private final PdReceiver receiver = new PdReceiver() {
 
 		@Override
 		public void receiveSymbol(String source, String symbol) {
@@ -64,59 +62,41 @@ public class PdServiceTest extends Activity {
 
 		@Override
 		public void print(String s) {
-			// will not be called...
+			// will not be called
 		}
 	};
 
-	private final Messenger receiver = new Messenger(new Handler() {
-		public void handleMessage(android.os.Message msg) {
-			PdMessage.evaluateMessage(msg, evaluator);
-		};
-	});
-
-	private Messenger sender = null;
+	private PdServiceHub.ServiceProxy proxy = null;
 	
 	private final ServiceConnection connection = new ServiceConnection() {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
-			sender = null;
+			proxy = null;
 		}
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			sender = new Messenger(service);
+			proxy = new PdServiceHub.ServiceProxy(new Messenger(service));
 			try {
-				subscribe("spam");
-				subscribe("eggs");
+				proxy.subscribe("spam", receiver);
+				proxy.subscribe("eggs", receiver);
 				Resources res = getResources();
 				String p = res.getString(R.string.patch);
-				Message message = PdMessage.anyMessage("pd", "open", new Object[] {p, res.getString(R.string.folder)});
+				proxy.sendAny("pd", "open", new Object[] {p, res.getString(R.string.folder)});
 				patch = "pd-" + p;
-				sender.send(message);
-				message = Message.obtain(null, PdService.START_AUDIO);
-				sender.send(message);
-				message = PdMessage.bangMessage("foo");
-				sender.send(message);
-				message = PdMessage.floatMessage("foo", 12345);
-				sender.send(message);
-				message = PdMessage.symbolMessage("bar", "elephant");
-				sender.send(message);
-				message = PdMessage.listMessage("bar", new Object[] { new Integer(5), "katze", new Float(1.414) });
-				sender.send(message);
-				message = PdMessage.anyMessage("bar", "boing", new Object[] { new Integer(5), "katze", new Float(1.414) });
-				sender.send(message);
+				proxy.startAudio(res.getInteger(R.integer.sampleRate),
+						res.getInteger(R.integer.inChannels), res.getInteger(R.integer.outChannels),
+						res.getInteger(R.integer.ticksPerBuffer), false);
+				proxy.sendBang("foo");
+				proxy.sendFloat("foo", 12345);
+				proxy.sendSymbol("bar", "elephant");
+				proxy.sendList("bar", new Object[] { new Integer(5), "katze", new Float(1.414) });
+				proxy.sendAny("bar", "boing", new Object[] { new Integer(5), "katze", new Float(1.414) });
 			} catch (RemoteException e) {
 				Log.e(PD_TEST, e.toString());
 			}
 		}
 	};
-
-	private void subscribe(String symbol) throws RemoteException {
-		Message message = Message.obtain(null, PdService.SUBSCRIBE);
-		message.obj = symbol;
-		message.replyTo = receiver;
-		sender.send(message);
-	}
 	
 	@Override
 	protected void onResume() {
@@ -127,13 +107,10 @@ public class PdServiceTest extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (sender != null) {
+		if (proxy != null) {
 			try {
-				Message message;
-				message = PdMessage.anyMessage(patch, "menuclose");
-				sender.send(message);
-				message = Message.obtain(null, PdService.STOP_AUDIO);
-				sender.send(message);
+				proxy.sendAny(patch, "menuclose");
+				proxy.stopAudio();
 			} catch (RemoteException e) {
 				Log.e(PD_TEST, e.toString());
 			}
