@@ -77,10 +77,9 @@ public class PdAudioThread extends Thread {
 				auxBufferSize = leastCommonMultiple(auxChunkSize, inBufferSize);
 				int recBufferSize = bufferSize(inBufferSize, minRecBufferSize);
 				audioIn = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, inFormat, ENCODING, recBufferSize);
-				Log.v("Pd Thread", "rec buf: " + minRecBufferSize+", in buf: " + inBufferSize);
+				Log.v(TAG, "rec buf: " + minRecBufferSize+", in buf: " + inBufferSize);
 			} else {
-				nIn = 0;
-				Log.w("PdThread", "unable to open input device; running without audio input");
+				throw new IOException("unable to open input device for sr = " + sampleRate + ", nIn = " + nIn);
 			}
 		}
 		if (nOut > 0) {
@@ -91,10 +90,9 @@ public class PdAudioThread extends Thread {
 				int trackBufferSize = bufferSize(outBufferSize, minTrackBufferSize);
 				audioOut = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, 
 						outFormat, ENCODING, trackBufferSize, AudioTrack.MODE_STREAM);
-				Log.v("Pd Thread", "track buf: "+trackBufferSize+", out buf: " + outBufferSize);
+				Log.v(TAG, "track buf: "+trackBufferSize+", out buf: " + outBufferSize);
 			} else {
-				nOut = 0;
-				Log.w("PdThread", "unable to open output device; running without audio output");
+				throw new IOException("unable to open output device for sr = " + sampleRate + ", nOut = " + nOut);
 			}
 		}
 		inBuffer = new short[inBufferSize];
@@ -179,6 +177,7 @@ public class PdAudioThread extends Thread {
 			inputThread.start();
 		}
 		if (audioOut != null) audioOut.play();
+		
 		int err = 0;
 		while (!Thread.interrupted() && err == 0) {
 			synchronized (lock) {

@@ -1,13 +1,15 @@
 package org.puredata.android.service;
 
-import org.puredata.android.service.IPdClient;
+import org.puredata.android.service.IPdListener;
 import java.util.List;
 	
-oneway interface IPdService {
-	void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer, boolean restart);
-	void stopAudio();
-	void subscribe(in String symbol, in IPdClient client);
-	void unsubscribe(in String symbol, in IPdClient client);
+interface IPdService {
+	int requestAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
+	void releaseAudio();
+	boolean isRunning();
+	boolean objectExists(String symbol);
+	void subscribe(in String symbol, in IPdListener client);
+	void unsubscribe(in String symbol, in IPdListener client);
 	void sendBang(in String dest);
 	void sendFloat(in String dest, float x);
 	void sendSymbol(in String dest, in String symbol);

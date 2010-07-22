@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.puredata.android.service.IPdClient;
+import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
 
 import android.app.Activity;
@@ -33,7 +33,7 @@ public class PdServiceTest extends Activity {
 	private String patch = null;
 	private IPdService proxy = null;
 
-	private static class Receiver extends IPdClient.Stub {
+	private static class Receiver extends IPdListener.Stub {
 
 		private final String tag;
 		
@@ -70,6 +70,9 @@ public class PdServiceTest extends Activity {
 		}
 	};
 	
+	private Receiver spam = new Receiver("Spam");
+	private Receiver eggs = new Receiver("Eggs");
+	
 	private final ServiceConnection connection = new ServiceConnection() {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
@@ -80,15 +83,15 @@ public class PdServiceTest extends Activity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			proxy = IPdService.Stub.asInterface(service);
 			try {
-				proxy.subscribe("spam", new Receiver("Spam"));
-				proxy.subscribe("eggs", new Receiver("Spam"));
+				proxy.subscribe("spam", spam);
+				proxy.subscribe("eggs", eggs);
 				Resources res = getResources();
 				String p = res.getString(R.string.patch);
 				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {p, res.getString(R.string.folder)}));
 				patch = "pd-" + p;
-				proxy.startAudio(res.getInteger(R.integer.sampleRate),
+				proxy.requestAudio(res.getInteger(R.integer.sampleRate),
 						res.getInteger(R.integer.inChannels), res.getInteger(R.integer.outChannels),
-						res.getInteger(R.integer.ticksPerBuffer), false);
+						res.getInteger(R.integer.ticksPerBuffer));
 				proxy.sendBang("foo");
 				proxy.sendFloat("foo", 12345);
 				proxy.sendSymbol("bar", "elephant");
@@ -113,7 +116,9 @@ public class PdServiceTest extends Activity {
 		if (proxy != null) {
 			try {
 				proxy.sendMessage(patch, "menuclose", new ArrayList());
-				proxy.stopAudio();
+				proxy.unsubscribe("spam", spam);
+				proxy.unsubscribe("eggs", eggs);
+				proxy.releaseAudio();
 			} catch (RemoteException e) {
 				Log.e(PD_TEST, e.toString());
 			}

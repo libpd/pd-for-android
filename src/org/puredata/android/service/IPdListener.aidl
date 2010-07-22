@@ -2,7 +2,7 @@ package org.puredata.android.service;
 
 import java.util.List;
 
-oneway interface IPdClient {
+oneway interface IPdListener {
 	void receiveBang();
 	void receiveFloat(float x);
 	void receiveSymbol(in String symbol);
