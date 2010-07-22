@@ -1,14 +1,9 @@
 package org.puredata.android.service;
 
-import java.util.Arrays;
-
-import org.puredata.android.R;
-
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -31,6 +26,7 @@ public class KillPdService extends Activity {
 			} catch (RemoteException e) {
 				Log.e("Pd Kill", e.toString());
 			}
+			finish();
 		}
 	};
 	

@@ -104,15 +104,15 @@ public class PdServiceTest extends Activity {
 	};
 	
 	@Override
-	protected void onResume() {
-		super.onResume();
+	protected void onStart() {
+		super.onStart();
 		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onStop() {
+		super.onStop();
 		if (proxy != null) {
 			try {
 				proxy.sendMessage(patch, "menuclose", new ArrayList());
