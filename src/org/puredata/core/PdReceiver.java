@@ -28,7 +28,7 @@ public interface PdReceiver {
 	 * @param source
 	 * @param args  elements may be of type Integer, Float, or String
 	 */
-	public void receiveList(String source, Object[] args);
+	public void receiveList(String source, Object... args);
 	
 	/**
 	 * 
@@ -36,6 +36,6 @@ public interface PdReceiver {
 	 * @param symbol
 	 * @param args  elements may be of type Integer, Float, or String
 	 */
-	public void receiveMessage(String source, String symbol, Object[] args);
+	public void receiveMessage(String source, String symbol, Object... args);
 	
 }

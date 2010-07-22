@@ -187,7 +187,7 @@ public final class PdBase {
 	 * @param args list of arguments of type Integer, Float, or String; no more than 32 arguments
 	 * @return error code, 0 on success
 	 */
-	public synchronized static int sendList(String receiver, Object[] args) {
+	public synchronized static int sendList(String receiver, Object... args) {
 		int err = processArgs(args);			
 		return (err == 0) ? finishList(receiver) : err;
 	}

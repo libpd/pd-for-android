@@ -25,7 +25,7 @@ public interface PdListener {
 	 * @param source
 	 * @param args  elements may be of type Integer, Float, or String
 	 */
-	public void receiveList(Object[] args);
+	public void receiveList(Object... args);
 	
 	/**
 	 * 
@@ -33,7 +33,7 @@ public interface PdListener {
 	 * @param symbol
 	 * @param args  elements may be of type Integer, Float, or String
 	 */
-	public void receiveMessage(String symbol, Object[] args);
+	public void receiveMessage(String symbol, Object... args);
 	
 	
 	public class Adapter implements PdListener {
@@ -44,8 +44,8 @@ public interface PdListener {
 		@Override
 		public void receiveSymbol(String symbol) {}
 		@Override
-		public void receiveList(Object[] args) {}
+		public void receiveList(Object... args) {}
 		@Override
-		public void receiveMessage(String symbol, Object[] args) {}
+		public void receiveMessage(String symbol, Object... args) {}
 	}
 }
