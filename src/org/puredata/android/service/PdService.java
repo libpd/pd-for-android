@@ -52,6 +52,11 @@ public class PdService extends Service {
 		}
 		
 		@Override
+		public boolean equals(Object o) {
+			return (o == null) ? (client == null) : client.equals(o);
+		}
+		
+		@Override
 		public void receiveBang() {
 			try {
 				client.receiveBang();
@@ -120,7 +125,7 @@ public class PdService extends Service {
 		@Override
 		public void unsubscribe(String symbol, IPdClient client)
 		throws RemoteException {
-			// TODO implement this
+			dispatcher.removeListener(symbol, new ListenerClient(client)); // works because of ListenerClient.equals
 		}
 		
 		@Override
