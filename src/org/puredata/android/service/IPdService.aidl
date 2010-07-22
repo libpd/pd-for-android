@@ -6,6 +6,7 @@ import java.util.List;
 interface IPdService {
 	int requestAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
 	void releaseAudio();
+	void stop();
 	boolean isRunning();
 	boolean objectExists(String symbol);
 	void subscribe(in String symbol, in IPdListener client);

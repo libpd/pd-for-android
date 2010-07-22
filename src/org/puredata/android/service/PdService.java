@@ -19,10 +19,14 @@ import org.puredata.android.io.PdAudioThread;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
+import org.puredata.android.R;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.RemoteException;
@@ -31,8 +35,20 @@ import android.util.Log;
 
 
 public class PdService extends Service {
+	
+	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
+	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 
 	private static final String PD_SERVICE = "Pd Service";
+	private static final String PREFIX = "org.puredata.android.service.";
+	private static final String CATEGORY = PREFIX + "PDSERVICE";
+	private static final String START_ACTION = PREFIX + "START_AUDIO";
+	private static final String STOP_ACTION = PREFIX + "STOP_AUDIO";
+	private static final String KILL_ACTION = PREFIX + "KILL_AUDIO";
+	private static final String IN_CHANNELS = PREFIX + "IN_CHANNELS";
+	private static final String OUT_CHANNELS = PREFIX + "OUT_CHANNELS";
+	private static final String SRATE = PREFIX + "SRATE";
+	private static final String TICKS = PREFIX + "TICKS";
 
 	private WakeLock wakeLock = null;
 	private int sampleRate = 0, nIn = 0, nOut = 0;
@@ -128,6 +144,16 @@ public class PdService extends Service {
 		public void releaseAudio() throws RemoteException {
 			PdService.this.releaseAudio();
 		}
+		
+		@Override
+		public void stop() throws RemoteException {
+			stopAudio();
+		};
+		
+		@Override
+		public boolean isRunning() throws RemoteException {
+			return PdAudioThread.isRunning();
+		}
 
 		@Override
 		public void subscribe(String symbol, IPdListener client) throws RemoteException {
@@ -173,14 +199,26 @@ public class PdService extends Service {
 		public void sendMessage(String dest, String symbol, List args) throws RemoteException {
 			PdBase.sendMessage(dest, symbol, args.toArray());
 		}
-
-		@Override
-		public boolean isRunning() throws RemoteException {
-			return PdAudioThread.isRunning();
-		}
 	};
 
+	private void announceStart() {
+		Intent intent = new Intent(START_ACTION);
+		intent.addCategory(CATEGORY);
+		intent.putExtra(SRATE, sampleRate);
+		intent.putExtra(IN_CHANNELS, nIn);
+		intent.putExtra(OUT_CHANNELS, nOut);
+		intent.putExtra(TICKS, ticksPerBuffer);
+		sendBroadcast(intent);
+	}
+	
+	private void announceStop() {
+		Intent intent = new Intent(STOP_ACTION);
+		intent.addCategory(CATEGORY);
+		sendBroadcast(intent);
+	}
+	
 	private void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
+		fgManager.startForeground();
 		PdAudioThread.startThread(sampleRate, nIn, nOut, ticksPerBuffer, true);
 		this.sampleRate = sampleRate;
 		this.nIn = nIn;
@@ -191,10 +229,10 @@ public class PdService extends Service {
 			wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "pd wakelock");
 			wakeLock.acquire();
 		}
-		Log.w(PD_SERVICE, "started audio thread");
+		announceStart();
 	}
 
-	private void stopAudio() {
+	private synchronized void stopAudio() {
 		PdAudioThread.stopThread();
 		if (wakeLock != null) {
 			wakeLock.release();
@@ -202,7 +240,8 @@ public class PdService extends Service {
 		}
 		sampleRate = nIn = nOut = clientCount = 0;
 		ticksPerBuffer = Integer.MAX_VALUE;
-		Log.e(PD_SERVICE, "shut down audio thread");
+		announceStop();
+		fgManager.stopForeground();
 	}
 
 	private synchronized int requestAudio(int sr, int nic, int noc, int tpb) {
@@ -256,5 +295,40 @@ public class PdService extends Service {
 		stopAudio();
 		dispatcher.release();
 		PdBase.release();
+	}
+	
+	private interface ForegroundManager {
+		void startForeground();
+		void stopForeground();
+	}
+	
+	private class ForegroundCupcake implements ForegroundManager {
+		@Override
+		public void startForeground() {
+//			setForeground(true);
+		}
+
+		@Override
+		public void stopForeground() {
+//			setForeground(false);
+		}
+	}
+	
+	private class ForegroundEclair implements ForegroundManager {
+		@Override
+		public void startForeground() {
+			int ID = 1;
+			Intent intent = new Intent(KILL_ACTION);
+			PendingIntent pi = PendingIntent.getActivity(PdService.this, 1, intent, 0);
+			Notification notification = new Notification(R.drawable.icon, "PureData", System.currentTimeMillis());
+			notification.setLatestEventInfo(PdService.this, "PureData", "PureData is running.", pi);
+			notification.flags |= Notification.FLAG_ONGOING_EVENT;
+			PdService.this.startForeground(ID, notification);
+		}
+		
+		@Override
+		public void stopForeground() {
+			PdService.this.stopForeground(true);
+		}
 	}
 }
