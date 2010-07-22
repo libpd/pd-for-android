@@ -41,7 +41,6 @@ public class PdService extends Service {
 
 	private static final String PD_SERVICE = "Pd Service";
 	private static final String PREFIX = "org.puredata.android.service.";
-	private static final String CATEGORY = PREFIX + "PDSERVICE";
 	private static final String START_ACTION = PREFIX + "START_AUDIO";
 	private static final String STOP_ACTION = PREFIX + "STOP_AUDIO";
 	private static final String KILL_ACTION = PREFIX + "KILL_AUDIO";
@@ -203,7 +202,6 @@ public class PdService extends Service {
 
 	private void announceStart() {
 		Intent intent = new Intent(START_ACTION);
-		intent.addCategory(CATEGORY);
 		intent.putExtra(SRATE, sampleRate);
 		intent.putExtra(IN_CHANNELS, nIn);
 		intent.putExtra(OUT_CHANNELS, nOut);
@@ -213,7 +211,6 @@ public class PdService extends Service {
 	
 	private void announceStop() {
 		Intent intent = new Intent(STOP_ACTION);
-		intent.addCategory(CATEGORY);
 		sendBroadcast(intent);
 	}
 	
@@ -318,10 +315,10 @@ public class PdService extends Service {
 		@Override
 		public void startForeground() {
 			int ID = 1;
-			Intent intent = new Intent(KILL_ACTION);
+			Intent intent = new Intent(PdService.this, KillPdService.class);
 			PendingIntent pi = PendingIntent.getActivity(PdService.this, 1, intent, 0);
 			Notification notification = new Notification(R.drawable.icon, "PureData", System.currentTimeMillis());
-			notification.setLatestEventInfo(PdService.this, "PureData", "PureData is running.", pi);
+			notification.setLatestEventInfo(PdService.this, "PureData", "Tap to stop PureData.", pi);
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
 			PdService.this.startForeground(ID, notification);
 		}
