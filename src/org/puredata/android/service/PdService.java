@@ -38,12 +38,12 @@ public class PdService extends Service {
 
 	private static final String PD_SERVICE = "Pd Service";
 	private static final String PREFIX = "org.puredata.android.service.";
-	public static final String START_ACTION = PREFIX + "START_AUDIO";
-	public static final String STOP_ACTION = PREFIX + "STOP_AUDIO";
-	public static final String IN_CHANNELS = PREFIX + "IN_CHANNELS";
-	public static final String OUT_CHANNELS = PREFIX + "OUT_CHANNELS";
-	public static final String SRATE = PREFIX + "SRATE";
-	public static final String TICKS = PREFIX + "TICKS";
+	private static final String START_ACTION = PREFIX + "START_AUDIO";
+	private static final String STOP_ACTION = PREFIX + "STOP_AUDIO";
+	private static final String IN_CHANNELS = PREFIX + "IN_CHANNELS";
+	private static final String OUT_CHANNELS = PREFIX + "OUT_CHANNELS";
+	private static final String SRATE = PREFIX + "SAMPLE_RATE";
+	private static final String TICKS = PREFIX + "TICKS_PER_BUFFER";
 
 	private int sampleRate = 0, nIn = 0, nOut = 0;
 	private int ticksPerBuffer = Integer.MAX_VALUE;
