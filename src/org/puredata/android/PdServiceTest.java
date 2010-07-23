@@ -40,13 +40,13 @@ public class PdServiceTest extends Activity {
 		
 		@Override
 		public void handleStop() throws RemoteException {
-			Log.i(PD_TEST, "audio thread stopped");
+			Log.i(PD_TEST, "audio stopped");
 			finish();
 		}
 		
 		@Override
 		public void handleStart(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws RemoteException {
-			Log.i(PD_TEST, "audio thread started: " + sampleRate + ", " + nIn + ", " + nOut + ", " + ticksPerBuffer);
+			Log.i(PD_TEST, "audio started: " + sampleRate + ", " + nIn + ", " + nOut + ", " + ticksPerBuffer);
 		}
 	};
 

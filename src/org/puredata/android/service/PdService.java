@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.puredata.android.R;
-import org.puredata.android.io.PdAudioThread;
+import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
@@ -148,7 +148,7 @@ public class PdService extends Service {
 		
 		@Override
 		public boolean isRunning() throws RemoteException {
-			return PdAudioThread.isRunning();
+			return PdAudio.isRunning();
 		}
 
 		@Override
@@ -223,7 +223,7 @@ public class PdService extends Service {
 	
 	private void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
 		fgManager.startForeground();
-		PdAudioThread.startThread(sampleRate, nIn, nOut, ticksPerBuffer, true);
+		PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
 		this.sampleRate = sampleRate;
 		this.nIn = nIn;
 		this.nOut = nOut;
@@ -232,8 +232,8 @@ public class PdService extends Service {
 	}
 
 	private synchronized void stopAudio() {
-		if (!PdAudioThread.isRunning()) return;
-		PdAudioThread.stopThread();
+		if (!PdAudio.isRunning()) return;
+		PdAudio.stopAudio();
 		sampleRate = nIn = nOut = clientCount = 0;
 		ticksPerBuffer = Integer.MAX_VALUE;
 		announceStop();
@@ -258,11 +258,7 @@ public class PdService extends Service {
 			return 0;
 		} catch (IOException e) {
 			if (sampleRate > 0) {
-				try {
-					PdAudioThread.startThread(sampleRate, nIn, nOut, ticksPerBuffer, true);
-				} catch (IOException e1) {
-					stopAudio();
-				}
+				PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
 			}
 			return -1;
 		}
