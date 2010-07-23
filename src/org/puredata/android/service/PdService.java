@@ -72,16 +72,12 @@ public class PdService extends Service {
 			}
 		}
 
-		private void removeSelf() {
-			dispatcher.removeListener(symbol, this);
-		}
-
 		@Override
 		public void receiveBang() {
 			try {
 				client.receiveBang();
 			} catch (RemoteException e) {
-				removeSelf();
+				Log.e(PD_SERVICE, e.toString());
 			}
 		}
 
@@ -90,7 +86,7 @@ public class PdService extends Service {
 			try {
 				client.receiveFloat(x);
 			} catch (RemoteException e) {
-				removeSelf();
+				Log.e(PD_SERVICE, e.toString());
 			}
 		}
 
@@ -99,7 +95,7 @@ public class PdService extends Service {
 			try {
 				client.receiveSymbol(symbol);
 			} catch (RemoteException e) {
-				removeSelf();
+				Log.e(PD_SERVICE, e.toString());
 			}
 		}
 
@@ -108,7 +104,7 @@ public class PdService extends Service {
 			try {
 				client.receiveList(Arrays.asList(args));
 			} catch (RemoteException e) {
-				removeSelf();
+				Log.e(PD_SERVICE, e.toString());
 			}
 		}
 
@@ -117,7 +113,7 @@ public class PdService extends Service {
 			try {
 				client.receiveMessage(symbol, Arrays.asList(args));
 			} catch (RemoteException e) {
-				removeSelf();
+				Log.e(PD_SERVICE, e.toString());
 			}
 		}
 	}
