@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
 
@@ -30,8 +31,24 @@ import android.util.Log;
 public class PdServiceTest extends Activity {
 
 	private static final String PD_TEST = "Pd Test";
-	private String patch = null;
 	private IPdService proxy = null;
+	
+	private String folder, filename, patch;
+	private int sampleRate, nIn, nOut, ticksPerBuffer;
+	
+	private final IPdClient.Stub client = new IPdClient.Stub() {
+		
+		@Override
+		public void handleStop() throws RemoteException {
+			Log.i(PD_TEST, "audio thread stopped");
+			finish();
+		}
+		
+		@Override
+		public void handleStart(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws RemoteException {
+			Log.i(PD_TEST, "audio thread started: " + sampleRate + ", " + nIn + ", " + nOut + ", " + ticksPerBuffer);
+		}
+	};
 
 	private static class Receiver extends IPdListener.Stub {
 
@@ -83,15 +100,11 @@ public class PdServiceTest extends Activity {
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			proxy = IPdService.Stub.asInterface(service);
 			try {
+				proxy.addClient(client);
 				proxy.subscribe("spam", spam);
 				proxy.subscribe("eggs", eggs);
-				Resources res = getResources();
-				String p = res.getString(R.string.patch);
-				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {p, res.getString(R.string.folder)}));
-				patch = "pd-" + p;
-				proxy.requestAudio(res.getInteger(R.integer.sampleRate),
-						res.getInteger(R.integer.inChannels), res.getInteger(R.integer.outChannels),
-						res.getInteger(R.integer.ticksPerBuffer));
+				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
+				proxy.requestAudio(sampleRate, nIn, nOut, ticksPerBuffer);
 				proxy.sendBang("foo");
 				proxy.sendFloat("foo", 12345);
 				proxy.sendSymbol("bar", "elephant");
@@ -104,17 +117,36 @@ public class PdServiceTest extends Activity {
 	};
 	
 	@Override
+	protected void onCreate(android.os.Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Resources res = getResources();
+		folder = res.getString(R.string.folder);
+		filename = res.getString(R.string.patch);
+		patch = "pd-" + filename;
+		sampleRate = res.getInteger(R.integer.sampleRate);
+		nIn = res.getInteger(R.integer.inChannels);
+		nOut = res.getInteger(R.integer.outChannels);
+		ticksPerBuffer = res.getInteger(R.integer.ticksPerBuffer);
+	};
+	
+	@Override
 	protected void onStart() {
 		super.onStart();
 		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void onStop() {
 		super.onStop();
+		cleanup();
+		unbindService(connection);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void cleanup() {
 		if (proxy != null) {
 			try {
+				proxy.removeClient(client);
 				proxy.sendMessage(patch, "menuclose", new ArrayList());
 				proxy.unsubscribe("spam", spam);
 				proxy.unsubscribe("eggs", eggs);
@@ -123,6 +155,5 @@ public class PdServiceTest extends Activity {
 				Log.e(PD_TEST, e.toString());
 			}
 		}
-		unbindService(connection);
 	}
 }

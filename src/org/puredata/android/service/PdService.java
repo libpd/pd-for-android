@@ -27,6 +27,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -37,17 +38,12 @@ public class PdService extends Service {
 	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 
 	private static final String PD_SERVICE = "Pd Service";
-	private static final String PREFIX = "org.puredata.android.service.";
-	private static final String START_ACTION = PREFIX + "START_AUDIO";
-	private static final String STOP_ACTION = PREFIX + "STOP_AUDIO";
-	private static final String IN_CHANNELS = PREFIX + "IN_CHANNELS";
-	private static final String OUT_CHANNELS = PREFIX + "OUT_CHANNELS";
-	private static final String SRATE = PREFIX + "SAMPLE_RATE";
-	private static final String TICKS = PREFIX + "TICKS_PER_BUFFER";
 
 	private int sampleRate = 0, nIn = 0, nOut = 0;
 	private int ticksPerBuffer = Integer.MAX_VALUE;
 	private int clientCount = 0;
+	
+	private final RemoteCallbackList<IPdClient> clients = new RemoteCallbackList<IPdClient>();
 
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
@@ -127,6 +123,16 @@ public class PdService extends Service {
 	}
 
 	private final IPdService.Stub binder = new IPdService.Stub() {
+		
+		@Override
+		public void addClient(IPdClient client) throws RemoteException {
+			clients.register(client);
+		}
+		
+		@Override
+		public void removeClient(IPdClient client) throws RemoteException {
+			clients.unregister(client);
+		}
 
 		@Override
 		public int requestAudio(int sampleRate, int nIn, int nOut,
@@ -196,17 +202,27 @@ public class PdService extends Service {
 	};
 
 	private void announceStart() {
-		Intent intent = new Intent(START_ACTION);
-		intent.putExtra(SRATE, sampleRate);
-		intent.putExtra(IN_CHANNELS, nIn);
-		intent.putExtra(OUT_CHANNELS, nOut);
-		intent.putExtra(TICKS, ticksPerBuffer);
-		sendBroadcast(intent);
+		int i = clients.beginBroadcast();
+		while (i-- > 0) {
+			try {
+				clients.getBroadcastItem(i).handleStart(sampleRate, nIn, nOut, ticksPerBuffer);
+			} catch (RemoteException e) {
+				Log.e(PD_SERVICE, e.toString());
+			}
+		}
+		clients.finishBroadcast();
 	}
 	
 	private void announceStop() {
-		Intent intent = new Intent(STOP_ACTION);
-		sendBroadcast(intent);
+		int i = clients.beginBroadcast();
+		while (i-- > 0) {
+			try {
+				clients.getBroadcastItem(i).handleStop();
+			} catch (RemoteException e) {
+				Log.e(PD_SERVICE, e.toString());
+			}
+		}
+		clients.finishBroadcast();
 	}
 	
 	private void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {

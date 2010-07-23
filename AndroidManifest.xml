@@ -17,12 +17,6 @@
         		<action android:name="org.puredata.android.service.LAUNCH" />
         	</intent-filter>
         </service>
-        <receiver android:name=".PdStatusWatcher" >
-        	<intent-filter>
-        		<action android:name="org.puredata.android.service.START_AUDIO" />
-        		<action android:name="org.puredata.android.service.STOP_AUDIO" />
-        	</intent-filter>
-        </receiver>
     </application>
     <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="7" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
