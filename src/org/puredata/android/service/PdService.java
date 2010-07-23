@@ -15,22 +15,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.puredata.android.R;
 import org.puredata.android.io.PdAudioThread;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
-import org.puredata.android.R;
 
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.os.RemoteException;
-import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 
@@ -41,15 +38,13 @@ public class PdService extends Service {
 
 	private static final String PD_SERVICE = "Pd Service";
 	private static final String PREFIX = "org.puredata.android.service.";
-	private static final String START_ACTION = PREFIX + "START_AUDIO";
-	private static final String STOP_ACTION = PREFIX + "STOP_AUDIO";
-	private static final String KILL_ACTION = PREFIX + "KILL_AUDIO";
-	private static final String IN_CHANNELS = PREFIX + "IN_CHANNELS";
-	private static final String OUT_CHANNELS = PREFIX + "OUT_CHANNELS";
-	private static final String SRATE = PREFIX + "SRATE";
-	private static final String TICKS = PREFIX + "TICKS";
+	public static final String START_ACTION = PREFIX + "START_AUDIO";
+	public static final String STOP_ACTION = PREFIX + "STOP_AUDIO";
+	public static final String IN_CHANNELS = PREFIX + "IN_CHANNELS";
+	public static final String OUT_CHANNELS = PREFIX + "OUT_CHANNELS";
+	public static final String SRATE = PREFIX + "SRATE";
+	public static final String TICKS = PREFIX + "TICKS";
 
-	private WakeLock wakeLock = null;
 	private int sampleRate = 0, nIn = 0, nOut = 0;
 	private int ticksPerBuffer = Integer.MAX_VALUE;
 	private int clientCount = 0;
@@ -221,20 +216,12 @@ public class PdService extends Service {
 		this.nIn = nIn;
 		this.nOut = nOut;
 		this.ticksPerBuffer = ticksPerBuffer;
-		if (wakeLock == null) {
-			PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-			wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "pd wakelock");
-			wakeLock.acquire();
-		}
 		announceStart();
 	}
 
 	private synchronized void stopAudio() {
+		if (!PdAudioThread.isRunning()) return;
 		PdAudioThread.stopThread();
-		if (wakeLock != null) {
-			wakeLock.release();
-			wakeLock = null;
-		}
 		sampleRate = nIn = nOut = clientCount = 0;
 		ticksPerBuffer = Integer.MAX_VALUE;
 		announceStop();
@@ -302,25 +289,24 @@ public class PdService extends Service {
 	private class ForegroundCupcake implements ForegroundManager {
 		@Override
 		public void startForeground() {
-//			setForeground(true);
+			setForeground(true);
 		}
 
 		@Override
 		public void stopForeground() {
-//			setForeground(false);
+			setForeground(false);
 		}
 	}
 	
 	private class ForegroundEclair implements ForegroundManager {
 		@Override
 		public void startForeground() {
-			int ID = 1;
 			Intent intent = new Intent(PdService.this, KillPdService.class);
-			PendingIntent pi = PendingIntent.getActivity(PdService.this, 1, intent, 0);
-			Notification notification = new Notification(R.drawable.icon, "PureData", System.currentTimeMillis());
-			notification.setLatestEventInfo(PdService.this, "PureData", "Tap to stop PureData.", pi);
+			PendingIntent pi = PendingIntent.getActivity(PdService.this, 0, intent, 0);
+			Notification notification = new Notification(R.drawable.icon, "Pure Data", System.currentTimeMillis());
+			notification.setLatestEventInfo(PdService.this, "Pure Data", "Tap to stop Pure Data.", pi);
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
-			PdService.this.startForeground(ID, notification);
+			PdService.this.startForeground(1, notification);
 		}
 		
 		@Override

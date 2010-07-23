@@ -25,7 +25,8 @@ public final class R {
     public static final class string {
         public static final int app_name=0x7f040002;
         public static final int folder=0x7f040001;
-        public static final int hello=0x7f040003;
+        public static final int kill_name=0x7f040003;
+        public static final int launch_pd_service=0x7f040004;
         public static final int patch=0x7f040000;
     }
 }

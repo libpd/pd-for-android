@@ -1,3 +1,14 @@
+/**
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ * 
+ * For information on usage and redistribution, and for a DISCLAIMER OF ALL
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ *
+ * This activity kills the Pd service when the users taps on the service notification item.
+ * 
+ */
+
 package org.puredata.android.service;
 
 import android.app.Activity;
@@ -31,14 +42,14 @@ public class KillPdService extends Activity {
 	};
 	
 	@Override
-	protected void onResume() {
-		super.onResume();
+	protected void onStart() {
+		super.onStart();
 		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
 	}
 	
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onStop() {
+		super.onStop();
 		unbindService(connection);
 	}
 }

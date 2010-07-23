@@ -10,13 +10,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:label="@string/app_name" android:name=".service.KillPdService">
+        <activity android:label="@string/kill_name" android:name=".service.KillPdService">
         </activity>
-        <service android:name=".service.PdService" android:enabled="true" android:process=":remote" >
+        <service android:name=".service.PdService" android:process=":remote" >
         	<intent-filter>
         		<action android:name="org.puredata.android.service.LAUNCH" />
         	</intent-filter>
         </service>
+        <receiver android:name=".PdStatusWatcher" >
+        	<intent-filter>
+        		<action android:name="org.puredata.android.service.START_AUDIO" />
+        		<action android:name="org.puredata.android.service.STOP_AUDIO" />
+        	</intent-filter>
+        </receiver>
     </application>
     <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="7" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
