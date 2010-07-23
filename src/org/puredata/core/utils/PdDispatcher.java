@@ -96,7 +96,7 @@ public abstract class PdDispatcher implements PdReceiver {
 	}
 
 	@Override
-	public synchronized void receiveList(String source, Object[] args) {
+	public synchronized void receiveList(String source, Object... args) {
 		Set<PdListener> selected = listeners.get(source);
 		if (selected != null) {
 			for (PdListener listener: selected) {
@@ -106,7 +106,7 @@ public abstract class PdDispatcher implements PdReceiver {
 	}
 
 	@Override
-	public synchronized void receiveMessage(String source, String symbol, Object[] args) {
+	public synchronized void receiveMessage(String source, String symbol, Object... args) {
 		Set<PdListener> selected = listeners.get(source);
 		if (selected != null) {
 			for (PdListener listener: selected) {
