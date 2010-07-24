@@ -28,67 +28,79 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 public class PdServiceTest extends Activity {
 
 	private static final String PD_TEST = "Pd Test";
 	private IPdService proxy = null;
-	
+	private final Handler handler = new Handler();
+
 	private String folder, filename, patch;
-	private int sampleRate, nIn, nOut, ticksPerBuffer;
-	
+	private int sampleRate, inChannels, outChannels, ticksPerBuffer;
+
+	private void post(final String msg) {
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
+
 	private final IPdClient.Stub client = new IPdClient.Stub() {
-		
 		@Override
 		public void handleStop() throws RemoteException {
-			Log.i(PD_TEST, "audio stopped");
+			post("Pure Data was stopped externally; quitting now");
 			finish();
 		}
-		
+
 		@Override
 		public void handleStart(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws RemoteException {
-			Log.i(PD_TEST, "audio started: " + sampleRate + ", " + nIn + ", " + nOut + ", " + ticksPerBuffer);
+			post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
+					", ticks per pd buffer: " + ticksPerBuffer);
 		}
 	};
 
-	private static class Receiver extends IPdListener.Stub {
+	private IPdListener.Stub receiver = new IPdListener.Stub() {
 
-		private final String tag = PD_TEST + " Receiver";
-		
+		private void pdpost(String msg) {
+			post("Pure Data says, \"" + msg + "\"");
+		}
+
 		@Override
 		public void receiveBang() throws RemoteException {
-			Log.i(tag, "bang!");
+			pdpost("bang!");
 		}
 
 		@Override
 		public void receiveFloat(float x) throws RemoteException {
-			Log.i(tag, "float: " + x);
+			pdpost("float: " + x);
 		}
-		
+
 		@Override
 		public void receiveSymbol(String symbol) throws RemoteException {
-			Log.i(tag, "symbol: " + symbol);
+			pdpost("symbol: " + symbol);
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void receiveList(List args) throws RemoteException {
-			Log.i(tag, "args: " + args.toString());
+			pdpost("list: " + args.toString());
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void receiveMessage(String symbol, List args)
-				throws RemoteException {
-			Log.i(tag, "symbol: " + symbol + ", args: " + args.toString());
+		throws RemoteException {
+			pdpost("symbol: " + symbol + ", args: " + args.toString());
 		}
 	};
-	
-	private Receiver recv = new Receiver();
-	
+
 	private final ServiceConnection connection = new ServiceConnection() {
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
@@ -100,26 +112,30 @@ public class PdServiceTest extends Activity {
 			proxy = IPdService.Stub.asInterface(service);
 			try {
 				proxy.addClient(client);
-				proxy.subscribe("android", recv);
-				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
-				int err = proxy.requestAudio(sampleRate, nIn, nOut, ticksPerBuffer);
+				proxy.subscribe("android", receiver);
+				if (!proxy.objectExists(patch)) {
+					proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
+				}
+				int err = proxy.requestAudio(sampleRate, inChannels, outChannels, ticksPerBuffer);
 				if (err != 0) {
-					Log.e(PD_TEST, "unable to start audio");
+					post("unable to start audio");
 					finish();
 				}
 			} catch (RemoteException e) {
+				post("lost connection to Pd Service; quitting now");
 				Log.e(PD_TEST, e.toString());
+				finish();
 			}
 		}
 	};
-	
+
 	@Override
 	protected void onCreate(android.os.Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Resources res = getResources();
 		sampleRate = res.getInteger(R.integer.sampleRate);
-		nIn = res.getInteger(R.integer.inChannels);
-		nOut = res.getInteger(R.integer.outChannels);
+		inChannels = res.getInteger(R.integer.inChannels);
+		outChannels = res.getInteger(R.integer.outChannels);
 		ticksPerBuffer = res.getInteger(R.integer.ticksPerBuffer);
 		try {
 			InputStream in = res.openRawResource(R.raw.test);
@@ -136,19 +152,16 @@ public class PdServiceTest extends Activity {
 			Log.i(PD_TEST, "wrote file");
 			folder = getFilesDir().getAbsolutePath();
 		} catch (IOException e) {
+			post("unable to create test patch; quitting now");
 			Log.e(PD_TEST, e.toString());
+			finish();
 		}
-	};
-	
-	@Override
-	protected void onStart() {
-		super.onStart();
 		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
-	}
+	};
 
 	@Override
-	protected void onStop() {
-		super.onStop();
+	protected void onDestroy() {
+		super.onDestroy();
 		cleanup();
 		unbindService(connection);
 	}
@@ -161,9 +174,10 @@ public class PdServiceTest extends Activity {
 			try {
 				proxy.removeClient(client);
 				proxy.sendMessage(patch, "menuclose", new ArrayList());
-				proxy.unsubscribe("android", recv);
+				proxy.unsubscribe("android", receiver);
 				proxy.releaseAudio();
 			} catch (RemoteException e) {
+				post("lost connection to Pd Service while cleaning up");
 				Log.e(PD_TEST, e.toString());
 			}
 		}
