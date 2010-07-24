@@ -11,8 +11,6 @@
 
 package org.puredata.android.io;
 
-import org.puredata.core.PdBase;
-
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -20,7 +18,7 @@ import android.os.Process;
 import android.util.Log;
 
 
-public class AudioWrapper {
+public abstract class AudioWrapper {
 
 	private static final String PD_AUDIO_WRAPPER = "Pd AudioWrapper";
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
@@ -31,11 +29,11 @@ public class AudioWrapper {
 	final int bufSizeShorts;
 	private Thread audioThread = null;
 
-	public AudioWrapper(int sampleRate, int inChannels, int outChannels, int ticksPerBuffer) {
+	public AudioWrapper(int sampleRate, int inChannels, int outChannels, int bufferSizePerChannel) {
 		int channelConfig = VersionedAudioFormat.getOutFormat(outChannels);
-		rec = (inChannels == 0) ? null : new AudioRecordWrapper(sampleRate, inChannels, ticksPerBuffer);
-		inputSizeShorts = inChannels * ticksPerBuffer;
-		bufSizeShorts = outChannels * ticksPerBuffer;
+		rec = (inChannels == 0) ? null : new AudioRecordWrapper(sampleRate, inChannels, bufferSizePerChannel);
+		inputSizeShorts = inChannels * bufferSizePerChannel;
+		bufSizeShorts = outChannels * bufferSizePerChannel;
 		outBuf = new short[bufSizeShorts];
 		int bufSizeBytes = 2 * bufSizeShorts;
 		int trackSizeBytes = 2 * bufSizeBytes;
@@ -44,6 +42,8 @@ public class AudioWrapper {
 		track = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfig, ENCODING, trackSizeBytes, AudioTrack.MODE_STREAM);
 	}
 
+	protected abstract void process(short inBuffer[], short outBuffer[]);
+	
 	public void start() {
 		if (rec != null) rec.start();
 		audioThread = new Thread() {
@@ -61,7 +61,7 @@ public class AudioWrapper {
 							Log.w(PD_AUDIO_WRAPPER, "no input buffer available");
 						}
 					}
-					PdBase.process(inBuf, outBuf);
+					process(inBuf, outBuf);
 					track.write(outBuf, 0, bufSizeShorts);
 				}
 				track.stop();
@@ -69,7 +69,7 @@ public class AudioWrapper {
 		};
 		audioThread.start();
 	}
-
+	
 	public void stop() {
 		if (rec != null) rec.stop();
 		if (audioThread == null) return;

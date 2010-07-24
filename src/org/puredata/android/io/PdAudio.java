@@ -22,7 +22,12 @@ public class PdAudio {
 		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate, ticksPerBuffer);
 		int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
-		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel);
+		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
+			@Override
+			protected void process(short[] inBuffer, short[] outBuffer) {
+				PdBase.process(inBuffer, outBuffer);
+			}
+		};
 		audioWrapper.start();
 	}
 
