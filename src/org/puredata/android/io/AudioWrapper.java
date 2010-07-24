@@ -42,17 +42,18 @@ public abstract class AudioWrapper {
 		track = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfig, ENCODING, trackSizeBytes, AudioTrack.MODE_STREAM);
 	}
 
-	protected abstract void process(short inBuffer[], short outBuffer[]);
+	protected abstract int process(short inBuffer[], short outBuffer[]);
 	
 	public synchronized void start() {
 		if (rec != null) rec.start();
+		track.play();
 		audioThread = new Thread() {
 			@Override
 			public void run() {
 				Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-				track.play();
 				short inBuf[] = new short[inputSizeShorts];
-				while (!Thread.interrupted()) {
+				int err = 0;
+				while (!Thread.interrupted() && err == 0) {
 					if (rec != null) {
 						short newBuf[] = rec.poll();
 						if (newBuf != null) {
@@ -61,10 +62,9 @@ public abstract class AudioWrapper {
 							Log.w(PD_AUDIO_WRAPPER, "no input buffer available");
 						}
 					}
-					process(inBuf, outBuf);
+					err = process(inBuf, outBuf);
 					track.write(outBuf, 0, bufSizeShorts);
 				}
-				track.stop();
 			}
 		};
 		audioThread.start();
@@ -80,11 +80,16 @@ public abstract class AudioWrapper {
 			// do nothing
 		}
 		audioThread = null;
+		track.stop();
 	}
 
 	public synchronized void release() {
 		stop();
 		track.release();
 		if (rec != null) rec.release();
+	}
+
+	public boolean isRunning() {
+		return audioThread != null && audioThread.getState() != Thread.State.TERMINATED;
 	}
 }

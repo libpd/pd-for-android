@@ -26,20 +26,20 @@ public class PdAudio {
 		int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
 			@Override
-			protected void process(short[] inBuffer, short[] outBuffer) {
-				PdBase.process(inBuffer, outBuffer);
+			protected int process(short[] inBuffer, short[] outBuffer) {
+				return PdBase.process(inBuffer, outBuffer);
 			}
 		};
 		audioWrapper.start();
 	}
 
 	public synchronized static void stopAudio() {
-		if (audioWrapper == null) return;
+		if (!isRunning()) return;
 		audioWrapper.release();
 		audioWrapper = null;
 	}
 	
 	public synchronized static boolean isRunning() {
-		return audioWrapper != null;
+		return audioWrapper != null && audioWrapper.isRunning();
 	}
 }

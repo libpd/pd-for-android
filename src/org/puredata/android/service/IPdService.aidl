@@ -29,6 +29,8 @@ interface IPdService {
 	
 	/**
 	 * request audio with the given parameters; starts or restarts the audio thread if necessary
+	 *
+	 * returns an error code, 0 on success
 	 */
 	int requestAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
 	

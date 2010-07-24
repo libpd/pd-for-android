@@ -104,7 +104,11 @@ public class PdServiceTest extends Activity {
 				proxy.subscribe("spam", spam);
 				proxy.subscribe("eggs", eggs);
 				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
-				proxy.requestAudio(sampleRate, nIn, nOut, ticksPerBuffer);
+				int err = proxy.requestAudio(sampleRate, nIn, nOut, ticksPerBuffer);
+				if (err != 0) {
+					Log.e(PD_TEST, "unable to start audio");
+					finish();
+				}
 				proxy.sendBang("foo");
 				proxy.sendFloat("foo", 12345);
 				proxy.sendSymbol("bar", "elephant");

@@ -256,9 +256,16 @@ public class PdService extends Service {
 			}
 			++clientCount;
 			return 0;
-		} catch (IOException e) {
+		} catch (Exception e) {
+			Log.e(PD_SERVICE, e.toString());
 			if (sampleRate > 0) {
-				PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
+				try {
+					PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
+				} catch (Exception e1) {
+					announceStop();
+					Log.e(PD_SERVICE, e1.toString());
+					Log.e(PD_SERVICE, "unable to restart audio with previous parameters");
+				}
 			}
 			return -1;
 		}
