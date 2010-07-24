@@ -84,7 +84,6 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 
 		@Override
 		public void receiveBang() throws RemoteException {
-			Log.i(PD_TEST, "received bang");
 			pdpost("bang!");
 		}
 
