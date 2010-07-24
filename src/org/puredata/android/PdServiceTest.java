@@ -130,13 +130,8 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	@Override
 	protected void onStart() {
 		super.onStart();
-		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
 		initGui();
+		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
 	}
 	
 	@Override
