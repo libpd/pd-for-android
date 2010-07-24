@@ -33,21 +33,22 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.TextView.OnEditorActionListener;
 
-public class PdServiceTest extends Activity implements OnClickListener {
+public class PdServiceTest extends Activity implements OnClickListener, OnEditorActionListener {
 
 	private static final String PD_TEST = "Pd Test";
 	private IPdService proxy = null;
 	private final Handler handler = new Handler();
 	private CheckBox left, right, mic;
 	private EditText msg;
-	private Button msgButton;
 
 	private String folder, filename, patch;
 	private int sampleRate, inChannels, outChannels, ticksPerBuffer;
@@ -132,9 +133,8 @@ public class PdServiceTest extends Activity implements OnClickListener {
 					finish();
 				}
 			} catch (RemoteException e) {
-				post("lost connection to Pd Service; quitting now");
 				Log.e(PD_TEST, e.toString());
-				finish();
+				disconnected();
 			}
 		}
 	};
@@ -154,9 +154,8 @@ public class PdServiceTest extends Activity implements OnClickListener {
 		right.setOnClickListener(this);
 		mic = (CheckBox) findViewById(R.id.mic_box);
 		mic.setOnClickListener(this);
-		msgButton = (Button) findViewById(R.id.msg_button);
-		msgButton.setOnClickListener(this);
 		msg = (EditText) findViewById(R.id.msg_box);
+		msg.setOnEditorActionListener(this);
 	}
 
 	private void initPd() {
@@ -205,8 +204,8 @@ public class PdServiceTest extends Activity implements OnClickListener {
 				proxy.unsubscribe("android", receiver);
 				proxy.releaseAudio();
 			} catch (RemoteException e) {
-				post("lost connection to Pd Service while cleaning up");
 				Log.e(PD_TEST, e.toString());
+				disconnected();
 			}
 		}
 	}
@@ -224,15 +223,22 @@ public class PdServiceTest extends Activity implements OnClickListener {
 			case R.id.mic_box:
 				proxy.sendFloat("mic", mic.isChecked() ? 1 : 0);
 				break;
-			case R.id.msg_button:
-				evaluateMessage(msg.getText().toString());
 			default:
 				break;
 			}
 		} catch (RemoteException e) {
-			post("lost connection to Pd Service; quitting now");
-			finish();
+			disconnected();
 		}
+	}
+	
+	@Override
+	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		try {
+			evaluateMessage(msg.getText().toString());
+		} catch (RemoteException e) {
+			disconnected();
+		}
+		return true;
 	}
 
 	private void evaluateMessage(String s) throws RemoteException {
@@ -262,5 +268,10 @@ public class PdServiceTest extends Activity implements OnClickListener {
 				}
 			}
 		}
+	}
+	
+	private void disconnected() {
+		post("lost connection to Pd Service; quitting now");
+		finish();
 	}
 }

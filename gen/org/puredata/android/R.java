@@ -16,8 +16,7 @@ public final class R {
     public static final class id {
         public static final int left_box=0x7f070000;
         public static final int mic_box=0x7f070002;
-        public static final int msg_box=0x7f070004;
-        public static final int msg_button=0x7f070003;
+        public static final int msg_box=0x7f070003;
         public static final int right_box=0x7f070001;
     }
     public static final class integer {
@@ -34,10 +33,10 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f060000;
+        public static final int default_msg=0x7f060005;
         public static final int kill_name=0x7f060001;
         public static final int left_label=0x7f060002;
         public static final int mic_label=0x7f060004;
-        public static final int msg_button_label=0x7f060005;
         public static final int right_label=0x7f060003;
     }
 }

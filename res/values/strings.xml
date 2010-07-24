@@ -5,5 +5,5 @@
 	<string name="left_label">Left channel</string>
 	<string name="right_label">Right channel</string>
 	<string name="mic_label">Enable microphone</string>
-	<string name="msg_button_label">Send message to Pd</string>
+	<string name="default_msg">Enter message</string>
 </resources>
