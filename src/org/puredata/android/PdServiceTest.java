@@ -28,6 +28,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,8 +46,9 @@ import android.widget.TextView.OnEditorActionListener;
 public class PdServiceTest extends Activity implements OnClickListener, OnEditorActionListener {
 
 	private static final String PD_TEST = "Pd Test";
-	private IPdService proxy = null;
 	private final Handler handler = new Handler();
+	
+	private IPdService proxy = null;
 	private CheckBox left, right, mic;
 	private EditText msg;
 
@@ -78,36 +80,36 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 
 	private IPdListener.Stub receiver = new IPdListener.Stub() {
 
-		private void pdpost(String msg) {
+		private void pdPost(String msg) {
 			post("Pure Data says, \"" + msg + "\"");
 		}
 
 		@Override
 		public void receiveBang() throws RemoteException {
-			pdpost("bang!");
+			pdPost("bang!");
 		}
 
 		@Override
 		public void receiveFloat(float x) throws RemoteException {
-			pdpost("float: " + x);
+			pdPost("float: " + x);
 		}
 
 		@Override
 		public void receiveSymbol(String symbol) throws RemoteException {
-			pdpost("symbol: " + symbol);
+			pdPost("symbol: " + symbol);
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void receiveList(List args) throws RemoteException {
-			pdpost("list: " + args.toString());
+			pdPost("list: " + args.toString());
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void receiveMessage(String symbol, List args)
 		throws RemoteException {
-			pdpost("symbol: " + symbol + ", args: " + args.toString());
+			pdPost("symbol: " + symbol + ", args: " + args.toString());
 		}
 	};
 
@@ -115,38 +117,43 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		@Override
 		public void onServiceDisconnected(ComponentName name) {
 			proxy = null;
+			disconnected();
 		}
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			proxy = IPdService.Stub.asInterface(service);
-			try {
-				proxy.addClient(client);
-				proxy.subscribe("android", receiver);
-				if (!proxy.objectExists(patch)) {
-					proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
-				}
-				int err = proxy.requestAudio(sampleRate, inChannels, outChannels, ticksPerBuffer);
-				if (err != 0) {
-					post("unable to start audio");
-					finish();
-				}
-			} catch (RemoteException e) {
-				Log.e(PD_TEST, e.toString());
-				disconnected();
-			}
+			initPd();
 		}
 	};
 
 	@Override
-	protected void onCreate(android.os.Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-		initGui();
-		initPd();
+	protected void onStart() {
+		super.onStart();
+		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
 	}
-
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		initGui();
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		initGui();
+	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+		cleanup();
+		unbindService(connection);
+	}
+	
 	private void initGui() {
+		setContentView(R.layout.main);
 		left = (CheckBox) findViewById(R.id.left_box);
 		left.setOnClickListener(this);
 		right = (CheckBox) findViewById(R.id.right_box);
@@ -156,8 +163,27 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		msg = (EditText) findViewById(R.id.msg_box);
 		msg.setOnEditorActionListener(this);
 	}
-
+	
 	private void initPd() {
+		initParameters();
+		try {
+			proxy.addClient(client);
+			proxy.subscribe("android", receiver);
+			if (!proxy.objectExists(patch)) {
+				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
+			}
+			int err = proxy.requestAudio(sampleRate, inChannels, outChannels, ticksPerBuffer);
+			if (err != 0) {
+				post("unable to start audio; quitting now");
+				finish();
+			}
+		} catch (RemoteException e) {
+			Log.e(PD_TEST, e.toString());
+			disconnected();
+		}
+	}
+	
+	private void initParameters() {
 		Resources res = getResources();
 		sampleRate = res.getInteger(R.integer.sampleRate);
 		inChannels = res.getInteger(R.integer.inChannels);
@@ -182,15 +208,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			Log.e(PD_TEST, e.toString());
 			finish();
 		}
-		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
 	};
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		cleanup();
-		unbindService(connection);
-	}
 
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
@@ -286,7 +304,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			}
 		}
 	}
-
+	
 	private void disconnected() {
 		post("lost connection to Pd Service; quitting now");
 		finish();
