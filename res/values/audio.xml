@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="patch">_main.pd</string>
-	<string name="folder">/sdcard/pd</string>
 	<integer name="inChannels">1</integer>
 	<integer name="outChannels">2</integer>
 	<integer name="sampleRate">22050</integer>

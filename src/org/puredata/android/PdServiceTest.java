@@ -11,6 +11,9 @@
 
 package org.puredata.android;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +24,7 @@ import org.puredata.android.service.IPdService;
 
 import android.app.Activity;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
@@ -52,11 +56,7 @@ public class PdServiceTest extends Activity {
 
 	private static class Receiver extends IPdListener.Stub {
 
-		private final String tag;
-		
-		private Receiver(String source) {
-			tag = PD_TEST + " " + source;
-		}
+		private final String tag = PD_TEST + " Receiver";
 		
 		@Override
 		public void receiveBang() throws RemoteException {
@@ -87,8 +87,7 @@ public class PdServiceTest extends Activity {
 		}
 	};
 	
-	private Receiver spam = new Receiver("Spam");
-	private Receiver eggs = new Receiver("Eggs");
+	private Receiver recv = new Receiver();
 	
 	private final ServiceConnection connection = new ServiceConnection() {
 		@Override
@@ -101,19 +100,13 @@ public class PdServiceTest extends Activity {
 			proxy = IPdService.Stub.asInterface(service);
 			try {
 				proxy.addClient(client);
-				proxy.subscribe("spam", spam);
-				proxy.subscribe("eggs", eggs);
+				proxy.subscribe("android", recv);
 				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
 				int err = proxy.requestAudio(sampleRate, nIn, nOut, ticksPerBuffer);
 				if (err != 0) {
 					Log.e(PD_TEST, "unable to start audio");
 					finish();
 				}
-				proxy.sendBang("foo");
-				proxy.sendFloat("foo", 12345);
-				proxy.sendSymbol("bar", "elephant");
-				proxy.sendList("bar", Arrays.asList(new Object[] { new Integer(5), "katze", new Float(1.414) }));
-				proxy.sendMessage("bar", "boing", Arrays.asList(new Object[] { new Integer(5), "katze", new Float(1.414) }));
 			} catch (RemoteException e) {
 				Log.e(PD_TEST, e.toString());
 			}
@@ -124,13 +117,27 @@ public class PdServiceTest extends Activity {
 	protected void onCreate(android.os.Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Resources res = getResources();
-		folder = res.getString(R.string.folder);
-		filename = res.getString(R.string.patch);
-		patch = "pd-" + filename;
 		sampleRate = res.getInteger(R.integer.sampleRate);
 		nIn = res.getInteger(R.integer.inChannels);
 		nOut = res.getInteger(R.integer.outChannels);
 		ticksPerBuffer = res.getInteger(R.integer.ticksPerBuffer);
+		try {
+			InputStream in = res.openRawResource(R.raw.test);
+			int n = in.available();
+			byte[] buffer = new byte[n];
+			in.read(buffer);
+			in.close();
+			Log.i(PD_TEST, "read file");
+			filename = "_test.pd";
+			patch = "pd-" + filename;
+			FileOutputStream out = openFileOutput(filename, Context.MODE_PRIVATE);
+			out.write(buffer);
+			out.close();
+			Log.i(PD_TEST, "wrote file");
+			folder = getFilesDir().getAbsolutePath();
+		} catch (IOException e) {
+			Log.e(PD_TEST, e.toString());
+		}
 	};
 	
 	@Override
@@ -148,12 +155,13 @@ public class PdServiceTest extends Activity {
 
 	@SuppressWarnings("unchecked")
 	private void cleanup() {
+		boolean success = deleteFile(filename);
+		Log.i(PD_TEST, success ? "deleted file" : "unable to delete file");
 		if (proxy != null) {
 			try {
 				proxy.removeClient(client);
 				proxy.sendMessage(patch, "menuclose", new ArrayList());
-				proxy.unsubscribe("spam", spam);
-				proxy.unsubscribe("eggs", eggs);
+				proxy.unsubscribe("android", recv);
 				proxy.releaseAudio();
 			} catch (RemoteException e) {
 				Log.e(PD_TEST, e.toString());
