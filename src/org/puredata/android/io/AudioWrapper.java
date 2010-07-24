@@ -44,7 +44,7 @@ public abstract class AudioWrapper {
 
 	protected abstract void process(short inBuffer[], short outBuffer[]);
 	
-	public void start() {
+	public synchronized void start() {
 		if (rec != null) rec.start();
 		audioThread = new Thread() {
 			@Override
@@ -70,7 +70,7 @@ public abstract class AudioWrapper {
 		audioThread.start();
 	}
 	
-	public void stop() {
+	public synchronized void stop() {
 		if (rec != null) rec.stop();
 		if (audioThread == null) return;
 		audioThread.interrupt();
@@ -82,7 +82,7 @@ public abstract class AudioWrapper {
 		audioThread = null;
 	}
 
-	public void release() {
+	public synchronized void release() {
 		stop();
 		track.release();
 		if (rec != null) rec.release();
