@@ -10,6 +10,7 @@
 package org.puredata.android.io;
 
 import org.puredata.core.PdBase;
+import org.puredata.core.utils.PdUtils;
 
 
 public class PdAudio {
@@ -21,6 +22,7 @@ public class PdAudio {
 		if (isRunning() && !restart) return;
 		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate, ticksPerBuffer);
+		PdUtils.computeAudio(true);
 		int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
 			@Override
