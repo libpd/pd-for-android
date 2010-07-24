@@ -1,73 +1,89 @@
+/**
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ * 
+ * For information on usage and redistribution, and for a DISCLAIMER OF ALL
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ * 
+ * wrapper for AudioRecord; the purpose of the weird queuing mechanism is to work around the
+ * AudioRecord.read blocking problem on Droid X, without messing things up on other devices
+ * 
+ */
+
 package org.puredata.android.io;
 
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.media.AudioRecord.OnRecordPositionUpdateListener;
-import android.util.Log;
+import android.os.Process;
 
 public class AudioRecordWrapper {
 
-	private static final String PD_AUDIO_RECORD_WRAPPER = "Pd AudioRecordWrapper";
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 	private final AudioRecord rec;
 	private final int bufSizeShorts;
-	private final BlockingQueue<short[]> queue;
-	
-	public AudioRecordWrapper(int sampleRate, int inChannels, int notificationPeriod) {
-		queue = new ArrayBlockingQueue<short[]>(1);
+	private final BlockingQueue<short[]> queue = new SynchronousQueue<short[]>();
+	private Thread inputThread = null;
+
+	public AudioRecordWrapper(int sampleRate, int inChannels, int ticksPerBuffer) {
 		int channelConfig = VersionedAudioFormat.getInFormat(inChannels);
-		bufSizeShorts = inChannels * notificationPeriod;
+		bufSizeShorts = inChannels * ticksPerBuffer;
 		int bufSizeBytes = 2 * bufSizeShorts;
-		int recSizeBytes = bufSizeBytes;
+		int recSizeBytes = 2 * bufSizeBytes;
 		int minRecSizeBytes = AudioRecord.getMinBufferSize(sampleRate, channelConfig, ENCODING);
 		while (recSizeBytes < minRecSizeBytes) recSizeBytes += bufSizeBytes;
 		rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig, ENCODING, recSizeBytes);
-		rec.setPositionNotificationPeriod(notificationPeriod);
-		rec.setRecordPositionUpdateListener(new OnRecordPositionUpdateListener() {
-			@Override
-			public void onPeriodicNotification(AudioRecord recorder) {
-				readBuffer();
-			}
-	
-			@Override
-			public void onMarkerReached(AudioRecord recorder) {
-				// irrelevant here
-			}
-		});
 	}
 
-	private void readBuffer() {
-		short buf[] = new short[bufSizeShorts];
-		rec.read(buf, 0, bufSizeShorts);
-		if (!queue.offer(buf)) {
-			Log.w(PD_AUDIO_RECORD_WRAPPER, "queue full; discarding buffer");
+	public synchronized void start() {
+		inputThread = new Thread() {
+			@Override
+			public void run() {
+				Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+				rec.startRecording();
+				short buf1[] = new short[bufSizeShorts];
+				short buf2[] = new short[bufSizeShorts];
+				while (!Thread.interrupted()) {
+					rec.read(buf1, 0, bufSizeShorts);
+					try {
+						queue.put(buf1);
+					} catch (InterruptedException e) {
+						break;
+					}
+					short tmp[] = buf1;
+					buf1 = buf2;
+					buf2 = tmp;
+				}
+				rec.stop();
+			};
+		};
+		inputThread.start();
+	}
+
+	public synchronized void stop() {
+		if (inputThread == null) return;
+		inputThread.interrupt();
+		try {
+			inputThread.join();
+		} catch (InterruptedException e) {
+			// do nothing
 		}
-		Log.i(PD_AUDIO_RECORD_WRAPPER, "periodic read notification");
+		inputThread = null;
 	}
-	
-	public void start() {
-		rec.startRecording();
-		readBuffer();
-	}
-	
-	public void stop() {
-		rec.stop();
-	}
-	
-	public void release() {
+
+	public synchronized void release() {
 		stop();
 		rec.release();
 		queue.clear();
 	}
-	
+
 	public short[] poll() {
 		return queue.poll();
 	}
-	
+
 	public short[] take() throws InterruptedException {
 		return queue.take();
 	}

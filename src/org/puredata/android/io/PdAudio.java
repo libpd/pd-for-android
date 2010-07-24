@@ -18,16 +18,11 @@ public class PdAudio {
 	
 	public synchronized static void startAudio(int sampleRate, int inChannels, int outChannels,
 			int ticksPerBuffer, boolean restart) {
-		if (isRunning()) {
-			if (restart) {
-				stopAudio();
-			} else {
-				return;
-			}
-		}
+		if (isRunning() && !restart) return;
+		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate, ticksPerBuffer);
-		int notificationPeriod = ticksPerBuffer * PdBase.blockSize();
-		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, notificationPeriod);
+		int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
+		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel);
 		audioWrapper.start();
 	}
 
