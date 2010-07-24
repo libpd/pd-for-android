@@ -57,9 +57,8 @@ public abstract class AudioWrapper {
 				} catch (InterruptedException e) {
 					return;
 				}
-				int err = 0;
-				while (!Thread.interrupted() && err == 0) {
-					err = process(inBuf, outBuf);
+				while (!Thread.interrupted()) {
+					if (process(inBuf, outBuf) != 0) break;
 					track.write(outBuf, 0, bufSizeShorts);
 					if (rec != null) {
 						short newBuf[] = rec.poll();
