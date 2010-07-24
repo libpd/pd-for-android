@@ -170,7 +170,7 @@ int libpd_float(const char *recv, float x) {
 int libpd_bang(const char *recv) {
   void *obj = get_object(recv);
   if (obj != NULL) {
-    libpd_bang(obj);
+    pd_bang(obj);
     return 0;
   } else {
     return -1;

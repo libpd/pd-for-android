@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdListener;
@@ -32,13 +33,21 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Toast;
 
-public class PdServiceTest extends Activity {
+public class PdServiceTest extends Activity implements OnClickListener {
 
 	private static final String PD_TEST = "Pd Test";
 	private IPdService proxy = null;
 	private final Handler handler = new Handler();
+	private CheckBox left, right, mic;
+	private EditText msg;
+	private Button msgButton;
 
 	private String folder, filename, patch;
 	private int sampleRate, inChannels, outChannels, ticksPerBuffer;
@@ -74,6 +83,7 @@ public class PdServiceTest extends Activity {
 
 		@Override
 		public void receiveBang() throws RemoteException {
+			Log.i(PD_TEST, "received bang");
 			pdpost("bang!");
 		}
 
@@ -132,6 +142,24 @@ public class PdServiceTest extends Activity {
 	@Override
 	protected void onCreate(android.os.Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+		initGui();
+		initPd();
+	}
+
+	private void initGui() {
+		left = (CheckBox) findViewById(R.id.left_box);
+		left.setOnClickListener(this);
+		right = (CheckBox) findViewById(R.id.right_box);
+		right.setOnClickListener(this);
+		mic = (CheckBox) findViewById(R.id.mic_box);
+		mic.setOnClickListener(this);
+		msgButton = (Button) findViewById(R.id.msg_button);
+		msgButton.setOnClickListener(this);
+		msg = (EditText) findViewById(R.id.msg_box);
+	}
+
+	private void initPd() {
 		Resources res = getResources();
 		sampleRate = res.getInteger(R.integer.sampleRate);
 		inChannels = res.getInteger(R.integer.inChannels);
@@ -179,6 +207,59 @@ public class PdServiceTest extends Activity {
 			} catch (RemoteException e) {
 				post("lost connection to Pd Service while cleaning up");
 				Log.e(PD_TEST, e.toString());
+			}
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		try {
+			switch (v.getId()) {
+			case R.id.left_box:
+				proxy.sendFloat("left", left.isChecked() ? 1 : 0);
+				break;
+			case R.id.right_box:
+				proxy.sendFloat("right", right.isChecked() ? 1 : 0);
+				break;
+			case R.id.mic_box:
+				proxy.sendFloat("mic", mic.isChecked() ? 1 : 0);
+				break;
+			case R.id.msg_button:
+				evaluateMessage(msg.getText().toString());
+			default:
+				break;
+			}
+		} catch (RemoteException e) {
+			post("lost connection to Pd Service; quitting now");
+			finish();
+		}
+	}
+
+	private void evaluateMessage(String s) throws RemoteException {
+		final String target = "test";
+		if (s == null || s.equals("")) {
+			proxy.sendBang(target);
+		} else {
+			List<Object> list = new ArrayList<Object>();
+			Scanner sc = new Scanner(s);
+			while (sc.hasNext()) {
+				if (sc.hasNextInt()) {
+					list.add(new Float(sc.nextInt()));
+				} else if (sc.hasNextFloat()) {
+					list.add(sc.nextFloat());
+				} else {
+					list.add(sc.next());
+				}
+			}
+			if (list.size() > 1) {
+				proxy.sendList(target, list);
+			} else {
+				Object x = list.get(0);
+				if (x instanceof String) {
+					proxy.sendSymbol(target, (String) x);
+				} else {
+					proxy.sendFloat(target, (Float) x);
+				}
 			}
 		}
 	}
