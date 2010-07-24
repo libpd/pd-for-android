@@ -33,7 +33,7 @@ public class PdAudio {
 
 	public synchronized static void stopAudio() {
 		if (audioWrapper == null) return;
-		audioWrapper.stop();
+		audioWrapper.release();
 		audioWrapper = null;
 	}
 	
