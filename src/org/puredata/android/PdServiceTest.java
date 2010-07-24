@@ -229,7 +229,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			disconnected();
 		}
 	}
-	
+
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 		try {
@@ -241,34 +241,52 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 
 	private void evaluateMessage(String s) throws RemoteException {
-		final String target = "test";
-		if (s == null || s.equals("")) {
-			proxy.sendBang(target);
-		} else {
-			List<Object> list = new ArrayList<Object>();
-			Scanner sc = new Scanner(s);
-			while (sc.hasNext()) {
-				if (sc.hasNextInt()) {
-					list.add(new Float(sc.nextInt()));
-				} else if (sc.hasNextFloat()) {
-					list.add(sc.nextFloat());
-				} else {
-					list.add(sc.next());
-				}
+		String dest = "test", symbol = null;
+		boolean isAny = s.length() > 0 && s.charAt(0) == ';';
+		Scanner sc = new Scanner(isAny ? s.substring(1) : s);
+		if (isAny) {
+			if (sc.hasNext()) dest = sc.next();
+			else {
+				post("Message not sent (empty recipient)");
+				return;
 			}
-			if (list.size() > 1) {
-				proxy.sendList(target, list);
+			if (sc.hasNext()) symbol = sc.next();
+			else {
+				post("Message not sent (empty symbol)");
+			}
+		}
+		List<Object> list = new ArrayList<Object>();
+		while (sc.hasNext()) {
+			if (sc.hasNextInt()) {
+				list.add(new Float(sc.nextInt()));
+			} else if (sc.hasNextFloat()) {
+				list.add(sc.nextFloat());
 			} else {
+				list.add(sc.next());
+			}
+		}
+		if (isAny) {
+			proxy.sendMessage(dest, symbol, list);
+		} else {
+			switch (list.size()) {
+			case 0:
+				proxy.sendBang(dest);
+				break;
+			case 1:
 				Object x = list.get(0);
 				if (x instanceof String) {
-					proxy.sendSymbol(target, (String) x);
+					proxy.sendSymbol(dest, (String) x);
 				} else {
-					proxy.sendFloat(target, (Float) x);
+					proxy.sendFloat(dest, (Float) x);
 				}
+				break;
+			default:
+				proxy.sendList(dest, list);
+				break;
 			}
 		}
 	}
-	
+
 	private void disconnected() {
 		post("lost connection to Pd Service; quitting now");
 		finish();

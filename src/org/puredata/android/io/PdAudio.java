@@ -9,6 +9,8 @@
 
 package org.puredata.android.io;
 
+import java.util.Arrays;
+
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdUtils;
 
@@ -27,6 +29,7 @@ public class PdAudio {
 		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
 			@Override
 			protected int process(short[] inBuffer, short[] outBuffer) {
+				Arrays.fill(outBuffer, (short) 0);
 				return PdBase.process(inBuffer, outBuffer);
 			}
 		};
