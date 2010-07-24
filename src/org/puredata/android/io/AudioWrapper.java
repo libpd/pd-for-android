@@ -51,9 +51,16 @@ public abstract class AudioWrapper {
 			@Override
 			public void run() {
 				Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-				short inBuf[] = new short[inputSizeShorts];
+				short inBuf[];
+				try {
+					inBuf = (rec != null) ? rec.take() : new short[inputSizeShorts];
+				} catch (InterruptedException e) {
+					return;
+				}
 				int err = 0;
 				while (!Thread.interrupted() && err == 0) {
+					err = process(inBuf, outBuf);
+					track.write(outBuf, 0, bufSizeShorts);
 					if (rec != null) {
 						short newBuf[] = rec.poll();
 						if (newBuf != null) {
@@ -62,8 +69,6 @@ public abstract class AudioWrapper {
 							Log.w(PD_AUDIO_WRAPPER, "no input buffer available");
 						}
 					}
-					err = process(inBuf, outBuf);
-					track.write(outBuf, 0, bufSizeShorts);
 				}
 			}
 		};
