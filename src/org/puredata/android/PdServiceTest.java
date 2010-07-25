@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -126,7 +127,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			initPd();
 		}
 	};
-
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -135,16 +136,22 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 	
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		initGui();
-	}
-	
-	@Override
 	protected void onStop() {
 		super.onStop();
 		cleanup();
 		unbindService(connection);
+	}
+	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		boolean bl = left.isChecked();
+		boolean br = right.isChecked();
+		boolean bm = mic.isChecked();
+		initGui();
+		left.setChecked(bl);
+		right.setChecked(br);
+		mic.setChecked(bm);
 	}
 	
 	private void initGui() {
