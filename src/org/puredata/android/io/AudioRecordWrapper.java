@@ -44,18 +44,22 @@ public class AudioRecordWrapper {
 			@Override
 			public void run() {
 				Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-				short buf1[] = new short[bufSizeShorts];
-				short buf2[] = new short[bufSizeShorts];
+				short buf[] = new short[bufSizeShorts];
+				short auxBuf[] = new short[bufSizeShorts];
 				while (!Thread.interrupted()) {
-					rec.read(buf1, 0, bufSizeShorts);
+					int nRead = 0;
+					while (nRead < bufSizeShorts && !Thread.interrupted()) {
+						nRead += rec.read(buf, nRead, bufSizeShorts - nRead);
+					}
+					if (nRead < bufSizeShorts) break;
 					try {
-						queue.put(buf1);
+						queue.put(buf);
 					} catch (InterruptedException e) {
 						break;
 					}
-					short tmp[] = buf1;
-					buf1 = buf2;
-					buf2 = tmp;
+					short tmp[] = buf;
+					buf = auxBuf;
+					auxBuf = tmp;
 				}
 			};
 		};

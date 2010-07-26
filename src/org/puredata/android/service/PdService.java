@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.puredata.android.R;
+import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdDispatcher;
@@ -246,20 +247,20 @@ public class PdService extends Service {
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (sr < 0) {
-			String srs = prefs.getString(res.getString(R.string.pref_key_srate), res.getString(R.string.srate_default));
-			sr = Integer.parseInt(srs);
+			String srs = prefs.getString(res.getString(R.string.pref_key_srate), null);
+			sr = (srs == null) ? AudioParameters.getSampleRate() : Integer.parseInt(srs);
 		}
 		if (nic < 0) {
-			String ics = prefs.getString(res.getString(R.string.pref_key_inchannels), res.getString(R.string.inchannels_default));
-			nic = Integer.parseInt(ics);
+			String ics = prefs.getString(res.getString(R.string.pref_key_inchannels), null);
+			nic = (ics == null) ? AudioParameters.getInputChannels() : Integer.parseInt(ics);
 		}
 		if (noc < 0) {
-			String ocs = prefs.getString(res.getString(R.string.pref_key_outchannels), res.getString(R.string.outchannels_default));
-			noc = Integer.parseInt(ocs);
+			String ocs = prefs.getString(res.getString(R.string.pref_key_outchannels), null);
+			noc = (ocs == null) ? AudioParameters.getOutputChannels() : Integer.parseInt(ocs);
 		}
 		if (tpb < 0) {
-			String tpbs = prefs.getString(res.getString(R.string.pref_key_tpb), res.getString(R.string.tpb_default));
-			tpb = Integer.parseInt(tpbs);
+			String tpbs = prefs.getString(res.getString(R.string.pref_key_tpb), null);
+			tpb = (tpbs == null) ? AudioParameters.getTicksPerBuffer() : Integer.parseInt(tpbs);
 		}
 
 		boolean restart = false;

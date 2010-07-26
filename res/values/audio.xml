@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="srate_default">22050</string>
 	<string-array name="srate_labels">
 		<item>8000Hz</item>
 		<item>11025Hz</item>
@@ -15,7 +14,6 @@
 		<item>44100</item>
 		<item>48000</item>
 	</string-array>
-	<string name="inchannels_default">1</string>
 	<string-array name="inchannels_labels">
 		<item>None</item>
 		<item>Mono</item>
@@ -26,7 +24,6 @@
 		<item>1</item>
 		<item>2</item>
 	</string-array>
-	<string name="outchannels_default">2</string>
 	<string-array name="outchannels_labels">
 		<item>Mono</item>
 		<item>Stereo</item>
@@ -41,7 +38,6 @@
 		<item>6</item>
 		<item>8</item>
 	</string-array>
-	<string name="tpb_default">16</string>
 	<string-array name="tpb_labels">
 		<item>1</item>
 		<item>2</item>
