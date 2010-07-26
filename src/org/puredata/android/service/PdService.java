@@ -45,7 +45,7 @@ public class PdService extends Service {
 
 	private int sampleRate = 0, nIn = 0, nOut = 0;
 	private int ticksPerBuffer = Integer.MAX_VALUE;
-	private int clientCount = 0;
+	private int activeCount = 0;
 
 	private final RemoteCallbackList<IPdClient> clients = new RemoteCallbackList<IPdClient>();
 
@@ -226,8 +226,8 @@ public class PdService extends Service {
 	}
 
 	private void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
-		fgManager.startForeground();
 		PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
+		if (activeCount == 0) fgManager.startForeground();
 		this.sampleRate = sampleRate;
 		this.nIn = nIn;
 		this.nOut = nOut;
@@ -237,7 +237,7 @@ public class PdService extends Service {
 
 	private synchronized void stopAudio() {
 		PdAudio.stopAudio();
-		sampleRate = nIn = nOut = clientCount = 0;
+		sampleRate = nIn = nOut = activeCount = 0;
 		ticksPerBuffer = Integer.MAX_VALUE;
 		announceStop();
 		fgManager.stopForeground();
@@ -248,21 +248,20 @@ public class PdService extends Service {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (sr < 0) {
 			String srs = prefs.getString(res.getString(R.string.pref_key_srate), null);
-			sr = (srs == null) ? AudioParameters.getSampleRate() : Integer.parseInt(srs);
+			sr = (srs == null) ? AudioParameters.suggestSampleRate() : Integer.parseInt(srs);
 		}
 		if (nic < 0) {
 			String ics = prefs.getString(res.getString(R.string.pref_key_inchannels), null);
-			nic = (ics == null) ? AudioParameters.getInputChannels() : Integer.parseInt(ics);
+			nic = (ics == null) ? AudioParameters.suggestInputChannels() : Integer.parseInt(ics);
 		}
 		if (noc < 0) {
 			String ocs = prefs.getString(res.getString(R.string.pref_key_outchannels), null);
-			noc = (ocs == null) ? AudioParameters.getOutputChannels() : Integer.parseInt(ocs);
+			noc = (ocs == null) ? AudioParameters.suggestOutputChannels() : Integer.parseInt(ocs);
 		}
 		if (tpb < 0) {
 			String tpbs = prefs.getString(res.getString(R.string.pref_key_tpb), null);
-			tpb = (tpbs == null) ? AudioParameters.getTicksPerBuffer() : Integer.parseInt(tpbs);
+			tpb = (tpbs == null) ? AudioParameters.suggestTicksPerBuffer() : Integer.parseInt(tpbs);
 		}
-
 		boolean restart = false;
 		if (sr > sampleRate) restart = true;
 		else sr = sampleRate;
@@ -273,20 +272,17 @@ public class PdService extends Service {
 		if (tpb < ticksPerBuffer) restart = true;
 		else tpb = ticksPerBuffer;
 		try {
-			if (restart) {
-				startAudio(sr, nic, noc, tpb);
-			}
-			++clientCount;
+			if (restart) startAudio(sr, nic, noc, tpb);
+			activeCount++;
 			return 0;
 		} catch (Exception e) {
 			Log.e(PD_SERVICE, e.toString());
-			if (sampleRate > 0) {
+			if (activeCount > 0 && !PdAudio.isRunning()) {
 				try {
-					PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
+					PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, false);
 				} catch (Exception e1) {
+					Log.i(PD_SERVICE, e1.toString());
 					stopAudio();
-					Log.e(PD_SERVICE, e1.toString());
-					Log.e(PD_SERVICE, "unable to restart audio with previous parameters");
 				}
 			}
 			return -1;
@@ -294,8 +290,9 @@ public class PdService extends Service {
 	}
 
 	private synchronized void releaseAudio() {
-		if (clientCount > 0 && --clientCount == 0) {
-			stopAudio();
+		if (activeCount > 0) {
+			activeCount--;
+			if (activeCount == 0) stopAudio();
 		}
 	}
 
@@ -337,7 +334,7 @@ public class PdService extends Service {
 
 	private class ForegroundEclair implements ForegroundManager {
 		@Override
-		public void startForeground() {
+		public synchronized void startForeground() {
 			Intent intent = new Intent(PdService.this, KillPdService.class);
 			PendingIntent pi = PendingIntent.getActivity(PdService.this, 0, intent, 0);
 			Notification notification = new Notification(R.drawable.icon, "Pure Data", System.currentTimeMillis());
@@ -347,7 +344,7 @@ public class PdService extends Service {
 		}
 
 		@Override
-		public void stopForeground() {
+		public synchronized void stopForeground() {
 			PdService.this.stopForeground(true);
 		}
 	}

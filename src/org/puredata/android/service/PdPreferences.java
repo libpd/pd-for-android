@@ -34,10 +34,10 @@ public class PdPreferences extends PreferenceActivity {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (!prefs.contains(res.getString(R.string.pref_key_srate))) {
 			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString(res.getString(R.string.pref_key_srate), "" + AudioParameters.getSampleRate());
-			editor.putString(res.getString(R.string.pref_key_inchannels), "" + AudioParameters.getInputChannels());
-			editor.putString(res.getString(R.string.pref_key_outchannels), "" + AudioParameters.getOutputChannels());
-			editor.putString(res.getString(R.string.pref_key_tpb), "" + AudioParameters.getTicksPerBuffer());
+			editor.putString(res.getString(R.string.pref_key_srate), "" + AudioParameters.suggestSampleRate());
+			editor.putString(res.getString(R.string.pref_key_inchannels), "" + AudioParameters.suggestInputChannels());
+			editor.putString(res.getString(R.string.pref_key_outchannels), "" + AudioParameters.suggestOutputChannels());
+			editor.putString(res.getString(R.string.pref_key_tpb), "" + AudioParameters.suggestTicksPerBuffer());
 			editor.commit();
 		}
 	}
