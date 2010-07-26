@@ -6,12 +6,14 @@
 		<item>11025Hz</item>
 		<item>22050Hz</item>
 		<item>44100Hz</item>
+		<item>48000Hz</item>
 	</string-array>
 	<string-array name="srate_values">
 		<item>8000</item>
 		<item>11025</item>
 		<item>22050</item>
 		<item>44100</item>
+		<item>48000</item>
 	</string-array>
 	<string name="inchannels_default">1</string>
 	<string-array name="inchannels_labels">
