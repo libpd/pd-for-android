@@ -25,15 +25,18 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 
 public class PdService extends Service {
-	
+
 	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
 	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 
@@ -42,7 +45,7 @@ public class PdService extends Service {
 	private int sampleRate = 0, nIn = 0, nOut = 0;
 	private int ticksPerBuffer = Integer.MAX_VALUE;
 	private int clientCount = 0;
-	
+
 	private final RemoteCallbackList<IPdClient> clients = new RemoteCallbackList<IPdClient>();
 
 	private final PdDispatcher dispatcher = new PdDispatcher() {
@@ -119,12 +122,12 @@ public class PdService extends Service {
 	}
 
 	private final IPdService.Stub binder = new IPdService.Stub() {
-		
+
 		@Override
 		public void addClient(IPdClient client) throws RemoteException {
 			clients.register(client);
 		}
-		
+
 		@Override
 		public void removeClient(IPdClient client) throws RemoteException {
 			clients.unregister(client);
@@ -140,12 +143,12 @@ public class PdService extends Service {
 		public void releaseAudio() throws RemoteException {
 			PdService.this.releaseAudio();
 		}
-		
+
 		@Override
 		public void stop() throws RemoteException {
 			stopAudio();
 		};
-		
+
 		@Override
 		public boolean isRunning() throws RemoteException {
 			return PdAudio.isRunning();
@@ -208,7 +211,7 @@ public class PdService extends Service {
 		}
 		clients.finishBroadcast();
 	}
-	
+
 	private void announceStop() {
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
@@ -220,7 +223,7 @@ public class PdService extends Service {
 		}
 		clients.finishBroadcast();
 	}
-	
+
 	private void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
 		fgManager.startForeground();
 		PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
@@ -232,7 +235,6 @@ public class PdService extends Service {
 	}
 
 	private synchronized void stopAudio() {
-		if (!PdAudio.isRunning()) return;
 		PdAudio.stopAudio();
 		sampleRate = nIn = nOut = clientCount = 0;
 		ticksPerBuffer = Integer.MAX_VALUE;
@@ -241,6 +243,25 @@ public class PdService extends Service {
 	}
 
 	private synchronized int requestAudio(int sr, int nic, int noc, int tpb) {
+		Resources res = getResources();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		if (sr < 0) {
+			String srs = prefs.getString(res.getString(R.string.pref_key_srate), res.getString(R.string.srate_default));
+			sr = Integer.parseInt(srs);
+		}
+		if (nic < 0) {
+			String ics = prefs.getString(res.getString(R.string.pref_key_inchannels), res.getString(R.string.inchannels_default));
+			nic = Integer.parseInt(ics);
+		}
+		if (noc < 0) {
+			String ocs = prefs.getString(res.getString(R.string.pref_key_outchannels), res.getString(R.string.outchannels_default));
+			noc = Integer.parseInt(ocs);
+		}
+		if (tpb < 0) {
+			String tpbs = prefs.getString(res.getString(R.string.pref_key_tpb), res.getString(R.string.tpb_default));
+			tpb = Integer.parseInt(tpbs);
+		}
+
 		boolean restart = false;
 		if (sr > sampleRate) restart = true;
 		else sr = sampleRate;
@@ -262,7 +283,7 @@ public class PdService extends Service {
 				try {
 					PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
 				} catch (Exception e1) {
-					announceStop();
+					stopAudio();
 					Log.e(PD_SERVICE, e1.toString());
 					Log.e(PD_SERVICE, "unable to restart audio with previous parameters");
 				}
@@ -276,7 +297,7 @@ public class PdService extends Service {
 			stopAudio();
 		}
 	}
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
@@ -295,12 +316,12 @@ public class PdService extends Service {
 		dispatcher.release();
 		PdBase.release();
 	}
-	
+
 	private interface ForegroundManager {
 		void startForeground();
 		void stopForeground();
 	}
-	
+
 	private class ForegroundCupcake implements ForegroundManager {
 		@Override
 		public void startForeground() {
@@ -312,7 +333,7 @@ public class PdService extends Service {
 			setForeground(false);
 		}
 	}
-	
+
 	private class ForegroundEclair implements ForegroundManager {
 		@Override
 		public void startForeground() {
@@ -323,7 +344,7 @@ public class PdService extends Service {
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
 			PdService.this.startForeground(1, notification);
 		}
-		
+
 		@Override
 		public void stopForeground() {
 			PdService.this.stopForeground(true);

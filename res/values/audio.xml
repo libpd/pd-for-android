@@ -1,7 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<integer name="inChannels">1</integer>
-	<integer name="outChannels">2</integer>
-	<integer name="sampleRate">22050</integer>
-	<integer name="ticksPerBuffer">16</integer>
+	<string name="srate_default">22050</string>
+	<string-array name="srate_labels">
+		<item>8000Hz</item>
+		<item>11025Hz</item>
+		<item>22050Hz</item>
+		<item>44100Hz</item>
+	</string-array>
+	<string-array name="srate_values">
+		<item>8000</item>
+		<item>11025</item>
+		<item>22050</item>
+		<item>44100</item>
+	</string-array>
+	<string name="inchannels_default">1</string>
+	<string-array name="inchannels_labels">
+		<item>None</item>
+		<item>Mono</item>
+		<item>Stereo</item>
+	</string-array>
+	<string-array name="inchannels_values">
+		<item>0</item>
+		<item>1</item>
+		<item>2</item>
+	</string-array>
+	<string name="outchannels_default">2</string>
+	<string-array name="outchannels_labels">
+		<item>Mono</item>
+		<item>Stereo</item>
+		<item>Quadraphonic</item>
+		<item>5.1 Surround</item>
+		<item>7.1 surround</item>
+	</string-array>
+	<string-array name="outchannels_values">
+		<item>1</item>
+		<item>2</item>
+		<item>4</item>
+		<item>6</item>
+		<item>8</item>
+	</string-array>
+	<string name="tpb_default">16</string>
+	<string-array name="tpb_labels">
+		<item>1</item>
+		<item>2</item>
+		<item>4</item>
+		<item>8</item>
+		<item>16</item>
+		<item>32</item>
+		<item>64</item>
+		<item>128</item>
+	</string-array>
+	<string-array name="tpb_values">
+		<item>1</item>
+		<item>2</item>
+		<item>4</item>
+		<item>8</item>
+		<item>16</item>
+		<item>32</item>
+		<item>64</item>
+		<item>128</item>
+	</string-array>
 </resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:title="@string/pref_title"
+	android:summary="@string/pref_sum">
+	<ListPreference android:entryValues="@array/srate_values"
+		android:entries="@array/srate_labels" android:key="@string/pref_key_srate"
+		android:title="@string/pref_title_srate"
+		android:summary="@string/pref_sum_srate" android:defaultValue="@string/srate_default">
+	</ListPreference>
+<ListPreference android:key="@string/pref_key_inchannels" android:entryValues="@array/inchannels_values" android:entries="@array/inchannels_labels" android:title="@string/pref_title_inchannels" android:summary="@string/pref_sum_inchannels" android:defaultValue="@string/inchannels_default"></ListPreference>
+<ListPreference android:key="@string/pref_key_outchannels" android:entryValues="@array/outchannels_values" android:defaultValue="@string/outchannels_default" android:entries="@array/outchannels_labels" android:title="@string/pref_title_outchannels" android:summary="@string/pref_sum_outchannels"></ListPreference>
+<ListPreference android:key="@string/pref_key_tpb" android:entryValues="@array/tpb_values" android:defaultValue="@string/tpb_default" android:entries="@array/tpb_labels" android:title="@string/pref_title_tpb" android:summary="@string/pref_sum_tpb"></ListPreference>
+</PreferenceScreen>
