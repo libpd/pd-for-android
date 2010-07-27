@@ -23,8 +23,10 @@ import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -344,26 +346,37 @@ public class PdService extends Service {
 	}
 
 	private class ForegroundCupcake implements ForegroundManager {
-		@Override
-		public void startForeground() {
-			setForeground(true);
-		}
+		
+		protected static final int NOTIFICATION_ID = 1;
 
-		@Override
-		public void stopForeground() {
-			setForeground(false);
-		}
-	}
-
-	private class ForegroundEclair implements ForegroundManager {
-		@Override
-		public synchronized void startForeground() {
+		protected Notification makeNotification() {
 			Intent intent = new Intent(PdService.this, KillPdService.class);
 			PendingIntent pi = PendingIntent.getActivity(PdService.this, 0, intent, 0);
 			Notification notification = new Notification(R.drawable.icon, "Pure Data", System.currentTimeMillis());
 			notification.setLatestEventInfo(PdService.this, "Pure Data", "Tap to stop Pure Data.", pi);
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
-			PdService.this.startForeground(1, notification);
+			return notification;
+		}
+		
+		@Override
+		public void startForeground() {
+			setForeground(true);
+			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			nm.notify(NOTIFICATION_ID, makeNotification());
+		}
+
+		@Override
+		public void stopForeground() {
+			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			nm.cancel(NOTIFICATION_ID);
+			setForeground(false);
+		}
+	}
+
+	private class ForegroundEclair extends ForegroundCupcake {
+		@Override
+		public synchronized void startForeground() {
+			PdService.this.startForeground(NOTIFICATION_ID, makeNotification());
 		}
 
 		@Override
