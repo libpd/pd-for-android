@@ -23,4 +23,8 @@ oneway interface IPdClient {
 	 */
 	void handleStop();
 	
+	/**
+	 * print from pd
+	 */
+	void print(String s);
 }

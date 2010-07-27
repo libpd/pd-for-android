@@ -84,6 +84,11 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
 					", ticks per pd buffer: " + ticksPerBuffer);
 		}
+
+		@Override
+		public void print(String s) throws RemoteException {
+			Log.i(PD_TEST, "print " + s);
+		}
 	};
 
 	private IPdListener.Stub receiver = new IPdListener.Stub() {

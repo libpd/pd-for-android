@@ -54,7 +54,7 @@ public class PdService extends Service {
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
 		public void print(String s) {
-			Log.i(PD_SERVICE, s);
+			printToClients(s);
 		}
 	};
 
@@ -208,8 +208,45 @@ public class PdService extends Service {
 			PdBase.sendMessage(dest, symbol, args.toArray());
 		}
 	};
+	
+	private synchronized int requestAudio(int srate, int nic, int noc, int tpb) {
+		int err = changeAudio(srate, nic, noc, tpb);
+		if (err == 0) {
+			activeCount++;
+		}
+		return err;
+	}
+	
+	private synchronized int adjustAudio(int srate, int nic, int noc, int tpb) {
+		if (activeCount > 0) {
+			return changeAudio(srate, nic, noc, tpb);
+		} else {
+			return -10;  // nothing to adjust
+		}
+	}
 
-	private void announceStart() {
+	private synchronized void stopAudio() {
+		if (activeCount <= 0) return;
+		PdAudio.stopAudio();
+		fgManager.stopForeground();
+		sampleRate = nIn = nOut = activeCount = 0;
+		ticksPerBuffer = Integer.MAX_VALUE;
+		announceStop();
+	}
+	
+	private synchronized void printToClients(String s) {
+		int i = clients.beginBroadcast();
+		while (i-- > 0) {
+			try {
+				clients.getBroadcastItem(i).print(s);
+			} catch (RemoteException e) {
+				Log.e(PD_SERVICE, e.toString());
+			}
+		}
+		clients.finishBroadcast();
+	}
+	
+	private synchronized void announceStart() {
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
 			try {
@@ -220,8 +257,8 @@ public class PdService extends Service {
 		}
 		clients.finishBroadcast();
 	}
-
-	private void announceStop() {
+	
+	private synchronized void announceStop() {
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
 			try {
@@ -232,7 +269,7 @@ public class PdService extends Service {
 		}
 		clients.finishBroadcast();
 	}
-
+	
 	private void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
 		PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
 		if (activeCount == 0) fgManager.startForeground();
@@ -241,15 +278,6 @@ public class PdService extends Service {
 		this.nOut = nOut;
 		this.ticksPerBuffer = ticksPerBuffer;
 		announceStart();
-	}
-
-	private synchronized void stopAudio() {
-		if (activeCount <= 0) return;
-		PdAudio.stopAudio();
-		fgManager.stopForeground();
-		sampleRate = nIn = nOut = activeCount = 0;
-		ticksPerBuffer = Integer.MAX_VALUE;
-		announceStop();
 	}
 
 	private int changeAudio(int sr, int nic, int noc, int tpb) {
@@ -295,22 +323,6 @@ public class PdService extends Service {
 			return -1;
 		}
 		return 0;
-	}
-	
-	private synchronized int requestAudio(int srate, int nic, int noc, int tpb) {
-		int err = changeAudio(srate, nic, noc, tpb);
-		if (err == 0) {
-			activeCount++;
-		}
-		return err;
-	}
-	
-	private synchronized int adjustAudio(int srate, int nic, int noc, int tpb) {
-		if (activeCount > 0) {
-			return changeAudio(srate, nic, noc, tpb);
-		} else {
-			return -10;  // nothing to adjust
-		}
 	}
 
 	private synchronized void releaseAudio() {
