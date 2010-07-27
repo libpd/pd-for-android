@@ -5,8 +5,8 @@
 	<string name="left_label">Left channel</string>
 	<string name="right_label">Right channel</string>
 	<string name="mic_label">Enable microphone</string>
-	<string name="msg_label">Send message to Pure Data:</string>
-	<string name="default_msg"></string>
+	
+	<string name="default_msg">Enter message to Pure Data</string>
 
 <string name="pref_title">Pure Data Preferences</string>
 <string name="pref_sum">Pure Data Preferences</string>

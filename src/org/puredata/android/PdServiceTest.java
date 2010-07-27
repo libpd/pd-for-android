@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -56,6 +57,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private CheckBox left, right, mic;
 	private EditText msg;
 	private Button prefs;
+	private TextView logs;
 
 	private String folder, filename, patch;
 	private boolean hasAudio = false;
@@ -86,8 +88,13 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		}
 
 		@Override
-		public void print(String s) throws RemoteException {
-			Log.i(PD_TEST, "print " + s);
+		public void print(final String s) throws RemoteException {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					logs.append(s);
+				}
+			});
 		}
 	};
 
@@ -189,6 +196,8 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		msg.setOnEditorActionListener(this);
 		prefs = (Button) findViewById(R.id.pref_button);
 		prefs.setOnClickListener(this);
+		logs = (TextView) findViewById(R.id.log_box);
+		logs.setMovementMethod(new ScrollingMovementMethod());
 	}
 
 	private void initPd() {

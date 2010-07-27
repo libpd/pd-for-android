@@ -12,11 +12,12 @@
 	<CheckBox android:id="@+id/mic_box" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:checked="true"
 		android:text="@string/mic_label" />
-	<TextView android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="@string/msg_label" />
 	<EditText android:id="@+id/msg_box" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:lines="1"
 		android:inputType="text" android:text="@string/default_msg" />
 	<Button android:id="@+id/pref_button" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:text="@string/pref_button_text" />
+	<TextView android:id="@+id/log_box" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:gravity="bottom"
+		android:scrollbars="vertical" android:text="" />
 </LinearLayout>
