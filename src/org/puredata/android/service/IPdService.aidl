@@ -35,6 +35,14 @@ interface IPdService {
 	int requestAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
 	
 	/**
+	 * change audio the given parameters (or better); starts or restarts the audio thread if necessary;
+	 * different from requestAudio in that it does not increment the count of active audio clients
+	 *
+	 * returns an error code, 0 on success
+	 */
+	int adjustAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
+	
+	/**
 	 * indicates that this client no longer needs the audio thread; stops the audio thread if no clients are left
 	 */
 	void releaseAudio();

@@ -139,6 +139,12 @@ public class PdService extends Service {
 				int ticksPerBuffer) throws RemoteException {
 			return PdService.this.requestAudio(sampleRate, nIn, nOut, ticksPerBuffer);
 		}
+		
+		@Override
+		public int adjustAudio(int sampleRate, int nIn, int nOut,
+				int ticksPerBuffer) throws RemoteException {
+			return PdService.this.adjustAudio(sampleRate, nIn, nOut, ticksPerBuffer);
+		}
 
 		@Override
 		public void releaseAudio() throws RemoteException {
@@ -244,7 +250,7 @@ public class PdService extends Service {
 		announceStop();
 	}
 
-	private synchronized int requestAudio(int sr, int nic, int noc, int tpb) {
+	private int changeAudio(int sr, int nic, int noc, int tpb) {
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (sr < 0) {
@@ -274,8 +280,6 @@ public class PdService extends Service {
 		else tpb = ticksPerBuffer;
 		try {
 			if (restart) startAudio(sr, nic, noc, tpb);
-			activeCount++;
-			return 0;
 		} catch (Exception e) {
 			Log.e(PD_SERVICE, e.toString());
 			if (activeCount > 0 && !PdAudio.isRunning()) {
@@ -287,6 +291,23 @@ public class PdService extends Service {
 				}
 			}
 			return -1;
+		}
+		return 0;
+	}
+	
+	private synchronized int requestAudio(int srate, int nic, int noc, int tpb) {
+		int err = changeAudio(srate, nic, noc, tpb);
+		if (err == 0) {
+			activeCount++;
+		}
+		return err;
+	}
+	
+	private synchronized int adjustAudio(int srate, int nic, int noc, int tpb) {
+		if (activeCount > 0) {
+			return changeAudio(srate, nic, noc, tpb);
+		} else {
+			return -10;  // nothing to adjust
 		}
 	}
 

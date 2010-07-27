@@ -152,6 +152,15 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 
 	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		try {
+			restartAudio(); 
+		} catch (RemoteException e) {
+			Log.e(PD_TEST, e.toString());
+		}
+	}
+
+	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		boolean bl = left.isChecked();
@@ -189,6 +198,19 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		} catch (RemoteException e) {
 			Log.e(PD_TEST, e.toString());
 			disconnected();
+		}
+	}
+
+	private void restartAudio() throws RemoteException {
+		if (proxy == null) return;
+		if (hasAudio) {
+			hasAudio = false;
+			proxy.releaseAudio();
+		}
+		int err = proxy.requestAudio(-1, -1, -1, -1);
+		hasAudio = err == 0;
+		if (!hasAudio) {
+			post("didn't get requested audio settings; check preferences");
 		}
 	}
 
@@ -267,28 +289,6 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			disconnected();
 		}
 		return true;
-	}
-
-	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		try {
-			restartAudio(); 
-		} catch (RemoteException e) {
-			Log.e(PD_TEST, e.toString());
-		}
-	}
-
-	private void restartAudio() throws RemoteException {
-		if (proxy == null) return;
-		if (hasAudio) {
-			hasAudio = false;
-			proxy.releaseAudio();
-		}
-		int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values default to choice from PdService preferences
-		hasAudio = (err == 0);
-		if (!hasAudio) {
-			post("unable to start audio; check preferences");
-		}
 	}
 
 	private void evaluateMessage(String s) throws RemoteException {
