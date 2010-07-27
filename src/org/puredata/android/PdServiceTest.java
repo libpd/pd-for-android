@@ -29,11 +29,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -45,11 +47,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
-public class PdServiceTest extends Activity implements OnClickListener, OnEditorActionListener {
+public class PdServiceTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String PD_TEST = "Pd Test";
 	private final Handler handler = new Handler();
-	
+
 	private IPdService proxy = null;
 	private CheckBox left, right, mic;
 	private EditText msg;
@@ -62,7 +64,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), PD_TEST + ": " + msg, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -70,9 +72,11 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private final IPdClient.Stub client = new IPdClient.Stub() {
 		@Override
 		public void handleStop() throws RemoteException {
-			hasAudio = false;
-			post("Pure Data was stopped externally; quitting now");
-			finish();
+			if (hasAudio) {
+				hasAudio = false;
+				post("Pure Data was stopped externally; finishing now");
+				finish();
+			}
 		}
 
 		@Override
@@ -130,21 +134,23 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			initPd();
 		}
 	};
-	
+
 	@Override
-	protected void onStart() {
-		super.onStart();
+	protected void onCreate(android.os.Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		PdPreferences.initPreferences(getApplicationContext());
+		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		initGui();
-		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
-	}
-	
+		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);		
+	};
+
 	@Override
-	protected void onStop() {
-		super.onStop();
+	protected void onDestroy() {
+		super.onDestroy();
 		cleanup();
 		unbindService(connection);
 	}
-	
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -156,7 +162,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		right.setChecked(br);
 		mic.setChecked(bm);
 	}
-	
+
 	private void initGui() {
 		setContentView(R.layout.main);
 		left = (CheckBox) findViewById(R.id.left_box);
@@ -170,7 +176,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		prefs = (Button) findViewById(R.id.pref_button);
 		prefs.setOnClickListener(this);
 	}
-	
+
 	private void initPd() {
 		initParameters();
 		try {
@@ -179,17 +185,13 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			if (!proxy.objectExists(patch)) {
 				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
 			}
-			int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values default to choice from PdService preferences
-			hasAudio = (err == 0);
-			if (!hasAudio) {
-				post("unable to start audio; check preferences");
-			}
+			restartAudio();
 		} catch (RemoteException e) {
 			Log.e(PD_TEST, e.toString());
 			disconnected();
 		}
 	}
-	
+
 	private void initParameters() {
 		Resources res = getResources();
 		try {
@@ -222,7 +224,10 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 				proxy.removeClient(client);
 				proxy.sendMessage(patch, "menuclose", new ArrayList());
 				proxy.unsubscribe("android", receiver);
-				if (hasAudio) proxy.releaseAudio();
+				if (hasAudio) {
+					hasAudio = false;
+					proxy.releaseAudio();
+				}
 			} catch (RemoteException e) {
 				Log.e(PD_TEST, e.toString());
 				disconnected();
@@ -262,6 +267,28 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			disconnected();
 		}
 		return true;
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		try {
+			restartAudio(); 
+		} catch (RemoteException e) {
+			Log.e(PD_TEST, e.toString());
+		}
+	}
+
+	private void restartAudio() throws RemoteException {
+		if (proxy == null) return;
+		if (hasAudio) {
+			hasAudio = false;
+			proxy.releaseAudio();
+		}
+		int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values default to choice from PdService preferences
+		hasAudio = (err == 0);
+		if (!hasAudio) {
+			post("unable to start audio; check preferences");
+		}
 	}
 
 	private void evaluateMessage(String s) throws RemoteException {
@@ -310,9 +337,9 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			}
 		}
 	}
-	
+
 	private void disconnected() {
-		post("lost connection to Pd Service; quitting now");
+		post("lost connection to Pd Service; finishing now");
 		finish();
 	}
 }

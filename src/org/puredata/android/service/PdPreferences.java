@@ -14,6 +14,7 @@ package org.puredata.android.service;
 import org.puredata.android.R;
 import org.puredata.android.io.AudioParameters;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -25,13 +26,13 @@ public class PdPreferences extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		initPreferences();
+		initPreferences(getApplicationContext());
 		addPreferencesFromResource(R.xml.preferences);
 	}
 	
-	private void initPreferences() {
-		Resources res = getResources();
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+	public static void initPreferences(Context context) {
+		Resources res = context.getResources();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!prefs.contains(res.getString(R.string.pref_key_srate))) {
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString(res.getString(R.string.pref_key_srate), "" + AudioParameters.suggestSampleRate());

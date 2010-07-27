@@ -11,6 +11,8 @@
 
 package org.puredata.android.io;
 
+import org.puredata.core.PdBase;
+
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
@@ -33,7 +35,7 @@ public class AudioParameters {
 	public static int suggestTicksPerBuffer() { return ticksPerBuffer; }
 
 	public static boolean checkParameters(int srate, int nin, int nout, int tpb) {
-		return inOkay(srate, nin) && outOkay(srate, nout) && tpb > 0;
+		return inOkay(srate, nin) && outOkay(srate, nout) && tpb > 0  && tpb < srate / PdBase.blockSize();
 	}
 
 	private static void init() {

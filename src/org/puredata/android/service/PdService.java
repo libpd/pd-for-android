@@ -236,11 +236,12 @@ public class PdService extends Service {
 	}
 
 	private synchronized void stopAudio() {
+		if (activeCount <= 0) return;
 		PdAudio.stopAudio();
+		fgManager.stopForeground();
 		sampleRate = nIn = nOut = activeCount = 0;
 		ticksPerBuffer = Integer.MAX_VALUE;
 		announceStop();
-		fgManager.stopForeground();
 	}
 
 	private synchronized int requestAudio(int sr, int nic, int noc, int tpb) {
@@ -290,9 +291,10 @@ public class PdService extends Service {
 	}
 
 	private synchronized void releaseAudio() {
-		if (activeCount > 0) {
+		if (activeCount == 1) {
+			stopAudio();
+		} else if (activeCount > 1){
 			activeCount--;
-			if (activeCount == 0) stopAudio();
 		}
 	}
 
