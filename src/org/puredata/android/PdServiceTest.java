@@ -58,7 +58,6 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private Button prefs;
 	private TextView logs;
 
-	private File patchFile = null;
 	private String patch;
 	private boolean hasAudio = false;
 
@@ -74,11 +73,9 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private final IPdClient.Stub client = new IPdClient.Stub() {
 		@Override
 		public void handleStop() throws RemoteException {
-			if (hasAudio) {
-				hasAudio = false;
-				post("Pure Data was stopped externally; finishing now");
-				finish();
-			}
+			hasAudio = false;
+			post("Pure Data was stopped externally; finishing now");
+			finish();
 		}
 
 		@Override
@@ -135,13 +132,13 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 
 	private final ServiceConnection connection = new ServiceConnection() {
 		@Override
-		public void onServiceDisconnected(ComponentName name) {
+		public synchronized void onServiceDisconnected(ComponentName name) {
 			proxy = null;
 			disconnected();
 		}
 
 		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
+		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
 			proxy = IPdService.Stub.asInterface(service);
 			initPd();
 		}
@@ -178,10 +175,14 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		boolean bl = left.isChecked();
 		boolean br = right.isChecked();
 		boolean bm = mic.isChecked();
+		CharSequence msgc = msg.getText();
+		CharSequence logsc = logs.getText();
 		initGui();
 		left.setChecked(bl);
 		right.setChecked(br);
 		mic.setChecked(bm);
+		msg.setText(msgc);
+		logs.setText(logsc);
 	}
 
 	private void initGui() {
@@ -202,12 +203,13 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 
 	private void initPd() {
 		Resources res = getResources();
+		File patchFile = null;
 		try {
-			InputStream in = res.openRawResource(R.raw.test);
-			patchFile = PdUtils.extractResource(in, ".pd", getCacheDir());
 			proxy.addClient(client);
 			proxy.subscribe("android", receiver);
-			patch = PdUtils.openPatch(proxy, patchFile.getAbsolutePath());
+			InputStream in = res.openRawResource(R.raw.test);
+			patchFile = PdUtils.extractResource(in, ".pd", getCacheDir());
+			patch = PdUtils.openPatch(proxy, patchFile);
 			restartAudio();
 		} catch (RemoteException e) {
 			Log.e(PD_TEST, e.toString());
@@ -215,25 +217,29 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		} catch (IOException e) {
 			Log.e(PD_TEST, e.toString());
 			finish();
+		} finally {
+			if (patchFile != null) patchFile.delete();
 		}
 	}
 
 	private void restartAudio() throws RemoteException {
-		if (proxy == null) return;
-		if (hasAudio) {
-			hasAudio = false;
-			proxy.releaseAudio();
-		}
-		int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values stand for defaults/preferences
-		hasAudio = err == 0;
-		if (!hasAudio) {
-			post("didn't get requested audio settings; check preferences");
+		synchronized (connection) {
+			if (proxy == null) return;
+			if (hasAudio) {
+				hasAudio = false;
+				proxy.releaseAudio();
+			}
+			int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values stand for defaults/preferences
+			hasAudio = err == 0;
+			if (!hasAudio) {
+				post("didn't get requested audio settings; check preferences");
+			}
 		}
 	}
 
 	private void cleanup() {
-		if (patchFile != null) patchFile.delete();
-		if (proxy != null) {
+		synchronized (connection) {	
+			if (proxy == null) return;
 			try {
 				proxy.removeClient(client);
 				PdUtils.closePatch(proxy, patch);
@@ -251,34 +257,39 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 
 	@Override
 	public void onClick(View v) {
-		try {
-			switch (v.getId()) {
-			case R.id.left_box:
-				proxy.sendFloat("left", left.isChecked() ? 1 : 0);
-				break;
-			case R.id.right_box:
-				proxy.sendFloat("right", right.isChecked() ? 1 : 0);
-				break;
-			case R.id.mic_box:
-				proxy.sendFloat("mic", mic.isChecked() ? 1 : 0);
-				break;
-			case R.id.pref_button:
-				startActivity(new Intent(this, PdPreferences.class));
-				break;
-			default:
-				break;
+		synchronized (connection) {
+			if (proxy == null) return;
+			try {
+				switch (v.getId()) {
+				case R.id.left_box:
+					proxy.sendFloat("left", left.isChecked() ? 1 : 0);
+					break;
+				case R.id.right_box:
+					proxy.sendFloat("right", right.isChecked() ? 1 : 0);
+					break;
+				case R.id.mic_box:
+					proxy.sendFloat("mic", mic.isChecked() ? 1 : 0);
+					break;
+				case R.id.pref_button:
+					startActivity(new Intent(this, PdPreferences.class));
+					break;
+				default:
+					break;
+				}
+			} catch (RemoteException e) {
+				disconnected();
 			}
-		} catch (RemoteException e) {
-			disconnected();
 		}
 	}
 
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		try {
-			evaluateMessage(msg.getText().toString());
-		} catch (RemoteException e) {
-			disconnected();
+		synchronized (connection) {	
+			try {
+				if (proxy != null) evaluateMessage(msg.getText().toString());
+			} catch (RemoteException e) {
+				disconnected();
+			}
 		}
 		return true;
 	}
