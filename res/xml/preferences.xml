@@ -9,5 +9,6 @@
 	</ListPreference>
 <ListPreference android:key="@string/pref_key_inchannels" android:entryValues="@array/inchannels_values" android:entries="@array/inchannels_labels" android:title="@string/pref_title_inchannels" android:summary="@string/pref_sum_inchannels"></ListPreference>
 <ListPreference android:key="@string/pref_key_outchannels" android:entryValues="@array/outchannels_values" android:entries="@array/outchannels_labels" android:title="@string/pref_title_outchannels" android:summary="@string/pref_sum_outchannels"></ListPreference>
-<ListPreference android:key="@string/pref_key_tpb" android:entryValues="@array/tpb_values" android:entries="@array/tpb_labels" android:title="@string/pref_title_tpb" android:summary="@string/pref_sum_tpb"></ListPreference>
+
+<ListPreference android:entries="@array/bufsize_labels" android:key="@string/pref_key_bufsize_millis" android:entryValues="@array/bufsize_values" android:title="@string/pref_title_bufsize_millis" android:summary="@string/pref_sum_bufsize_millis"></ListPreference>
 </PreferenceScreen>

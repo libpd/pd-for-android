@@ -11,8 +11,6 @@
 
 package org.puredata.android.io;
 
-import org.puredata.core.PdBase;
-
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
@@ -23,7 +21,8 @@ public class AudioParameters {
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 	private static final int COMMON_RATE = 8000;
 	private static final int MAX_CHANNELS = 256;
-	private static int sampleRate = 0, inputChannels = 0, outputChannels = 0, ticksPerBuffer = 0;
+	private static int sampleRate = 0, inputChannels = 0, outputChannels = 0;
+	private static float bufsizeMillis = 100.0f; // conservative choice...
 
 	static {
 		init();
@@ -32,10 +31,10 @@ public class AudioParameters {
 	public static int suggestSampleRate() { return sampleRate; }
 	public static int suggestInputChannels() { return inputChannels; }
 	public static int suggestOutputChannels() { return outputChannels; }
-	public static int suggestTicksPerBuffer() { return ticksPerBuffer; }
+	public static float suggestBufferSizeMillis() { return bufsizeMillis; }
 
-	public static boolean checkParameters(int srate, int nin, int nout, int tpb) {
-		return inOkay(srate, nin) && outOkay(srate, nout) && tpb > 0  && tpb < srate / PdBase.blockSize();
+	public static boolean checkParameters(int srate, int nin, int nout) {
+		return inOkay(srate, nin) && outOkay(srate, nout);
 	}
 
 	private static void init() {
@@ -48,10 +47,8 @@ public class AudioParameters {
 		}
 		sampleRate = COMMON_RATE;
 		for (int sr: new int[] {11025, 16000, 22050, 32000, 48000, 44100}) {  // make 44100 default, if possible
-			if (checkParameters(sr, inputChannels, outputChannels, 1)) sampleRate = sr;
+			if (checkParameters(sr, inputChannels, outputChannels)) sampleRate = sr;
 		}
-		ticksPerBuffer = 1;
-		while (sampleRate / ticksPerBuffer > 1024) ticksPerBuffer *= 2;  // conservative choice...
 	}
 
 	private static boolean inOkay(int srate, int nin) {

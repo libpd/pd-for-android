@@ -82,9 +82,9 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		}
 
 		@Override
-		public void handleStart(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws RemoteException {
+		public void handleStart(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
 			post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
-					", ticks per pd buffer: " + ticksPerBuffer);
+					", buffer size: " + bufferSizeMillis + "ms");
 		}
 
 		@Override
@@ -205,7 +205,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		try {
 			proxy.addClient(client);
 			proxy.subscribe("android", receiver);
-			if (!proxy.objectExists(patch)) {
+			if (!proxy.exists(patch)) {
 				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
 			}
 			restartAudio();
@@ -221,7 +221,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			hasAudio = false;
 			proxy.releaseAudio();
 		}
-		int err = proxy.requestAudio(-1, -1, -1, -1);
+		int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values stand for defaults/preferences
 		hasAudio = err == 0;
 		if (!hasAudio) {
 			post("didn't get requested audio settings; check preferences");

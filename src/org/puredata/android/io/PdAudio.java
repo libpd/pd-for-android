@@ -22,7 +22,7 @@ public class PdAudio {
 	public synchronized static void startAudio(int sampleRate, int inChannels, int outChannels,
 			int ticksPerBuffer, boolean restart) {
 		if (isRunning() && !restart) return;
-		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels, ticksPerBuffer)) {
+		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
 			throw new IllegalArgumentException("bad audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
 		}
 		stopAudio();

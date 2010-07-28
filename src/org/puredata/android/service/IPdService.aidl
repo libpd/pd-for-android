@@ -32,16 +32,7 @@ interface IPdService {
 	 *
 	 * returns an error code, 0 on success
 	 */
-	int requestAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
-	
-	/**
-	 * change audio to the given parameters (or better); restarts the audio thread if necessary;
-	 * different from requestAudio in that it does not increment the count of active audio clients;
-	 * will not start audio if it isn't already running
-	 *
-	 * returns an error code, 0 on success
-	 */
-	int adjustAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
+	int requestAudio(int sampleRate, int inputChannels, int outputChannels, float bufferSizeMillis);
 	
 	/**
 	 * indicates that this client no longer needs the audio thread; stops the audio thread if no clients are left
@@ -58,20 +49,25 @@ interface IPdService {
 	 */
 	boolean isRunning();
 	
+	int getSampleRate();
+	int getInputChannels();
+	int getOutputChannels();
+	float getBufferSizeMillis();
+	
 	/**
-	 * checks whether an object exists in pd
+	 * checks whether a symbol refers to something in pd
 	 */
-	boolean objectExists(String symbol);
+	boolean exists(String symbol);
 	
 	/**
 	 * subscribe to messages sent to a symbol in pd
 	 */
-	void subscribe(in String symbol, in IPdListener client);
+	void subscribe(in String symbol, in IPdListener listener);
 	
 	/**
 	 * unsubscribe from messages sent to a symbol in pd
 	 */
-	void unsubscribe(in String symbol, in IPdListener client);
+	void unsubscribe(in String symbol, in IPdListener listener);
 	
 	void sendBang(in String dest);
 	void sendFloat(in String dest, float x);

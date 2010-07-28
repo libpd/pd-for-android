@@ -45,8 +45,8 @@ public class PdService extends Service {
 
 	private static final String PD_SERVICE = "Pd Service";
 
-	private int sampleRate = 0, nIn = 0, nOut = 0;
-	private int ticksPerBuffer = Integer.MAX_VALUE;
+	private int sampleRate = 0, inputChannels = 0, outputChannels = 0;
+	private float bufferSizeMillis = 0.0f;
 	private int activeCount = 0;
 
 	private final RemoteCallbackList<IPdClient> clients = new RemoteCallbackList<IPdClient>();
@@ -61,18 +61,18 @@ public class PdService extends Service {
 	private class RemoteListener implements PdListener {
 
 		private final String symbol;
-		private final IPdListener client;
+		private final IPdListener listener;
 
 		private RemoteListener(String symbol, IPdListener client) {
 			this.symbol = symbol;
-			this.client = client;
+			this.listener = client;
 		}
 
 		@Override
 		public boolean equals(Object o) {
 			if (o instanceof RemoteListener) {
 				RemoteListener other = (RemoteListener) o;
-				return other.symbol.equals(symbol) && other.client.equals(client);
+				return other.symbol.equals(symbol) && other.listener.equals(listener);
 			} else {
 				return false;
 			}
@@ -81,7 +81,7 @@ public class PdService extends Service {
 		@Override
 		public void receiveBang() {
 			try {
-				client.receiveBang();
+				listener.receiveBang();
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -90,7 +90,7 @@ public class PdService extends Service {
 		@Override
 		public void receiveFloat(float x) {
 			try {
-				client.receiveFloat(x);
+				listener.receiveFloat(x);
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -99,7 +99,7 @@ public class PdService extends Service {
 		@Override
 		public void receiveSymbol(String symbol) {
 			try {
-				client.receiveSymbol(symbol);
+				listener.receiveSymbol(symbol);
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -108,7 +108,7 @@ public class PdService extends Service {
 		@Override
 		public void receiveList(Object... args) {
 			try {
-				client.receiveList(Arrays.asList(args));
+				listener.receiveList(Arrays.asList(args));
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -117,7 +117,7 @@ public class PdService extends Service {
 		@Override
 		public void receiveMessage(String symbol, Object... args) {
 			try {
-				client.receiveMessage(symbol, Arrays.asList(args));
+				listener.receiveMessage(symbol, Arrays.asList(args));
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -138,14 +138,8 @@ public class PdService extends Service {
 
 		@Override
 		public int requestAudio(int sampleRate, int nIn, int nOut,
-				int ticksPerBuffer) throws RemoteException {
-			return PdService.this.requestAudio(sampleRate, nIn, nOut, ticksPerBuffer);
-		}
-		
-		@Override
-		public int adjustAudio(int sampleRate, int nIn, int nOut,
-				int ticksPerBuffer) throws RemoteException {
-			return PdService.this.adjustAudio(sampleRate, nIn, nOut, ticksPerBuffer);
+				float bufferSizeMillis) throws RemoteException {
+			return PdService.this.requestAudio(sampleRate, nIn, nOut, bufferSizeMillis);
 		}
 
 		@Override
@@ -164,6 +158,26 @@ public class PdService extends Service {
 		}
 
 		@Override
+		public float getBufferSizeMillis() throws RemoteException {
+			return bufferSizeMillis;
+		}
+
+		@Override
+		public int getInputChannels() throws RemoteException {
+			return inputChannels;
+		}
+
+		@Override
+		public int getOutputChannels() throws RemoteException {
+			return outputChannels;
+		}
+
+		@Override
+		public int getSampleRate() throws RemoteException {
+			return sampleRate;
+		}
+
+		@Override
 		public void subscribe(String symbol, IPdListener client) throws RemoteException {
 			if (symbol != null && client != null) {
 				dispatcher.addListener(symbol, new RemoteListener(symbol, client));
@@ -177,7 +191,7 @@ public class PdService extends Service {
 		}
 
 		@Override
-		public boolean objectExists(String symbol) throws RemoteException {
+		public boolean exists(String symbol) throws RemoteException {
 			return PdBase.exists(symbol);
 		}
 
@@ -209,31 +223,6 @@ public class PdService extends Service {
 		}
 	};
 	
-	private synchronized int requestAudio(int srate, int nic, int noc, int tpb) {
-		int err = changeAudio(srate, nic, noc, tpb);
-		if (err == 0) {
-			activeCount++;
-		}
-		return err;
-	}
-	
-	private synchronized int adjustAudio(int srate, int nic, int noc, int tpb) {
-		if (activeCount > 0) {
-			return changeAudio(srate, nic, noc, tpb);
-		} else {
-			return -10;  // nothing to adjust
-		}
-	}
-
-	private synchronized void stopAudio() {
-		if (activeCount <= 0) return;
-		PdAudio.stopAudio();
-		fgManager.stopForeground();
-		sampleRate = nIn = nOut = activeCount = 0;
-		ticksPerBuffer = Integer.MAX_VALUE;
-		announceStop();
-	}
-	
 	private synchronized void printToClients(String s) {
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
@@ -250,7 +239,7 @@ public class PdService extends Service {
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
 			try {
-				clients.getBroadcastItem(i).handleStart(sampleRate, nIn, nOut, ticksPerBuffer);
+				clients.getBroadcastItem(i).handleStart(sampleRate, inputChannels, outputChannels, bufferSizeMillis);
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -269,23 +258,21 @@ public class PdService extends Service {
 		}
 		clients.finishBroadcast();
 	}
-	
-	private void startAudio(int sampleRate, int nIn, int nOut, int ticksPerBuffer) throws IOException {
-		PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, true);
-		if (activeCount == 0) fgManager.startForeground();
-		this.sampleRate = sampleRate;
-		this.nIn = nIn;
-		this.nOut = nOut;
-		this.ticksPerBuffer = ticksPerBuffer;
-		announceStart();
-	}
 
-	private int changeAudio(int sr, int nic, int noc, int tpb) {
+	private synchronized int requestAudio(int srate, int nic, int noc, float millis) {
+		if (activeCount > 0) {
+			if (srate > 0 && srate != sampleRate) return -1; // can't reconcile sample rates
+			if (nic > inputChannels) return -1; // can't reconcile number of input channels
+			if (noc > outputChannels) return -1; // can't reconcile number of output channels
+			// no check for buffer size
+			activeCount++;
+			return 0;
+		}
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if (sr < 0) {
+		if (srate < 0) {
 			String srs = prefs.getString(res.getString(R.string.pref_key_srate), null);
-			sr = (srs == null) ? AudioParameters.suggestSampleRate() : Integer.parseInt(srs);
+			srate = (srs == null) ? AudioParameters.suggestSampleRate() : Integer.parseInt(srs);
 		}
 		if (nic < 0) {
 			String ics = prefs.getString(res.getString(R.string.pref_key_inchannels), null);
@@ -295,32 +282,15 @@ public class PdService extends Service {
 			String ocs = prefs.getString(res.getString(R.string.pref_key_outchannels), null);
 			noc = (ocs == null) ? AudioParameters.suggestOutputChannels() : Integer.parseInt(ocs);
 		}
-		if (tpb < 0) {
-			String tpbs = prefs.getString(res.getString(R.string.pref_key_tpb), null);
-			tpb = (tpbs == null) ? AudioParameters.suggestTicksPerBuffer() : Integer.parseInt(tpbs);
+		if (millis < 0) {
+			String milliss = prefs.getString(res.getString(R.string.pref_key_bufsize_millis), null);
+			millis = (milliss == null) ? AudioParameters.suggestBufferSizeMillis() : Float.parseFloat(milliss);
 		}
-		boolean restart = false;
-		if (sr > sampleRate) restart = true;
-		else sr = sampleRate;
-		if (nic > nIn) restart = true;
-		else nic = nIn;
-		if (noc > nOut) restart = true;
-		else noc = nOut;
-		if (tpb < ticksPerBuffer) restart = true;
-		else tpb = ticksPerBuffer;
 		try {
-			if (restart) startAudio(sr, nic, noc, tpb);
+			startAudio(srate, nic, noc, millis);
 		} catch (Exception e) {
 			Log.e(PD_SERVICE, e.toString());
-			if (activeCount > 0 && !PdAudio.isRunning()) {
-				try {
-					PdAudio.startAudio(sampleRate, nIn, nOut, ticksPerBuffer, false);
-				} catch (Exception e1) {
-					Log.i(PD_SERVICE, e1.toString());
-					stopAudio();
-				}
-			}
-			return -1;
+			return -1;			
 		}
 		return 0;
 	}
@@ -333,6 +303,28 @@ public class PdService extends Service {
 		}
 	}
 
+	private void startAudio(int srate, int nic, int noc, float millis) throws IOException {
+		if (activeCount > 0) return;
+		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize());
+		PdAudio.startAudio(srate, nic, noc, tpb, true);
+		fgManager.startForeground();
+		sampleRate = srate;
+		inputChannels = nic;
+		outputChannels = noc;
+		bufferSizeMillis = millis;
+		activeCount = 1;
+		announceStart();
+	}
+
+	private synchronized void stopAudio() {
+		if (activeCount <= 0) return;
+		PdAudio.stopAudio();
+		fgManager.stopForeground();
+		sampleRate = inputChannels = outputChannels = activeCount = 0;
+		bufferSizeMillis = 0.0f;
+		announceStop();
+	}
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;

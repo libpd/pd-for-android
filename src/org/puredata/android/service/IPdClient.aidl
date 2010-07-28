@@ -16,7 +16,7 @@ oneway interface IPdClient {
 	/**
 	 * announce a (re)start of the audio thread to client
 	 */
-	void handleStart(int sampleRate, int nIn, int nOut, int ticksPerBuffer);
+	void handleStart(int sampleRate, int nIn, int nOut, float bufferSizeMillis);
 	
 	/**
 	 * announce a stop of the audio thread to client

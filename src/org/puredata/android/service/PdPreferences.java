@@ -38,7 +38,7 @@ public class PdPreferences extends PreferenceActivity {
 			editor.putString(res.getString(R.string.pref_key_srate), "" + AudioParameters.suggestSampleRate());
 			editor.putString(res.getString(R.string.pref_key_inchannels), "" + AudioParameters.suggestInputChannels());
 			editor.putString(res.getString(R.string.pref_key_outchannels), "" + AudioParameters.suggestOutputChannels());
-			editor.putString(res.getString(R.string.pref_key_tpb), "" + AudioParameters.suggestTicksPerBuffer());
+			editor.putString(res.getString(R.string.pref_key_bufsize_millis), "" + AudioParameters.suggestBufferSizeMillis());
 			editor.commit();
 		}
 	}
