@@ -2,9 +2,9 @@
 <resources>
 	<string name="app_name">Pure Data</string>
 	<string name="kill_name">Stop Pure Data</string>
-	<string name="left_label">Left channel</string>
-	<string name="right_label">Right channel</string>
-	<string name="mic_label">Enable microphone</string>
+	<string name="left_label">Sine wave in left channel</string>
+	<string name="right_label">Sine wave in right channel</string>
+	<string name="mic_label">Patch mic to both channels</string>
 	
 	<string name="default_msg">Enter message to Pure Data</string><string name="pref_button_text">Preferences</string>
 
