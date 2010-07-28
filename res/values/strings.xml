@@ -6,22 +6,22 @@
 	<string name="right_label">Right channel</string>
 	<string name="mic_label">Enable microphone</string>
 	
-	<string name="default_msg">Enter message to Pure Data</string>
+	<string name="default_msg">Enter message to Pure Data</string><string name="pref_button_text">Preferences</string>
 
 <string name="pref_title">Pure Data Preferences</string>
 <string name="pref_sum">Pure Data Preferences</string>
 <string name="pref_key_srate">SAMPLE_RATE</string>
 <string name="pref_title_srate">Sample rate</string>
-<string name="pref_sum_srate">Sample rate for Pure Data</string><string name="pref_def_srate">22050Hz</string>
+<string name="pref_sum_srate">Sample rate for Pure Data</string>
 
 <string name="pref_key_inchannels">INPUT_CHANNELS</string>
 <string name="pref_title_inchannels">Input channels</string>
 <string name="pref_sum_inchannels">Number of input channels</string>
 <string name="pref_key_outchannels">OUTPUT_CHANNELS</string>
-<string name="pref_sum_outchannels">Number of output channels</string>
-<string name="pref_title_outchannels">Output channels</string>
+<string name="pref_title_outchannels">Output channels</string><string name="pref_sum_outchannels">Number of output channels</string>
+
 <string name="pref_key_tpb">TICKS_PER_BUFFER</string>
 <string name="pref_title_tpb">Pd ticks per buffer</string>
 <string name="pref_sum_tpb">Number of Pure Data ticks per buffer</string>
-<string name="pref_button_text">Preferences</string>
+
 </resources>

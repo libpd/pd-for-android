@@ -47,7 +47,7 @@ public class AudioParameters {
 			if (inOkay(COMMON_RATE, n)) inputChannels = n;
 		}
 		sampleRate = COMMON_RATE;
-		for (int sr: new int[] {11025, 22050, 44100}) {
+		for (int sr: new int[] {11025, 16000, 22050, 32000, 48000, 44100}) {  // make 44100 default, if possible
 			if (checkParameters(sr, inputChannels, outputChannels, 1)) sampleRate = sr;
 		}
 		ticksPerBuffer = 1;
