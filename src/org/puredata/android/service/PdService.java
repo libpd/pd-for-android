@@ -125,6 +125,8 @@ public class PdService extends Service {
 	}
 
 	private final IPdService.Stub binder = new IPdService.Stub() {
+		
+		private final Object empty[] = new Object[0];
 
 		@Override
 		public void addClient(IPdClient client) throws RemoteException {
@@ -209,17 +211,17 @@ public class PdService extends Service {
 		public void sendSymbol(String dest, String symbol) throws RemoteException {
 			PdBase.sendSymbol(dest, symbol);
 		}
-
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		public void sendList(String dest, List args) throws RemoteException {
-			PdBase.sendList(dest, args.toArray());			
+			PdBase.sendList(dest, (args == null) ? empty : args.toArray());			
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public void sendMessage(String dest, String symbol, List args) throws RemoteException {
-			PdBase.sendMessage(dest, symbol, args.toArray());
+			PdBase.sendMessage(dest, symbol, (args == null) ? empty : args.toArray());
 		}
 	};
 	

@@ -11,11 +11,10 @@
 
 package org.puredata.android;
 
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -23,10 +22,10 @@ import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
 import org.puredata.android.service.PdPreferences;
+import org.puredata.android.service.PdUtils;
 
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -59,7 +58,8 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private Button prefs;
 	private TextView logs;
 
-	private String folder, filename, patch;
+	private File patchFile = null;
+	private String patch;
 	private boolean hasAudio = false;
 
 	private void post(final String msg) {
@@ -201,17 +201,20 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 
 	private void initPd() {
-		initParameters();
+		Resources res = getResources();
 		try {
+			InputStream in = res.openRawResource(R.raw.test);
+			patchFile = PdUtils.extractResource(in, ".pd", getCacheDir());
 			proxy.addClient(client);
 			proxy.subscribe("android", receiver);
-			if (!proxy.exists(patch)) {
-				proxy.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
-			}
+			patch = PdUtils.openPatch(proxy, patchFile.getAbsolutePath());
 			restartAudio();
 		} catch (RemoteException e) {
 			Log.e(PD_TEST, e.toString());
 			disconnected();
+		} catch (IOException e) {
+			Log.e(PD_TEST, e.toString());
+			finish();
 		}
 	}
 
@@ -228,37 +231,12 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		}
 	}
 
-	private void initParameters() {
-		Resources res = getResources();
-		try {
-			InputStream in = res.openRawResource(R.raw.test);
-			int n = in.available();
-			byte[] buffer = new byte[n];
-			in.read(buffer);
-			in.close();
-			Log.i(PD_TEST, "read file");
-			filename = "_test.pd";
-			patch = "pd-" + filename;
-			FileOutputStream out = openFileOutput(filename, Context.MODE_PRIVATE);
-			out.write(buffer);
-			out.close();
-			Log.i(PD_TEST, "wrote file");
-			folder = getFilesDir().getAbsolutePath();
-		} catch (IOException e) {
-			post("unable to create test patch; quitting now");
-			Log.e(PD_TEST, e.toString());
-			finish();
-		}
-	};
-
-	@SuppressWarnings("unchecked")
 	private void cleanup() {
-		boolean success = deleteFile(filename);
-		Log.i(PD_TEST, success ? "deleted file" : "unable to delete file");
+		if (patchFile != null) patchFile.delete();
 		if (proxy != null) {
 			try {
 				proxy.removeClient(client);
-				proxy.sendMessage(patch, "menuclose", new ArrayList());
+				PdUtils.closePatch(proxy, patch);
 				proxy.unsubscribe("android", receiver);
 				if (hasAudio) {
 					hasAudio = false;

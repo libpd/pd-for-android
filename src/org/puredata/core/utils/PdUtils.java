@@ -14,6 +14,7 @@ package org.puredata.core.utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.puredata.core.PdBase;
 
@@ -31,23 +32,24 @@ public class PdUtils {
 	/**
 	 * reads a patch from a file
 	 * 
-	 * @param filename
-	 * @param directory
+	 * @param path to patch
 	 * @return pd symbol representing patch
 	 * @throws IOException in case patch fails to open
 	 */
-	public static String openPatch(String filename, String directory) throws IOException {
-		File file = new File(directory, filename);
+	public static String openPatch(String path) throws IOException {
+		File file = new File(path);
 		if (!file.exists()) {
-			throw new FileNotFoundException(file.getPath());
+			throw new FileNotFoundException(path);
 		}
-		int err = PdBase.sendMessage("pd", "open", filename, directory);
-		if (err != 0) {
-			throw new IOException("unable to open patch, error code " + err);
-		}
+		String folder = file.getParentFile().getAbsolutePath();
+		String filename = file.getName();
 		String patch = "pd-" + filename;
+		if (PdBase.exists(patch)) {
+			throw new IOException("patch is already open; close first, then reload");
+		}
+		PdBase.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
 		if (!PdBase.exists(patch)) {
-			throw new IOException("patch " + file.getPath() + " didn't open, no idea why");
+			throw new IOException("patch " + path + " failed to open, no idea why");
 		}
 		return patch;
 	}
