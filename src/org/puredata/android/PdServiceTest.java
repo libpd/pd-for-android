@@ -71,19 +71,21 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 
 	private final IPdClient.Stub client = new IPdClient.Stub() {
+		
 		@Override
-		public void handleStop() throws RemoteException {
-			if (hasAudio) {
-				hasAudio = false;
-				post("Pure Data was stopped externally; finishing now");
-				finish();
-			}
-		}
+		public void requestUnbind() throws RemoteException {
+			post("Pure Data was stopped externally; finishing now");
+			finish();			
+		};
 
 		@Override
-		public void handleStart(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
-			post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
+		public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
+			if (sampleRate > 0) {
+				post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
 					", buffer size: " + bufferSizeMillis + "ms");
+			} else {
+				post("Audio stopped");
+			}
 		}
 
 		@Override

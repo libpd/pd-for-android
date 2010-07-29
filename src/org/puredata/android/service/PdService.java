@@ -63,9 +63,9 @@ public class PdService extends Service {
 		private final String symbol;
 		private final IPdListener listener;
 
-		private RemoteListener(String symbol, IPdListener client) {
+		private RemoteListener(String symbol, IPdListener listener) {
 			this.symbol = symbol;
-			this.listener = client;
+			this.listener = listener;
 		}
 
 		@Override
@@ -151,7 +151,7 @@ public class PdService extends Service {
 
 		@Override
 		public void stop() throws RemoteException {
-			stopAudio();
+			PdService.this.stop();
 		};
 
 		@Override
@@ -236,12 +236,12 @@ public class PdService extends Service {
 		}
 		clients.finishBroadcast();
 	}
-	
-	private void announceStart() { // no syn needed because this will only be called from a synchronized method
+
+	private void audioChanged() { // no sync needed because this will only be called from a synchronized method
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
 			try {
-				clients.getBroadcastItem(i).handleStart(sampleRate, inputChannels, outputChannels, bufferSizeMillis);
+				clients.getBroadcastItem(i).audioChanged(sampleRate, inputChannels, outputChannels, bufferSizeMillis);
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -249,11 +249,11 @@ public class PdService extends Service {
 		clients.finishBroadcast();
 	}
 	
-	private void announceStop() { // no sync here, either
+	private void requestUnbind() { // no sync here, either
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
 			try {
-				clients.getBroadcastItem(i).handleStop();
+				clients.getBroadcastItem(i).requestUnbind();
 			} catch (RemoteException e) {
 				Log.e(PD_SERVICE, e.toString());
 			}
@@ -273,20 +273,20 @@ public class PdService extends Service {
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (srate < 0) {
-			String srs = prefs.getString(res.getString(R.string.pref_key_srate), null);
-			srate = (srs == null) ? AudioParameters.suggestSampleRate() : Integer.parseInt(srs);
+			String s = prefs.getString(res.getString(R.string.pref_key_srate), null);
+			srate = (s == null) ? AudioParameters.suggestSampleRate() : Integer.parseInt(s);
 		}
 		if (nic < 0) {
-			String ics = prefs.getString(res.getString(R.string.pref_key_inchannels), null);
-			nic = (ics == null) ? AudioParameters.suggestInputChannels() : Integer.parseInt(ics);
+			String s = prefs.getString(res.getString(R.string.pref_key_inchannels), null);
+			nic = (s == null) ? AudioParameters.suggestInputChannels() : Integer.parseInt(s);
 		}
 		if (noc < 0) {
-			String ocs = prefs.getString(res.getString(R.string.pref_key_outchannels), null);
-			noc = (ocs == null) ? AudioParameters.suggestOutputChannels() : Integer.parseInt(ocs);
+			String s = prefs.getString(res.getString(R.string.pref_key_outchannels), null);
+			noc = (s == null) ? AudioParameters.suggestOutputChannels() : Integer.parseInt(s);
 		}
 		if (millis < 0) {
-			String milliss = prefs.getString(res.getString(R.string.pref_key_bufsize_millis), null);
-			millis = (milliss == null) ? AudioParameters.suggestBufferSizeMillis() : Float.parseFloat(milliss);
+			String s = prefs.getString(res.getString(R.string.pref_key_bufsize_millis), null);
+			millis = (s == null) ? AudioParameters.suggestBufferSizeMillis() : Float.parseFloat(s);
 		}
 		try {
 			startAudio(srate, nic, noc, millis);
@@ -304,10 +304,15 @@ public class PdService extends Service {
 			activeCount--;
 		}
 	}
+	
+	private synchronized void stop() {
+		requestUnbind();
+		stopSelf();
+	}
 
 	private void startAudio(int srate, int nic, int noc, float millis) throws IOException {
 		if (activeCount > 0) return;
-		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize());
+		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize()) + 1;
 		PdAudio.startAudio(srate, nic, noc, tpb, true);
 		fgManager.startForeground();
 		sampleRate = srate;
@@ -315,16 +320,23 @@ public class PdService extends Service {
 		outputChannels = noc;
 		bufferSizeMillis = millis;
 		activeCount = 1;
-		announceStart();
+		audioChanged();
 	}
 
-	private synchronized void stopAudio() {
+	private void stopAudio() {
 		if (activeCount <= 0) return;
 		PdAudio.stopAudio();
 		fgManager.stopForeground();
 		sampleRate = inputChannels = outputChannels = activeCount = 0;
 		bufferSizeMillis = 0.0f;
-		announceStop();
+		audioChanged();
+	}
+	
+	@Override
+	public void onStart(Intent intent, int startId) {
+		super.onStart(intent, startId);
+		Log.i(PD_SERVICE, "onStart: " + intent.getAction());
+		stop();
 	}
 	
 	@Override
@@ -356,8 +368,8 @@ public class PdService extends Service {
 		protected static final int NOTIFICATION_ID = 1;
 
 		protected Notification makeNotification() {
-			Intent intent = new Intent(PdService.this, KillPdService.class);
-			PendingIntent pi = PendingIntent.getActivity(PdService.this, 0, intent, 0);
+			Intent intent = new Intent(PdUtils.STOP_ACTION);
+			PendingIntent pi = PendingIntent.getService(PdService.this, 0, intent, 0);
 			Notification notification = new Notification(R.drawable.icon, "Pure Data", System.currentTimeMillis());
 			notification.setLatestEventInfo(PdService.this, "Pure Data", "Tap to stop Pure Data.", pi);
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;

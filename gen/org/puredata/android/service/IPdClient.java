@@ -42,7 +42,7 @@ case INTERFACE_TRANSACTION:
 reply.writeString(DESCRIPTOR);
 return true;
 }
-case TRANSACTION_handleStart:
+case TRANSACTION_audioChanged:
 {
 data.enforceInterface(DESCRIPTOR);
 int _arg0;
@@ -53,13 +53,13 @@ int _arg2;
 _arg2 = data.readInt();
 float _arg3;
 _arg3 = data.readFloat();
-this.handleStart(_arg0, _arg1, _arg2, _arg3);
+this.audioChanged(_arg0, _arg1, _arg2, _arg3);
 return true;
 }
-case TRANSACTION_handleStop:
+case TRANSACTION_requestUnbind:
 {
 data.enforceInterface(DESCRIPTOR);
-this.handleStop();
+this.requestUnbind();
 return true;
 }
 case TRANSACTION_print:
@@ -89,9 +89,9 @@ public java.lang.String getInterfaceDescriptor()
 return DESCRIPTOR;
 }
 /**
-	 * announce a (re)start of the audio thread to client
+	 * announce a (re)start of the audio thread to client; a sample rate of 0 means audio was stopped
 	 */
-public void handleStart(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws android.os.RemoteException
+public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
 try {
@@ -100,21 +100,21 @@ _data.writeInt(sampleRate);
 _data.writeInt(nIn);
 _data.writeInt(nOut);
 _data.writeFloat(bufferSizeMillis);
-mRemote.transact(Stub.TRANSACTION_handleStart, _data, null, android.os.IBinder.FLAG_ONEWAY);
+mRemote.transact(Stub.TRANSACTION_audioChanged, _data, null, android.os.IBinder.FLAG_ONEWAY);
 }
 finally {
 _data.recycle();
 }
 }
 /**
-	 * announce a stop of the audio thread to client
+	 * ask client to unbind from service
 	 */
-public void handleStop() throws android.os.RemoteException
+public void requestUnbind() throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
 try {
 _data.writeInterfaceToken(DESCRIPTOR);
-mRemote.transact(Stub.TRANSACTION_handleStop, _data, null, android.os.IBinder.FLAG_ONEWAY);
+mRemote.transact(Stub.TRANSACTION_requestUnbind, _data, null, android.os.IBinder.FLAG_ONEWAY);
 }
 finally {
 _data.recycle();
@@ -136,18 +136,18 @@ _data.recycle();
 }
 }
 }
-static final int TRANSACTION_handleStart = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
-static final int TRANSACTION_handleStop = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
+static final int TRANSACTION_audioChanged = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
+static final int TRANSACTION_requestUnbind = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
 static final int TRANSACTION_print = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
 }
 /**
-	 * announce a (re)start of the audio thread to client
+	 * announce a (re)start of the audio thread to client; a sample rate of 0 means audio was stopped
 	 */
-public void handleStart(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws android.os.RemoteException;
+public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws android.os.RemoteException;
 /**
-	 * announce a stop of the audio thread to client
+	 * ask client to unbind from service
 	 */
-public void handleStop() throws android.os.RemoteException;
+public void requestUnbind() throws android.os.RemoteException;
 /**
 	 * print from pd
 	 */

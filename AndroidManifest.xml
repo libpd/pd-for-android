@@ -10,11 +10,10 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity android:label="@string/kill_name" android:name=".service.KillPdService">
-		</activity>
 		<service android:name=".service.PdService" android:process=":remote">
 			<intent-filter>
 				<action android:name="org.puredata.android.service.LAUNCH" />
+				<action android:name="org.puredata.android.service.STOP" />
 			</intent-filter>
 		</service>
 		<activity android:label="Pure Data Preferences" android:name=".service.PdPreferences">
