@@ -229,6 +229,9 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 				hasAudio = false;
 				proxy.releaseAudio();
 			}
+			if (proxy.isRunning()) {
+				post("Warning: audio is already running; cannot change parameters");
+			}
 			int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values stand for defaults/preferences
 			hasAudio = err == 0;
 			if (!hasAudio) {

@@ -237,7 +237,7 @@ public class PdService extends Service {
 		clients.finishBroadcast();
 	}
 	
-	private synchronized void announceStart() {
+	private void announceStart() { // no syn needed because this will only be called from a synchronized method
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
 			try {
@@ -249,7 +249,7 @@ public class PdService extends Service {
 		clients.finishBroadcast();
 	}
 	
-	private synchronized void announceStop() {
+	private void announceStop() { // no sync here, either
 		int i = clients.beginBroadcast();
 		while (i-- > 0) {
 			try {
