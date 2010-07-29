@@ -39,16 +39,19 @@ public class PdClient extends Activity {
 
 	private final IPdClient.Stub statusWatcher = new IPdClient.Stub() {
 		@Override
-		public void handleStop() throws RemoteException {
-			hasAudio = false;
+		public void requestUnbind() throws RemoteException {
 			post("Pure Data was stopped externally; exiting now");
 			finish();
 		}
 
 		@Override
-		public void handleStart(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
-			post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
+		public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
+			if (sampleRate > 0) {
+				post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
 					", buffer size: " + bufferSizeMillis + "ms");
+			} else {
+				post("Audio stopped");
+			}
 		}
 
 		@Override
