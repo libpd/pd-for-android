@@ -52,13 +52,13 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private static final String PD_TEST = "Pd Test";
 	private final Handler handler = new Handler();
 
-	private IPdService proxy = null;
 	private CheckBox left, right, mic;
 	private EditText msg;
 	private Button prefs;
 	private TextView logs;
 
-	private String patch;
+	private IPdService proxy = null;
+	private String patch = null;
 	private boolean hasAudio = false;
 
 	private void post(final String msg) {
@@ -73,9 +73,11 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private final IPdClient.Stub client = new IPdClient.Stub() {
 		@Override
 		public void handleStop() throws RemoteException {
-			hasAudio = false;
-			post("Pure Data was stopped externally; finishing now");
-			finish();
+			if (hasAudio) {
+				hasAudio = false;
+				post("Pure Data was stopped externally; finishing now");
+				finish();
+			}
 		}
 
 		@Override
@@ -150,7 +152,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		PdPreferences.initPreferences(getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		initGui();
-		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);		
+		bindService(new Intent(PdUtils.LAUNCH_ACTION), connection, BIND_AUTO_CREATE);		
 	};
 
 	@Override
@@ -245,7 +247,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			if (proxy == null) return;
 			try {
 				proxy.removeClient(client);
-				PdUtils.closePatch(proxy, patch);
+				if (patch != null) PdUtils.closePatch(proxy, patch);
 				proxy.unsubscribe("android", receiver);
 				if (hasAudio) {
 					hasAudio = false;

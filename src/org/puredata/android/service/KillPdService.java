@@ -44,7 +44,7 @@ public class KillPdService extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		bindService(new Intent("org.puredata.android.service.LAUNCH"), connection, BIND_AUTO_CREATE);
+		bindService(new Intent(PdUtils.LAUNCH_ACTION), connection, BIND_AUTO_CREATE);
 	}
 	
 	@Override
