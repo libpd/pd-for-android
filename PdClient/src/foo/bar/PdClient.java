@@ -75,7 +75,7 @@ public class PdClient extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initGui();
-		bindService(new Intent("org.puredata.android.service.LAUNCH"), serviceConnection, BIND_AUTO_CREATE);
+		bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
 	}
 
 	// this callback makes sure that we handle orientation changes without audio glitches
