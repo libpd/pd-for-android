@@ -167,7 +167,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		try {
-			restartAudio(); 
+			restartAudio();
 		} catch (RemoteException e) {
 			Log.e(PD_TEST, e.toString());
 		}
@@ -239,7 +239,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values stand for defaults/preferences
 			hasAudio = err == 0;
 			if (!hasAudio) {
-				post("didn't get requested audio settings; check preferences");
+				post("didn't get audio; check preferences");
 			}
 		}
 	}

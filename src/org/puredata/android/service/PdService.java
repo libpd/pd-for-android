@@ -125,7 +125,7 @@ public class PdService extends Service {
 	}
 
 	private final IPdService.Stub binder = new IPdService.Stub() {
-		
+
 		private final Object empty[] = new Object[0];
 
 		@Override
@@ -211,7 +211,7 @@ public class PdService extends Service {
 		public void sendSymbol(String dest, String symbol) throws RemoteException {
 			PdBase.sendSymbol(dest, symbol);
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public void sendList(String dest, List args) throws RemoteException {
@@ -224,41 +224,47 @@ public class PdService extends Service {
 			PdBase.sendMessage(dest, symbol, (args == null) ? empty : args.toArray());
 		}
 	};
-	
-	private synchronized void printToClients(String s) {
-		int i = clients.beginBroadcast();
-		while (i-- > 0) {
-			try {
-				clients.getBroadcastItem(i).print(s);
-			} catch (RemoteException e) {
-				Log.e(PD_SERVICE, e.toString());
+
+	private void printToClients(String s) {
+		synchronized (clients) {
+			int i = clients.beginBroadcast();
+			while (i-- > 0) {
+				try {
+					clients.getBroadcastItem(i).print(s);
+				} catch (RemoteException e) {
+					Log.e(PD_SERVICE, e.toString());
+				}
 			}
+			clients.finishBroadcast();
 		}
-		clients.finishBroadcast();
 	}
 
-	private void audioChanged() { // no sync needed because this will only be called from a synchronized method
-		int i = clients.beginBroadcast();
-		while (i-- > 0) {
-			try {
-				clients.getBroadcastItem(i).audioChanged(sampleRate, inputChannels, outputChannels, bufferSizeMillis);
-			} catch (RemoteException e) {
-				Log.e(PD_SERVICE, e.toString());
+	private void audioChanged() {
+		synchronized (clients) {
+			int i = clients.beginBroadcast();
+			while (i-- > 0) {
+				try {
+					clients.getBroadcastItem(i).audioChanged(sampleRate, inputChannels, outputChannels, bufferSizeMillis);
+				} catch (RemoteException e) {
+					Log.e(PD_SERVICE, e.toString());
+				}
 			}
+			clients.finishBroadcast();
 		}
-		clients.finishBroadcast();
 	}
-	
-	private void requestUnbind() { // no sync here, either
-		int i = clients.beginBroadcast();
-		while (i-- > 0) {
-			try {
-				clients.getBroadcastItem(i).requestUnbind();
-			} catch (RemoteException e) {
-				Log.e(PD_SERVICE, e.toString());
+
+	private void requestUnbind() {
+		synchronized (clients) {
+			int i = clients.beginBroadcast();
+			while (i-- > 0) {
+				try {
+					clients.getBroadcastItem(i).requestUnbind();
+				} catch (RemoteException e) {
+					Log.e(PD_SERVICE, e.toString());
+				}
 			}
+			clients.finishBroadcast();
 		}
-		clients.finishBroadcast();
 	}
 
 	private synchronized int requestAudio(int srate, int nic, int noc, float millis) {
@@ -304,7 +310,7 @@ public class PdService extends Service {
 			activeCount--;
 		}
 	}
-	
+
 	private synchronized void stop() {
 		requestUnbind();
 		stopSelf();
@@ -331,14 +337,13 @@ public class PdService extends Service {
 		bufferSizeMillis = 0.0f;
 		audioChanged();
 	}
-	
+
 	@Override
 	public void onStart(Intent intent, int startId) {
 		super.onStart(intent, startId);
-		Log.i(PD_SERVICE, "onStart: " + intent.getAction());
-		stop();
+		stop();  // a bit weird, using onStart to shut down the service, but it works
 	}
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
@@ -364,7 +369,7 @@ public class PdService extends Service {
 	}
 
 	private class ForegroundCupcake implements ForegroundManager {
-		
+
 		protected static final int NOTIFICATION_ID = 1;
 
 		protected Notification makeNotification() {
@@ -375,7 +380,7 @@ public class PdService extends Service {
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
 			return notification;
 		}
-		
+
 		@Override
 		public void startForeground() {
 			setForeground(true);
