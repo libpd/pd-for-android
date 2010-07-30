@@ -42,6 +42,15 @@ case INTERFACE_TRANSACTION:
 reply.writeString(DESCRIPTOR);
 return true;
 }
+case TRANSACTION_addToSearchPath:
+{
+data.enforceInterface(DESCRIPTOR);
+java.lang.String _arg0;
+_arg0 = data.readString();
+this.addToSearchPath(_arg0);
+reply.writeNoException();
+return true;
+}
 case TRANSACTION_addClient:
 {
 data.enforceInterface(DESCRIPTOR);
@@ -236,6 +245,24 @@ return mRemote;
 public java.lang.String getInterfaceDescriptor()
 {
 return DESCRIPTOR;
+}
+/**
+	 * adds an entry to the search path for pd externals
+	 */
+public void addToSearchPath(java.lang.String s) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeString(s);
+mRemote.transact(Stub.TRANSACTION_addToSearchPath, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
 }
 /**
 	 * subscribe to updates on audio status
@@ -561,25 +588,30 @@ _data.recycle();
 }
 }
 }
-static final int TRANSACTION_addClient = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
-static final int TRANSACTION_removeClient = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
-static final int TRANSACTION_requestAudio = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
-static final int TRANSACTION_releaseAudio = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
-static final int TRANSACTION_stop = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
-static final int TRANSACTION_isRunning = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
-static final int TRANSACTION_getSampleRate = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
-static final int TRANSACTION_getInputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
-static final int TRANSACTION_getOutputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
-static final int TRANSACTION_getBufferSizeMillis = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
-static final int TRANSACTION_exists = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
-static final int TRANSACTION_subscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 11);
-static final int TRANSACTION_unsubscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 12);
-static final int TRANSACTION_sendBang = (android.os.IBinder.FIRST_CALL_TRANSACTION + 13);
-static final int TRANSACTION_sendFloat = (android.os.IBinder.FIRST_CALL_TRANSACTION + 14);
-static final int TRANSACTION_sendSymbol = (android.os.IBinder.FIRST_CALL_TRANSACTION + 15);
-static final int TRANSACTION_sendList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 16);
-static final int TRANSACTION_sendMessage = (android.os.IBinder.FIRST_CALL_TRANSACTION + 17);
+static final int TRANSACTION_addToSearchPath = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
+static final int TRANSACTION_addClient = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
+static final int TRANSACTION_removeClient = (android.os.IBinder.FIRST_CALL_TRANSACTION + 2);
+static final int TRANSACTION_requestAudio = (android.os.IBinder.FIRST_CALL_TRANSACTION + 3);
+static final int TRANSACTION_releaseAudio = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
+static final int TRANSACTION_stop = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
+static final int TRANSACTION_isRunning = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
+static final int TRANSACTION_getSampleRate = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+static final int TRANSACTION_getInputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
+static final int TRANSACTION_getOutputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
+static final int TRANSACTION_getBufferSizeMillis = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
+static final int TRANSACTION_exists = (android.os.IBinder.FIRST_CALL_TRANSACTION + 11);
+static final int TRANSACTION_subscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 12);
+static final int TRANSACTION_unsubscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 13);
+static final int TRANSACTION_sendBang = (android.os.IBinder.FIRST_CALL_TRANSACTION + 14);
+static final int TRANSACTION_sendFloat = (android.os.IBinder.FIRST_CALL_TRANSACTION + 15);
+static final int TRANSACTION_sendSymbol = (android.os.IBinder.FIRST_CALL_TRANSACTION + 16);
+static final int TRANSACTION_sendList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 17);
+static final int TRANSACTION_sendMessage = (android.os.IBinder.FIRST_CALL_TRANSACTION + 18);
 }
+/**
+	 * adds an entry to the search path for pd externals
+	 */
+public void addToSearchPath(java.lang.String s) throws android.os.RemoteException;
 /**
 	 * subscribe to updates on audio status
 	 */
