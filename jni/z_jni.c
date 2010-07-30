@@ -137,12 +137,13 @@ JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_initialize
 }
 
 JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_clearSearchPath
-  (JNIEnv *env, jclass cls) {
-    libpd_clear_search_path();
+(JNIEnv *env, jclass cls) {
+  CACHE_ENV
+  libpd_clear_search_path();
 }
 
 JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_addToSearchPath
-  (JNIEnv *env, jclass cls, jstring jpath) {
+(JNIEnv *env, jclass cls, jstring jpath) {
   if (jpath == NULL) {
     return;
   }
