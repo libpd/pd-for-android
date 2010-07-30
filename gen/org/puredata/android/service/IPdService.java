@@ -219,6 +219,22 @@ this.sendMessage(_arg0, _arg1, _arg2);
 reply.writeNoException();
 return true;
 }
+case TRANSACTION_clearSearchPath:
+{
+data.enforceInterface(DESCRIPTOR);
+this.clearSearchPath();
+reply.writeNoException();
+return true;
+}
+case TRANSACTION_addToSearchPath:
+{
+data.enforceInterface(DESCRIPTOR);
+java.lang.String _arg0;
+_arg0 = data.readString();
+this.addToSearchPath(_arg0);
+reply.writeNoException();
+return true;
+}
 }
 return super.onTransact(code, data, reply, flags);
 }
@@ -560,6 +576,35 @@ _reply.recycle();
 _data.recycle();
 }
 }
+public void clearSearchPath() throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+mRemote.transact(Stub.TRANSACTION_clearSearchPath, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
+public void addToSearchPath(java.lang.String s) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeString(s);
+mRemote.transact(Stub.TRANSACTION_addToSearchPath, _data, _reply, 0);
+_reply.readException();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+}
 }
 static final int TRANSACTION_addClient = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 static final int TRANSACTION_removeClient = (android.os.IBinder.FIRST_CALL_TRANSACTION + 1);
@@ -579,6 +624,8 @@ static final int TRANSACTION_sendFloat = (android.os.IBinder.FIRST_CALL_TRANSACT
 static final int TRANSACTION_sendSymbol = (android.os.IBinder.FIRST_CALL_TRANSACTION + 15);
 static final int TRANSACTION_sendList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 16);
 static final int TRANSACTION_sendMessage = (android.os.IBinder.FIRST_CALL_TRANSACTION + 17);
+static final int TRANSACTION_clearSearchPath = (android.os.IBinder.FIRST_CALL_TRANSACTION + 18);
+static final int TRANSACTION_addToSearchPath = (android.os.IBinder.FIRST_CALL_TRANSACTION + 19);
 }
 /**
 	 * subscribe to updates on audio status
@@ -627,4 +674,6 @@ public void sendFloat(java.lang.String dest, float x) throws android.os.RemoteEx
 public void sendSymbol(java.lang.String dest, java.lang.String symbol) throws android.os.RemoteException;
 public void sendList(java.lang.String dest, java.util.List args) throws android.os.RemoteException;
 public void sendMessage(java.lang.String dest, java.lang.String symbol, java.util.List args) throws android.os.RemoteException;
+public void clearSearchPath() throws android.os.RemoteException;
+public void addToSearchPath(java.lang.String s) throws android.os.RemoteException;
 }

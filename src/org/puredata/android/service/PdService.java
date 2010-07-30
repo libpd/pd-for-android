@@ -221,6 +221,16 @@ public class PdService extends Service {
 		public void sendMessage(String dest, String symbol, List args) throws RemoteException {
 			PdBase.sendMessage(dest, symbol, (args == null) ? empty : args.toArray());
 		}
+
+		@Override
+		public void addToSearchPath(String s) throws RemoteException {
+			PdBase.addToSearchPath(s);
+		}
+
+		@Override
+		public void clearSearchPath() throws RemoteException {
+			PdBase.clearSearchPath();
+		}
 	};
 
 	private void printToClients(String s) {

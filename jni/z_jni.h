@@ -9,10 +9,18 @@ extern "C" {
 #endif
 /*
  * Class:     org_puredata_core_PdBase
- * Method:    setExtraPath
+ * Method:    clearSearchPath
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_clearSearchPath
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_puredata_core_PdBase
+ * Method:    addToSearchPath
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setExtraPath
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_addToSearchPath
   (JNIEnv *, jclass, jstring);
 
 /*

@@ -42,7 +42,6 @@ public final class PdBase {
 	static {
 		System.loadLibrary("pdnative");
 		initialize();
-		setExtraPath("/sdcard/pd-externals");  // default setting for Android, everybody else needs to call setExtraPath again to override
 	}
 
 	private PdBase() {
@@ -50,10 +49,15 @@ public final class PdBase {
 	};
 
 	/**
-	 * sets the search path for pd externals; /sdcard/pd-externals by default
-	 * @param p
+	 * clears the search path for pd externals
 	 */
-	public synchronized native static void setExtraPath(String p);
+	public synchronized native static void clearSearchPath();
+
+	/**
+	 * adds a directory to the search path
+	 * @param s
+	 */
+	public synchronized native static void addToSearchPath(String s);
 	
 	/**
 	 * releases resources held by native bindings (PdReceiver object and subscriptions); otherwise, the state of pd will remain unaffected

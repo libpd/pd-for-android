@@ -49,10 +49,18 @@ void libpd_init() {
   libpdreceive_setup();
   sys_set_audio_api(API_DUMMY);
   sys_startgui(NULL);
+#ifdef ANDROID
+  sys_setextrapath("/sdcard/pd-externals");
+#endif
+// add hard-coded extra paths for more platforms here
 }
 
-void libpd_setextrapath(const char *s) {
-  sys_setextrapath(s);
+void libpd_clear_search_path() {
+  namelist_free(sys_searchpath);
+}
+
+void libpd_add_to_search_path(const char *s) {
+  sys_searchpath = namelist_append(sys_searchpath, s, 0);
 }
 
 int libpd_init_audio(int inChans, int outChans, int sampleRate, int tpb) {

@@ -136,14 +136,19 @@ JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_initialize
   libpd_init();
 }
 
-JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setExtraPath
-(JNIEnv *env, jclass cls, jstring jpath) {
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_clearSearchPath
+  (JNIEnv *env, jclass cls) {
+    libpd_clear_search_path();
+}
+
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_addToSearchPath
+  (JNIEnv *env, jclass cls, jstring jpath) {
   if (jpath == NULL) {
     return;
   }
   CACHE_ENV
   const char *cpath = (char *) (*env)->GetStringUTFChars(env, jpath, NULL);
-  libpd_setextrapath(cpath);
+  libpd_add_to_search_path(cpath);
   (*env)->ReleaseStringUTFChars(env, jpath, cpath);
 }
 
