@@ -61,7 +61,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	private String patch = null;
 	private boolean hasAudio = false;
 
-	private void post(final String msg) {
+	private void toast(final String msg) {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
@@ -70,11 +70,20 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		});
 	}
 
+	private void post(final String s) {
+		handler.post(new Runnable() {
+			@Override
+			public void run() {
+				logs.append(s + ((s.endsWith("\n")) ? "" : "\n"));
+			}
+		});
+	}
+
 	private final IPdClient.Stub client = new IPdClient.Stub() {
 		
 		@Override
 		public void requestUnbind() throws RemoteException {
-			post("Pure Data was stopped externally; finishing now");
+			toast("Pure Data was stopped externally; finishing now");
 			finish();			
 		};
 
@@ -90,19 +99,14 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 
 		@Override
 		public void print(final String s) throws RemoteException {
-			handler.post(new Runnable() {
-				@Override
-				public void run() {
-					logs.append(s);
-				}
-			});
+			post(s);
 		}
 	};
 
 	private IPdListener.Stub receiver = new IPdListener.Stub() {
 
 		private void pdPost(String msg) {
-			post("Pure Data says, \"" + msg + "\"");
+			toast("Pure Data says, \"" + msg + "\"");
 		}
 
 		@Override
@@ -234,12 +238,12 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 				proxy.releaseAudio();
 			}
 			if (proxy.isRunning()) {
-				post("Warning: audio is already running; cannot change parameters");
+				toast("Warning: audio is already running; cannot change parameters");
 			}
 			int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values stand for defaults/preferences
 			hasAudio = err == 0;
 			if (!hasAudio) {
-				post("didn't get audio; check preferences");
+				toast("didn't get audio; check preferences");
 			}
 		}
 	}
@@ -308,12 +312,12 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		if (isAny) {
 			if (sc.hasNext()) dest = sc.next();
 			else {
-				post("Message not sent (empty recipient)");
+				toast("Message not sent (empty recipient)");
 				return;
 			}
 			if (sc.hasNext()) symbol = sc.next();
 			else {
-				post("Message not sent (empty symbol)");
+				toast("Message not sent (empty symbol)");
 			}
 		}
 		List<Object> list = new ArrayList<Object>();
@@ -349,7 +353,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 
 	private void disconnected() {
-		post("lost connection to Pd Service; finishing now");
+		toast("lost connection to Pd Service; finishing now");
 		finish();
 	}
 }
