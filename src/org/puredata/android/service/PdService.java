@@ -42,14 +42,12 @@ public class PdService extends Service {
 
 	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
 	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
-
+	private final RemoteCallbackList<IPdClient> clients = new RemoteCallbackList<IPdClient>();
 	private static final String PD_SERVICE = "Pd Service";
 
-	private int sampleRate = 0, inputChannels = 0, outputChannels = 0;
-	private float bufferSizeMillis = 0.0f;
+	private volatile int sampleRate = 0, inputChannels = 0, outputChannels = 0;
+	private volatile float bufferSizeMillis = 0.0f;
 	private int activeCount = 0;
-
-	private final RemoteCallbackList<IPdClient> clients = new RemoteCallbackList<IPdClient>();
 
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
