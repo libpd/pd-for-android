@@ -125,6 +125,11 @@ public class PdService extends Service {
 	private final IPdService.Stub binder = new IPdService.Stub() {
 
 		private final Object empty[] = new Object[0];
+		
+		@Override
+		public void addToSearchPath(String s) throws RemoteException {
+			PdBase.addToSearchPath(s);
+		}
 
 		@Override
 		public void addClient(IPdClient client) throws RemoteException {
@@ -220,16 +225,6 @@ public class PdService extends Service {
 		@Override
 		public void sendMessage(String dest, String symbol, List args) throws RemoteException {
 			PdBase.sendMessage(dest, symbol, (args == null) ? empty : args.toArray());
-		}
-
-		@Override
-		public void addToSearchPath(String s) throws RemoteException {
-			PdBase.addToSearchPath(s);
-		}
-
-		@Override
-		public void clearSearchPath() throws RemoteException {
-			PdBase.clearSearchPath();
 		}
 	};
 
