@@ -317,7 +317,7 @@ _data.recycle();
 }
 }
 /**
-	 * stops the audio thread regardless of the number of current clients
+	 * attempt to stop pd service; success depends on cooperation of all clients bound to the service
 	 */
 public void stop() throws android.os.RemoteException
 {
@@ -599,7 +599,7 @@ public int requestAudio(int sampleRate, int inputChannels, int outputChannels, f
 	 */
 public void releaseAudio() throws android.os.RemoteException;
 /**
-	 * stops the audio thread regardless of the number of current clients
+	 * attempt to stop pd service; success depends on cooperation of all clients bound to the service
 	 */
 public void stop() throws android.os.RemoteException;
 /**
