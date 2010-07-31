@@ -50,6 +50,7 @@ import android.widget.TextView.OnEditorActionListener;
 public class PdServiceTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String PD_TEST = "Pd Test";
+	private static final int PREFS_ACTIVITY_ID = 1;
 	private final Handler handler = new Handler();
 
 	private CheckBox left, right, mic;
@@ -84,6 +85,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		@Override
 		public void requestUnbind() throws RemoteException {
 			toast("Pure Data was stopped externally; finishing now");
+			finishActivity(PREFS_ACTIVITY_ID);  // finish preferences activity, if any
 			finish();			
 		};
 
@@ -282,7 +284,8 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 					proxy.sendFloat("mic", mic.isChecked() ? 1 : 0);
 					break;
 				case R.id.pref_button:
-					startActivity(new Intent(this, PdPreferences.class));
+					startActivityForResult(new Intent(this, PdPreferences.class), PREFS_ACTIVITY_ID);
+					// we don't really want a result from PdPreferences, but we do want to be able to finish it with finishActivity(PREFS_ACTIVITY_ID)
 					break;
 				default:
 					break;
