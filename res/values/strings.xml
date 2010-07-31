@@ -27,4 +27,8 @@
 <string name="pref_key_bufsize_millis">BUFSIZE_MILLIS</string>
 <string name="pref_title_bufsize_millis">Buffer size (ms)</string>
 <string name="pref_sum_bufsize_millis">Pure Data buffer size in milliseconds</string>
+<string name="about_title">About Pure Data</string>
+
+
+<string name="about_msg">Pure Data is a real-time graphical programming environment for audio, video, and graphical processing, originally developed by Miller Puckette and company at IRCAM.  Android port by Peter Brinkmann, Peter Kirn, and Hans-Christoph Steiner.</string>
 </resources>

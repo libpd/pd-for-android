@@ -25,6 +25,7 @@ import org.puredata.android.service.PdPreferences;
 import org.puredata.android.service.PdUtils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -37,8 +38,13 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -266,6 +272,30 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 				disconnected();
 			}
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.pd_test_menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.about_item:
+			AlertDialog.Builder ad = new AlertDialog.Builder(this);
+			ad.setTitle(R.string.about_title);
+			ad.setMessage(R.string.about_msg);
+			ad.setNeutralButton(android.R.string.ok, null);
+			ad.setCancelable(true);
+			ad.show();
+			break;
+		default:
+			break;
+		}
+		return true;
 	}
 
 	@Override

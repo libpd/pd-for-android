@@ -26,20 +26,26 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int left_box=0x7f080000;
-        public static final int log_box=0x7f080005;
-        public static final int mic_box=0x7f080002;
-        public static final int msg_box=0x7f080003;
-        public static final int pref_button=0x7f080004;
-        public static final int right_box=0x7f080001;
+        public static final int about_item=0x7f090006;
+        public static final int left_box=0x7f090000;
+        public static final int log_box=0x7f090005;
+        public static final int mic_box=0x7f090002;
+        public static final int msg_box=0x7f090003;
+        public static final int pref_button=0x7f090004;
+        public static final int right_box=0x7f090001;
     }
     public static final class layout {
         public static final int main=0x7f030000;
+    }
+    public static final class menu {
+        public static final int pd_test_menu=0x7f080000;
     }
     public static final class raw {
         public static final int test=0x7f050000;
     }
     public static final class string {
+        public static final int about_msg=0x7f070016;
+        public static final int about_title=0x7f070015;
         public static final int app_name=0x7f070000;
         public static final int default_msg=0x7f070005;
         public static final int kill_name=0x7f070001;
