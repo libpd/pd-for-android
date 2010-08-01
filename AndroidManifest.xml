@@ -16,7 +16,7 @@
 				<action android:name="org.puredata.android.service.STOP" />
 			</intent-filter>
 		</service>
-		<activity android:label="Pure Data Preferences" android:name=".service.PdPreferences">
+		<activity android:label="Pure Data Preferences" android:name=".service.PdPreferences" android:configChanges="orientation">
 		</activity>
 	</application>
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="7" />

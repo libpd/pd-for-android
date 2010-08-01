@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.puredata.android.ioutils.IoUtils;
 import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
@@ -222,7 +223,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 			proxy.addClient(client);
 			proxy.subscribe("android", receiver);
 			InputStream in = res.openRawResource(R.raw.test);
-			patchFile = PdUtils.extractResource(in, ".pd", getCacheDir());
+			patchFile = IoUtils.extractResource(in, "test.pd", getCacheDir());
 			patch = PdUtils.openPatch(proxy, patchFile);
 			restartAudio();
 		} catch (RemoteException e) {
