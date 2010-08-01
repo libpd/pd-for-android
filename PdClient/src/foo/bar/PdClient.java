@@ -92,7 +92,6 @@ public class PdClient extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanup();
-		unbindService(serviceConnection);
 	}
 
 	private void initGui() {
@@ -119,6 +118,17 @@ public class PdClient extends Activity {
 			finish();
 		}
 	}
+	
+	@Override
+	public void finish() {
+		cleanup();
+		super.finish();
+	}
+
+	private void disconnected() {
+		post("lost connection to Pd Service; exiting now");
+		finish();
+	}
 
 	private void cleanup() {
 		synchronized (serviceConnection) {  // on the remote chance that service gets disconnected while we're here
@@ -133,10 +143,6 @@ public class PdClient extends Activity {
 				disconnected();
 			}
 		}
-	}
-
-	private void disconnected() {
-		post("lost connection to Pd Service; exiting now");
-		finish();
+		unbindService(serviceConnection);
 	}
 }
