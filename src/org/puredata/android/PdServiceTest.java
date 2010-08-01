@@ -90,7 +90,6 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		@Override
 		public void requestUnbind() throws RemoteException {
 			toast("Pure Data was stopped externally; finishing now");
-			finishActivity(PREFS_ACTIVITY_ID);  // finish preferences activity, if any
 			finish();			
 		};
 
@@ -172,7 +171,6 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanup();
-		unbindService(connection);
 	}
 
 	@Override
@@ -271,6 +269,19 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 				disconnected();
 			}
 		}
+		unbindService(connection);
+	}
+	
+	@Override
+	public void finish() {
+		finishActivity(PREFS_ACTIVITY_ID);  // finish preferences activity, if any
+		cleanup();
+		super.finish();
+	}
+
+	private void disconnected() {
+		toast("lost connection to Pd Service; finishing now");
+		finish();
 	}
 	
 	@Override
@@ -382,10 +393,5 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 				break;
 			}
 		}
-	}
-
-	private void disconnected() {
-		toast("lost connection to Pd Service; finishing now");
-		finish();
 	}
 }
