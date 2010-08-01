@@ -1,4 +1,4 @@
-package org.puredata.android.rjdj;
+package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +32,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-public class RjDjPlayer extends Activity implements SensorEventListener, OnTouchListener {
+public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener {
 
-	public static final String RJDJ_SCENE = "RJDJ_SCENE";
-	private static final String TAG = "Pd RjDj Player";
+	public static final String SCENE = "SCENE";
+	private static final String TAG = "Pd Scene Player";
 	private final Handler handler = new Handler();
 	private ImageView img;
 	private TextView logs;
@@ -95,7 +95,7 @@ public class RjDjPlayer extends Activity implements SensorEventListener, OnTouch
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		String path = intent.getStringExtra(RJDJ_SCENE);
+		String path = intent.getStringExtra(SCENE);
 		if (path != null) {
 			folder = new File(path);
 		} else {
@@ -113,7 +113,7 @@ public class RjDjPlayer extends Activity implements SensorEventListener, OnTouch
 	private void createPdLib() {
 		Resources res = getResources();
 		InputStream in;
-		libDir = new File("/sdcard/pd/.rjdj");
+		libDir = new File("/sdcard/pd/.scenes");
 		libDir.mkdirs();
 		try {
 			in = res.openRawResource(R.raw.playback);
@@ -193,11 +193,11 @@ public class RjDjPlayer extends Activity implements SensorEventListener, OnTouch
 
 	private void initGui() {
 		setContentView(R.layout.main);
-		TextView tv = (TextView) findViewById(R.id.rjdj_title);
+		TextView tv = (TextView) findViewById(R.id.scene_title);
 		tv.setText(folder.getName());
-		logs = (TextView) findViewById(R.id.rjdj_logs);
+		logs = (TextView) findViewById(R.id.scene_logs);
 		logs.setMovementMethod(new ScrollingMovementMethod());
-		img = (ImageView) findViewById(R.id.rjdj_image);
+		img = (ImageView) findViewById(R.id.scene_image);
 		img.setOnTouchListener(this);
 		img.setImageBitmap(BitmapFactory.decodeFile(new File(folder, "image.jpg").getAbsolutePath()));
 	}

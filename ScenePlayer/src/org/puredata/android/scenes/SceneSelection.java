@@ -1,4 +1,4 @@
-package org.puredata.android.rjdj;
+package org.puredata.android.scenes;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class RjDjChooser extends Activity implements OnItemClickListener {
+public class SceneSelection extends Activity implements OnItemClickListener {
 
 	private ListView sceneView;
 	private final Map<String, String> scenes = new HashMap<String, String>();
@@ -33,8 +33,8 @@ public class RjDjChooser extends Activity implements OnItemClickListener {
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
 		TextView item = (TextView) v;
 		String name = item.getText().toString();
-		Intent intent = new Intent(this, RjDjPlayer.class);
-		intent.putExtra(RjDjPlayer.RJDJ_SCENE, scenes.get(name));
+		Intent intent = new Intent(this, ScenePlayer.class);
+		intent.putExtra(ScenePlayer.SCENE, scenes.get(name));
 		startActivity(intent);
 	}
 	
@@ -48,7 +48,7 @@ public class RjDjChooser extends Activity implements OnItemClickListener {
 				for (String dir: list) {
 					scenes.put(new File(dir).getName(), dir);
 				}
-				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(RjDjChooser.this, android.R.layout.simple_list_item_1,
+				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SceneSelection.this, android.R.layout.simple_list_item_1,
 						new ArrayList<String>(scenes.keySet()));
 				sceneView.getHandler().post(new Runnable() {
 					@Override

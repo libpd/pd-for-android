@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">ScenePlayer</string>
+  <string name="scene_name">Moogarina.rj</string>
+  <string name="scene_path_common">/sdcard/pd/rjdj_scenes</string>
+</resources>
