@@ -2,7 +2,6 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.puredata.android.ioutils.IoUtils;
 import org.puredata.android.service.IPdClient;
@@ -43,7 +42,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
 	private String patch;  // the path to the patch is defined in res/values/strings.xml
-	private File libDir;
+	private final File libDir = new File("/sdcard/pd/.scenes");
 
 	private void post(final String msg) {
 		handler.post(new Runnable() {
@@ -111,23 +110,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void createPdLib() {
-		Resources res = getResources();
-		InputStream in;
-		libDir = new File("/sdcard/pd/.scenes");
-		libDir.mkdirs();
 		try {
-			in = res.openRawResource(R.raw.playback);
-			IoUtils.extractResource(in, "playback.pd", libDir);
-			in = res.openRawResource(R.raw.recorder);
-			IoUtils.extractResource(in, "recorder.pd", libDir);
-			in = res.openRawResource(R.raw.soundinput);
-			IoUtils.extractResource(in, "soundinput.pd", libDir);
-			in = res.openRawResource(R.raw.soundoutput);
-			IoUtils.extractResource(in, "soundoutput.pd", libDir);
-			in = res.openRawResource(R.raw.touch);
-			IoUtils.extractResource(in, "touch.pd", libDir);
-			in = res.openRawResource(R.raw.accelerate);
-			IoUtils.extractResource(in, "accelerate.pd", libDir);
+			IoUtils.extractZipResource(getResources().openRawResource(R.raw.abstractions), libDir);
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
 		}
@@ -222,7 +206,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			finish();
 		}
 	}
-	
+
 	@Override
 	public void finish() {
 		cleanup();
@@ -249,6 +233,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				Log.e(TAG, e.toString());
 			}
 		}
-		unbindService(serviceConnection);
+		try {
+			unbindService(serviceConnection);
+		} catch (IllegalArgumentException e) {
+			// already unbound
+			pdServiceProxy = null;
+		}
 	}
 }

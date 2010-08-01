@@ -48,7 +48,7 @@ public class PdClient extends Activity {
 		public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
 			if (sampleRate > 0) {
 				post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
-					", buffer size: " + bufferSizeMillis + "ms");
+						", buffer size: " + bufferSizeMillis + "ms");
 			} else {
 				post("Audio stopped");
 			}
@@ -118,7 +118,7 @@ public class PdClient extends Activity {
 			finish();
 		}
 	}
-	
+
 	@Override
 	public void finish() {
 		cleanup();
@@ -140,9 +140,13 @@ public class PdClient extends Activity {
 				if (hasAudio) pdServiceProxy.releaseAudio();  // only release audio if you actually have it...
 			} catch (RemoteException e) {
 				Log.e(PD_CLIENT, e.toString());
-				disconnected();
 			}
 		}
-		unbindService(serviceConnection);
+		try {
+			unbindService(serviceConnection);
+		} catch (IllegalArgumentException e) {
+			// already unbound
+			pdServiceProxy = null;
+		}
 	}
 }
