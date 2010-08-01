@@ -113,7 +113,8 @@ public class RjDjPlayer extends Activity implements SensorEventListener, OnTouch
 	private void createPdLib() {
 		Resources res = getResources();
 		InputStream in;
-		libDir = new File("/sdcard/pd");
+		libDir = new File("/sdcard/pd/.rjdj");
+		libDir.mkdirs();
 		try {
 			in = res.openRawResource(R.raw.playback);
 			IoUtils.extractResource(in, "playback.pd", libDir);
