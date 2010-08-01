@@ -2,6 +2,8 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,8 +50,13 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 				for (String dir: list) {
 					scenes.put(new File(dir).getName(), dir);
 				}
-				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SceneSelection.this, android.R.layout.simple_list_item_1,
-						new ArrayList<String>(scenes.keySet()));
+				ArrayList<String> keyList = new ArrayList<String>(scenes.keySet());
+				Collections.sort(keyList, new Comparator<String>() {
+					public int compare(String a, String b) {
+						return a.toLowerCase().compareTo(b.toLowerCase());
+					}
+				});
+				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SceneSelection.this, android.R.layout.simple_list_item_1, keyList);
 				sceneView.getHandler().post(new Runnable() {
 					@Override
 					public void run() {
