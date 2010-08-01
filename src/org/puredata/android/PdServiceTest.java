@@ -86,7 +86,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 
 	private final IPdClient.Stub client = new IPdClient.Stub() {
-		
+
 		@Override
 		public void requestUnbind() throws RemoteException {
 			toast("Pure Data was stopped externally; finishing now");
@@ -97,7 +97,7 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
 			if (sampleRate > 0) {
 				post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
-					", buffer size: " + bufferSizeMillis + "ms");
+						", buffer size: " + bufferSizeMillis + "ms");
 			} else {
 				post("Audio stopped");
 			}
@@ -269,9 +269,14 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 				disconnected();
 			}
 		}
-		unbindService(connection);
+		try {
+			unbindService(connection);
+		} catch (IllegalArgumentException e) {
+			// already unbound
+			proxy = null;
+		}
 	}
-	
+
 	@Override
 	public void finish() {
 		finishActivity(PREFS_ACTIVITY_ID);  // finish preferences activity, if any
@@ -283,14 +288,14 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 		toast("lost connection to Pd Service; finishing now");
 		finish();
 	}
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.pd_test_menu, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
