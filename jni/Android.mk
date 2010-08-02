@@ -5,13 +5,13 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := pdnative
 
 LOCAL_C_INCLUDES := /usr/include
+
 LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
 
 LOCAL_SRC_FILES := \
 	d_arithmetic.c d_array.c d_ctl.c d_dac.c d_delay.c d_fft.c d_fftroutine.c \
-	d_fft_mayer.c \
-	d_filter.c d_global.c \
-	d_math.c d_misc.c d_osc.c d_resample.c d_soundfile.c d_ugen.c g_all_guis.c \
+	d_fft_mayer.c d_filter.c d_global.c d_math.c d_misc.c d_osc.c \
+	d_resample.c d_soundfile.c d_ugen.c g_all_guis.c \
 	g_array.c g_bang.c g_canvas.c g_editor.c g_graph.c g_guiconnect.c g_hdial.c \
 	g_hslider.c g_io.c g_mycanvas.c g_numbox.c g_readwrite.c g_rtext.c \
 	g_scalar.c g_template.c g_text.c g_toggle.c g_traversal.c g_vdial.c \
@@ -26,6 +26,19 @@ LOCAL_LDLIBS := -ldl -llog
 
 include $(BUILD_SHARED_LIBRARY)
 
-##d_fft_fftw.c \
-##d_fft_fftsg.c \
-##d_fftsg_h.c \
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := fiddle~
+
+LOCAL_C_INCLUDES := extra/fiddle~
+
+LOCAL_CFLAGS := -DPD
+
+LOCAL_SRC_FILES := extra/fiddle~/fiddle~.c
+
+LOCAL_SHARED_LIBRARIES := pdnative
+
+LOCAL_LDLIBS := -lc
+
+include $(BUILD_SHARED_LIBRARY)
+
