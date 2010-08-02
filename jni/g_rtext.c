@@ -411,7 +411,7 @@ void rtext_activate(t_rtext *x, int state)
     t_canvas *canvas = glist_getcanvas(glist);
     if (state)
     {
-        sys_vgui(".x%lx.c focus %s\n", canvas, x->x_tag);
+        sys_vgui("pdtk_text_editing .x%lx %s 1\n", canvas, x->x_tag);
         glist->gl_editor->e_textedfor = x;
         glist->gl_editor->e_textdirty = 0;
         x->x_dragfrom = x->x_selstart = 0;
@@ -420,8 +420,7 @@ void rtext_activate(t_rtext *x, int state)
     }
     else
     {
-        sys_vgui("selection clear .x%lx.c\n", canvas);
-        sys_vgui(".x%lx.c focus \"\"\n", canvas);
+        sys_vgui("pdtk_text_editing .x%lx {} 0\n", canvas);
         if (glist->gl_editor->e_textedfor == x)
             glist->gl_editor->e_textedfor = 0;
         x->x_active = 0;

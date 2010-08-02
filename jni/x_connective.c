@@ -600,6 +600,12 @@ static void *route_new(t_symbol *s, int argc, t_atom *argv)
             e->e_w.w_float = atom_getfloatarg(n, argc, argv);
         else e->e_w.w_symbol = atom_getsymbolarg(n, argc, argv);
     }
+    if (argc == 1)
+    {
+        if (argv->a_type == A_FLOAT)
+            floatinlet_new(&x->x_obj, &x->x_vec->e_w.w_float);
+        else symbolinlet_new(&x->x_obj, &x->x_vec->e_w.w_symbol);
+    }
     x->x_rejectout = outlet_new(&x->x_obj, &s_list);
     return (x);
 }
@@ -1002,8 +1008,7 @@ static void trigger_anything(t_trigger *x, t_symbol *s, int argc, t_atom *argv)
             outlet_bang(u->u_outlet);
         else if (u->u_type == TR_ANYTHING)
             outlet_anything(u->u_outlet, s, argc, argv);
-        else pd_error(x, "trigger: can only convert 's' to 'b' or 'a'",
-            s->s_name);
+        else pd_error(x, "trigger: can only convert 's' to 'b' or 'a'");
     }
 }
 
@@ -1260,12 +1265,15 @@ static void makefilename_float(t_makefilename *x, t_floatarg f)
     char buf[MAXPDSTRING];
     if (x->x_accept == A_FLOAT) {
         if (x->x_intconvert)
-    sprintf(buf, x->x_format->s_name, (int)f);
-        else
-            sprintf(buf, x->x_format->s_name, f);
+            sprintf(buf, x->x_format->s_name, (int)f);
+        else sprintf(buf, x->x_format->s_name, f);
     }
     else
-        sprintf(buf, x->x_format->s_name, "");
+    {
+        char buf2[MAXPDSTRING];
+        sprintf(buf2, "%g", f);
+        sprintf(buf, x->x_format->s_name, buf2);
+    }
     if (buf[0]!=0)
     outlet_symbol(x->x_obj.ob_outlet, gensym(buf));
 }

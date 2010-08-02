@@ -36,7 +36,7 @@ int sys_defeatrt;
 t_symbol *sys_flags = &s_;
 void sys_doflags( void);
 
-#if defined(__linux__) || defined(__CYGWIN__) || defined(ANDROID)
+#if defined(__linux__) || defined(__CYGWIN__) || defined(__FreeBSD_kernel__) || defined(__GNU__) || defined(ANDROID)
 
 static char *sys_prefbuf;
 static int sys_prefbufsize;
@@ -159,7 +159,7 @@ static void sys_donesavepreferences( void)
     }
 }
 
-#endif /* UNIX */
+#endif /* __linux__ || __CYGWIN__ || __FreeBSD_kernel__ || __GNU__ */
 
 #ifdef _WIN32
 
@@ -206,7 +206,7 @@ static void sys_putpreference(const char *key, const char *value)
         post("unable to create registry entry: %s\n", key);
         return;
     }
-    err = RegSetValueEx(hkey, key, 0, REG_SZ, value, strlen(value)+1);
+    err = RegSetValueEx(hkey, key, 0, REG_EXPAND_SZ, value, strlen(value)+1);
     if (err != ERROR_SUCCESS)
         post("unable to set registry entry: %s\n", key);
     RegCloseKey(hkey);

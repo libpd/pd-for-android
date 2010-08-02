@@ -171,9 +171,8 @@ EXTERN void sys_closesocket(int fd);
 typedef void (*t_fdpollfn)(void *ptr, int fd);
 EXTERN void sys_addpollfn(int fd, t_fdpollfn fn, void *ptr);
 EXTERN void sys_rmpollfn(int fd);
-#ifdef UNIX
+#if defined(USEAPI_OSS) || defined(USEAPI_ALSA)
 void sys_setalarm(int microsec);
-void sys_setvirtualalarm( void);
 #endif
 
 #define API_NONE 0
@@ -187,31 +186,36 @@ void sys_setvirtualalarm( void);
 #define API_ESD 8
 #define API_DUMMY 9
 
-#ifdef __linux__
-#define API_DEFAULT API_OSS
-#define API_DEFSTRING "OSS"
+#if defined(__linux__) || defined(__FreeBSD_kernel__)
+# define API_DEFAULT API_OSS
+# define API_DEFSTRING "OSS"
 #endif
 #if defined(_WIN32) || defined(__CYGWIN__)
-#define API_DEFAULT API_MMIO
-#define API_DEFSTRING "MMIO"
+# define API_DEFAULT API_MMIO
+# define API_DEFSTRING "MMIO"
 #endif
 #ifdef __APPLE__
 # ifdef __arm__
 #  define API_DEFAULT API_AUDIOUNIT
 #  define API_DEFSTRING "AudioUnit"
 # else
-#  define API_DEFAULT API_PORTAUDIO
-#  define API_DEFSTRING "portaudio"
+# define API_DEFAULT API_PORTAUDIO
+# define API_DEFSTRING "portaudio"
 # endif /* __arm__ */
 #endif
 #ifdef IRIX
-#define API_DEFAULT API_SGI
-#define API_DEFSTRING "SGI Digital Media"
+# define API_DEFAULT API_SGI
+# define API_DEFSTRING "SGI Digital Media"
+#endif
+#ifdef __GNU__
+# define API_DEFAULT API_JACK
+# define API_DEFSTRING "Jack audio connection kit"
 #endif
 #ifdef USEAPI_DUMMY
 #define API_DEFAULT API_DUMMY
-#define API_DEFSTRING "dummy"
+#define API_DEFSTRING "dummy audio"
 #endif
+
 #define DEFAULTAUDIODEV 0
 
 #define MAXAUDIOINDEV 4
@@ -259,7 +263,8 @@ void alsa_getdevs(char *indevlist, int *nindevs,
     char *outdevlist, int *noutdevs, int *canmulti, 
         int maxndev, int devdescsize);
 
-int jack_open_audio(int wantinchans, int wantoutchans, int srate);
+int jack_open_audio(int wantinchans, int wantoutchans, int srate,
+    t_audiocallback callback);
 void jack_close_audio(void);
 int jack_send_dacs(void);
 void jack_reportidle(void);
@@ -278,23 +283,25 @@ void mmio_getdevs(char *indevlist, int *nindevs,
     char *outdevlist, int *noutdevs, int *canmulti, 
         int maxndev, int devdescsize);
 
+int audiounit_open_audio(int naudioindev, int *audioindev, int nchindev,
+    int *chindev, int naudiooutdev, int *audiooutdev, int nchoutdev,
+    int *choutdev, int rate);
+void audiounit_close_audio(void);
+int audiounit_send_dacs(void);
+void audiounit_listdevs(void);
+void audiounit_getdevs(char *indevlist, int *nindevs,
+    char *outdevlist, int *noutdevs, int *canmulti, 
+        int maxndev, int devdescsize);
+
 int esd_open_audio(int naudioindev, int *audioindev, int nchindev,
     int *chindev, int naudiooutdev, int *audiooutdev, int nchoutdev,
     int *choutdev, int rate);
 void esd_close_audio(void);
 int esd_send_dacs(void);
-void esd_reportidle(void);
+void esd_listdevs(void);
 void esd_getdevs(char *indevlist, int *nindevs,
     char *outdevlist, int *noutdevs, int *canmulti, 
-    	int maxndev, int devdescsize);
-
-int dummy_open_audio(int naudioindev, int *audioindev, int nchindev,
-    int *chindev, int naudiooutdev, int *audiooutdev, int nchoutdev,
-    int *choutdev, int rate);
-int dummy_close_audio(void);
-int dummy_send_dacs(void);
-void dummy_getdevs(char *, int *, char *, int *, int *, int, int);
-void dummy_listdevs(void);
+        int maxndev, int devdescsize);
 
 void sys_listmididevs(void);
 void sys_set_midi_api(int whichapi);

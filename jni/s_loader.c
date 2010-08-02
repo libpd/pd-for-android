@@ -38,26 +38,22 @@ a fat binary or an indication of the instruction set. */
 
 #ifdef __FreeBSD__
 static char sys_dllextent[] = ".b_i386", sys_dllextent2[] = ".pd_freebsd";
-#endif
-#ifdef __linux__
-#ifdef __x86_64__
+#elif defined(__linux__) || defined(__FreeBSD_kernel__) || defined(__GNU__)
+# ifdef __x86_64__
 static char sys_dllextent[] = ".l_ia64", sys_dllextent2[] = ".pd_linux";
-#else
+# else
 static char sys_dllextent[] = ".l_i386", sys_dllextent2[] = ".pd_linux";
-#endif
-#endif
-#ifdef __APPLE__
-#ifndef MACOSX3
+# endif
+#elif defined(__APPLE__)
+# ifndef MACOSX3
 static char sys_dllextent[] = ".d_fat", sys_dllextent2[] = ".pd_darwin";
-#else
+# else
 static char sys_dllextent[] = ".d_ppc", sys_dllextent2[] = ".pd_darwin";
-#endif
-#endif
-#if defined(_WIN32) || defined(__CYGWIN__)
+# endif
+#elif defined(_WIN32) || defined(__CYGWIN__)
 static char sys_dllextent[] = ".m_i386", sys_dllextent2[] = ".dll";
-#endif
-#ifdef ANDROID
-static char sys_dllextent[] = ".l_arm5", sys_dllextent2[] = ".pd_linux";
+#elif defined(ANDROID)
+static char sys_dllextent[] = ".l_arm", sys_dllextent2[] = ".pd_linux";
 #endif
 
     /* maintain list of loaded modules to avoid repeating loads */
@@ -181,7 +177,7 @@ gotone:
         return (0);
     }
     makeout = (t_xxx)dlsym(dlobj,  symname);
-    fprintf(stderr, "symbol %s\n", symname);
+    /* fprintf(stderr, "symbol %s\n", symname); */
 #endif
 #ifdef MSW
     sys_bashfilename(filename, filename);
@@ -221,8 +217,10 @@ void sys_register_loader(loader_t loader)
 {
     loader_queue_t *q = &loaders;
     while (1)
-    {
-        if (q->next) 
+    {   
+        if (q->loader == loader)    /* already loaded - nothing to do */
+            return;
+        else if (q->next) 
             q = q->next;
         else
         {

@@ -59,11 +59,15 @@ typedef int socklen_t;
 #define PDBINDIR "bin/"
 #endif
 
-#ifndef WISHAPP
-#define WISHAPP "wish85.exe"
+#ifndef PDGUIDIR
+#define PDGUIDIR "tcl/"
 #endif
 
-#ifdef __linux__
+#ifndef WISHAPP
+#define WISHAPP "wish84.exe"
+#endif
+
+#if defined(__linux__) || defined(__FreeBSD_kernel__) || defined(__GNU__)
 #define LOCALHOST "127.0.0.1"
 #else
 #define LOCALHOST "localhost"
@@ -89,7 +93,6 @@ struct _socketreceiver
     t_socketreceivefn sr_socketreceivefn;
 };
 
-extern char *pd_version;
 extern int sys_guisetportnumber;
 
 static int sys_nfdpoll;
@@ -100,6 +103,8 @@ static int sys_guisock;
 static t_binbuf *inbinbuf;
 static t_socketreceiver *sys_socketreceiver;
 extern int sys_addhist(int phase);
+void sys_set_path(void);
+void sys_set_startup(void);
 
 /* ----------- functions for timing, signals, priorities, etc  --------- */
 
@@ -266,7 +271,7 @@ void sys_setalarm(int microsec)
 
 #endif /* NOT _WIN32 && NOT __CYGWIN__ */
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD_kernel__) || defined(__GNU__)
 
 #if defined(_POSIX_PRIORITY_SCHEDULING) || defined(_POSIX_MEMLOCK)
 #include <sched.h>
@@ -838,7 +843,7 @@ int sys_pollgui(void)
 
 static int sys_watchfd;
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD_kernel__) || defined(__GNU__)
 void glob_watchdog(t_pd *dummy)
 {
     if (write(sys_watchfd, "\n", 1) < 1)
@@ -1055,12 +1060,12 @@ int sys_startgui(const char *libdir)
                 if (stat(wish_paths[i], &statbuf) >= 0)
                     break;
             }
-            sprintf(cmdbuf,"\"%s\" %s/bin/pd-gui.tcl %d\n", wish_paths[i],
+            sprintf(cmdbuf,"\"%s\" %s/" PDGUIDIR "/pd-gui.tcl %d\n", wish_paths[i],
                 libdir, portno);
 #else /* __APPLE__ */
             sprintf(cmdbuf,
   "TCL_LIBRARY=\"%s/lib/tcl/library\" TK_LIBRARY=\"%s/lib/tk/library\" \
-  wish \"%s/bin/pd-gui.tcl\" %d\n",
+  wish \"%s/" PDGUIDIR "/pd-gui.tcl\" %d\n",
                  libdir, libdir, libdir, portno);
 #endif /* __APPLE__ */
             sys_guicmd = cmdbuf;
@@ -1106,7 +1111,7 @@ int sys_startgui(const char *libdir)
         
         strcpy(scriptbuf, "\"");
         strcat(scriptbuf, libdir);
-        strcat(scriptbuf, "/" PDBINDIR "pd-gui.tcl\"");
+        strcat(scriptbuf, "/" PDGUIDIR "pd-gui.tcl\"");
         sys_bashfilename(scriptbuf, scriptbuf);
         
                 sprintf(portbuf, "%d", portno);
@@ -1126,7 +1131,7 @@ int sys_startgui(const char *libdir)
 #endif /* NOT _WIN32 */
     }
 
-#if defined(__linux__) || defined(IRIX)
+#if defined(__linux__) || defined(IRIX) || defined(__FreeBSD_kernel__)
         /* now that we've spun off the child process we can promote
         our process's priority, if we can and want to.  If not specfied
         (-1), we check root status.  This misses the case where we might
@@ -1236,14 +1241,19 @@ int sys_startgui(const char *libdir)
              sys_socketreceiver);
 
             /* here is where we start the pinging. */
-#if defined(__linux__) || defined(IRIX)
+#if defined(__linux__) || defined(IRIX) || defined(__FreeBSD_kernel__)
          if (sys_hipriority)
              sys_gui("pdtk_watchdog\n");
 #endif
          sys_get_audio_apis(buf);
          sys_get_midi_apis(buf2);
-         sys_vgui("pdtk_pd_startup {%s} %s %s {%s} %s\n", pd_version, buf, buf2, 
-                  sys_font, sys_fontweight); 
+         sys_set_path();     /* tell GUI about path and startup flags */
+         sys_set_startup();
+                            /* ... and about font, medio APIS, etc */
+         sys_vgui("pdtk_pd_startup %d %d %d {%s} %s %s {%s} %s\n",
+                  PD_MAJOR_VERSION, PD_MINOR_VERSION, 
+                  PD_BUGFIX_VERSION, PD_TEST_VERSION,
+                  buf, buf2, sys_font, sys_fontweight); 
     }
     return (0);
 
@@ -1260,7 +1270,7 @@ void sys_bail(int n)
     if (!reentered)
     {
         reentered = 1;
-#ifndef __linux__  /* sys_close_audio() hangs if you're in a signal? */
+#if !defined(__linux__) && !defined(__FreeBSD_kernel__) && !defined(__GNU__) /* sys_close_audio() hangs if you're in a signal? */
         fprintf(stderr, "closing audio...\n");
         sys_close_audio();
         fprintf(stderr, "closing MIDI...\n");

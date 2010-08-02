@@ -9,6 +9,9 @@
 #include "s_stuff.h"
 #include "g_canvas.h"
 #include <string.h>
+#ifdef _MSC_VER  /* This is only for Microsoft's compiler, not cygwin, e.g. */
+#define snprintf sprintf_s
+#endif
 
 void glist_readfrombinbuf(t_glist *x, t_binbuf *b, char *filename,
     int selectem);
@@ -236,7 +239,7 @@ void glist_deselect(t_glist *x, t_gobj *y)
 
             rtext_gettext(z, &buf, &bufsize);
             text_setto((t_text *)y, x, buf, bufsize);
-            canvas_fixlinesfor(glist_getcanvas(x), (t_text *)y);
+            canvas_fixlinesfor(x, (t_text *)y);
             x->gl_editor->e_textedfor = 0;
         }
         if (fixdsp)
@@ -866,6 +869,7 @@ static t_editor *editor_new(t_glist *owner)
     x->e_glist = owner;
     sprintf(buf, ".x%lx", (t_int)owner);
     x->e_guiconnect = guiconnect_new(&owner->gl_pd, gensym(buf));
+    x->e_clock = 0;
     return (x);
 }
 
@@ -875,6 +879,8 @@ static void editor_free(t_editor *x, t_glist *y)
     guiconnect_notarget(x->e_guiconnect, 1000);
     binbuf_free(x->e_connectbuf);
     binbuf_free(x->e_deleted);
+    if (x->e_clock)
+        clock_free(x->e_clock);
     freebytes((void *)x, sizeof(*x));
 }
 
@@ -897,6 +903,7 @@ void canvas_destroy_editor(t_glist *x)
 {
     t_gobj *y;
     t_object *ob;
+    glist_noselect(x);
     if (x->gl_editor)
     {
         for (y = x->gl_list; y; y = y->g_next)
@@ -917,28 +924,41 @@ void canvas_vis(t_canvas *x, t_floatarg f)
 {
     char buf[30];
     int flag = (f != 0);
+    /* why is this here, what's the problem? This gets triggered by GOPs */
     if (x != glist_getcanvas(x))
         bug("canvas_vis");
     if (flag)
     {
-        /* post("havewindow %d, isgraph %d, isvisible %d  editor %d",
-            x->gl_havewindow, x->gl_isgraph, glist_isvisible(x),
-                (x->gl_editor != 0)); */
-            /* test if we're already visible and toplevel */
-        if (x->gl_editor)
+        /* If a subpatch/abstraction has GOP/gl_isgraph set, then it will have
+         * a gl_editor already, if its not, it will not have a gl_editor.
+         * canvas_create_editor(x) checks if a gl_editor is already created,
+         * so its ok to run it on a canvas that already has a gl_editor. */
+        if (x->gl_editor && x->gl_havewindow)
         {           /* just put us in front */
-            sys_vgui("wm deiconify .x%lx\n", x);  
-            sys_vgui("raise .x%lx\n", x);
-            sys_vgui("focus .x%lx.c\n", x);
+            sys_vgui("pdtk_canvas_raise .x%lx\n", x);  
         }
         else
         {
+            char cbuf[MAXPDSTRING];
+            int cbuflen;
+            t_canvas *c = x;
             canvas_create_editor(x);
             sys_vgui("pdtk_canvas_new .x%lx %d %d +%d+%d %d\n", x,
                 (int)(x->gl_screenx2 - x->gl_screenx1),
                 (int)(x->gl_screeny2 - x->gl_screeny1),
                 (int)(x->gl_screenx1), (int)(x->gl_screeny1),
                 x->gl_edit);
+            snprintf(cbuf, MAXPDSTRING - 2, "pdtk_canvas_setparents .x%lx",
+                (unsigned long)c);
+            while (c->gl_owner) {
+                c = c->gl_owner;
+                cbuflen = strlen(cbuf);
+                snprintf(cbuf + cbuflen,
+                         MAXPDSTRING - cbuflen - 2,/* leave 2 for "\n\0" */
+                         " .x%lx", (unsigned long)c);
+            }
+            strcat(cbuf, "\n");
+            sys_gui(cbuf);
             canvas_reflecttitle(x);
             x->gl_havewindow = 1;
             canvas_updatewindowlist();
@@ -959,7 +979,6 @@ void canvas_vis(t_canvas *x, t_floatarg f)
                 canvas_destroy_editor(x);
             return;
         }
-        sys_vgui("pdtk_canvas_getscroll .x%lx.c\n", x);
         glist_noselect(x);
         if (glist_isvisible(x))
             canvas_map(x, 0);
@@ -967,7 +986,6 @@ void canvas_vis(t_canvas *x, t_floatarg f)
         sys_vgui("destroy .x%lx\n", x);
         for (i = 1, x2 = x; x2; x2 = x2->gl_next, i++)
             ;
-        sys_vgui(".mbar.find delete %d\n", i);
             /* if we're a graph on our parent, and if the parent exists
                and is visible, show ourselves on parent. */
         if (glist_isgraph(x) && x->gl_owner)
@@ -1134,6 +1152,7 @@ static void canvas_donecanvasdialog(t_glist *x,
     }
         /* LATER avoid doing 2 redraws here (possibly one inside setgraph) */
     canvas_setgraph(x, graphme, 0);
+    canvas_dirty(x, 1);
     if (x->gl_havewindow)
         canvas_redraw(x);
     else if (glist_isvisible(x->gl_owner))
@@ -1512,6 +1531,7 @@ void canvas_doconnect(t_canvas *x, int xpos, int ypos, int which, int doit)
                     glist_getcanvas(x),
                         lx1, ly1, lx2, ly2,
                             (obj_issignaloutlet(ob1, closest1) ? 2 : 1), oc);
+                canvas_dirty(x, 1);
                 canvas_setundo(x, canvas_undo_connect,
                     canvas_undo_set_connect(x, 
                         canvas_getindex(x, &ob1->ob_g), closest1,
@@ -1657,8 +1677,18 @@ void canvas_key(t_canvas *x, t_symbol *s, int ac, t_atom *av)
     else if (av[1].a_type == A_FLOAT)
     {
         char buf[3];
-        sprintf(buf, "%c", (int)(av[1].a_w.w_float));
-        gotkeysym = gensym(buf);
+        switch((int)(av[1].a_w.w_float))
+        {
+        case 8:  gotkeysym = gensym("BackSpace"); break;
+        case 9:  gotkeysym = gensym("Tab"); break;
+        case 10: gotkeysym = gensym("Return"); break;
+        case 27: gotkeysym = gensym("Escape"); break;
+        case 32: gotkeysym = gensym("Space"); break;
+        case 127:gotkeysym = gensym("Delete"); break;
+        default:
+            sprintf(buf, "%c", (int)(av[1].a_w.w_float));
+            gotkeysym = gensym(buf);
+        }
     }
     else gotkeysym = gensym("?");
     fflag = (av[0].a_type == A_FLOAT ? av[0].a_w.w_float : 0);
@@ -1765,6 +1795,15 @@ void canvas_key(t_canvas *x, t_symbol *s, int ac, t_atom *av)
                 CURSOR_RUNMODE_NOTHING :CURSOR_EDITMODE_NOTHING);
 }
 
+static void delay_move(t_canvas *x)
+{
+    canvas_displaceselection(x, 
+       x->gl_editor->e_xnew - x->gl_editor->e_xwas,
+       x->gl_editor->e_ynew - x->gl_editor->e_ywas);
+    x->gl_editor->e_xwas = x->gl_editor->e_xnew;
+    x->gl_editor->e_ywas = x->gl_editor->e_ynew;
+}
+
 void canvas_motion(t_canvas *x, t_floatarg xpos, t_floatarg ypos,
     t_floatarg fmod)
 { 
@@ -1778,10 +1817,12 @@ void canvas_motion(t_canvas *x, t_floatarg xpos, t_floatarg ypos,
     glist_setlastxy(x, xpos, ypos);
     if (x->gl_editor->e_onmotion == MA_MOVE)
     {
-        canvas_displaceselection(x, 
-            xpos - x->gl_editor->e_xwas, ypos - x->gl_editor->e_ywas);
-        x->gl_editor->e_xwas = xpos;
-        x->gl_editor->e_ywas = ypos;    
+        if (!x->gl_editor->e_clock)
+            x->gl_editor->e_clock = clock_new(x, (t_method)delay_move);
+        clock_unset(x->gl_editor->e_clock);
+        clock_delay(x->gl_editor->e_clock, 5);
+        x->gl_editor->e_xnew = xpos;
+        x->gl_editor->e_ynew = ypos;
     }
     else if (x->gl_editor->e_onmotion == MA_REGION)
         canvas_doregion(x, xpos, ypos, 0);
@@ -2163,6 +2204,7 @@ static void canvas_clearline(t_canvas *x)
              x->gl_editor->e_selectline_outno,
              x->gl_editor->e_selectline_index2,
              x->gl_editor->e_selectline_inno);
+        canvas_dirty(x, 1);
         canvas_setundo(x, canvas_undo_disconnect,
             canvas_undo_set_disconnect(x,
                 x->gl_editor->e_selectline_index1,
@@ -2232,6 +2274,8 @@ restore:
 
 static void canvas_cut(t_canvas *x)
 {
+    if (!x->gl_editor)  /* ignore if invisible */ 
+        return;
     if (x->gl_editor && x->gl_editor->e_selectedline)
         canvas_clearline(x);
     else if (x->gl_editor->e_textedfor)
@@ -2313,6 +2357,8 @@ static void canvas_paste(t_canvas *x)
 
 static void canvas_duplicate(t_canvas *x)
 {
+    if (!x->gl_editor)
+        return;
     if (x->gl_editor->e_onmotion == MA_NONE && x->gl_editor->e_selection)
     {
         t_selection *y;
@@ -2330,6 +2376,8 @@ static void canvas_duplicate(t_canvas *x)
 static void canvas_selectall(t_canvas *x)
 {
     t_gobj *y;
+    if (!x->gl_editor)
+        return;
     if (!x->gl_edit)
         canvas_editmode(x, 1);
             /* if everyone is already selected deselect everyone */
@@ -2550,12 +2598,9 @@ void glob_key(void *dummy, t_symbol *s, int ac, t_atom *av)
     canvas_key(canvas_editing, s, ac, av);
 }
 
-void canvas_editmode(t_canvas *x, t_floatarg fyesplease)
+void canvas_editmode(t_canvas *x, t_floatarg state)
 {
-    int yesplease = fyesplease;
-    if (yesplease && x->gl_edit)
-        return;
-    x->gl_edit = !x->gl_edit;
+    x->gl_edit = (unsigned int) state;
     if (x->gl_edit && glist_isvisible(x) && glist_istoplevel(x))
         canvas_setcursor(x, CURSOR_EDITMODE_NOTHING);
     else
@@ -2564,7 +2609,7 @@ void canvas_editmode(t_canvas *x, t_floatarg fyesplease)
         if (glist_isvisible(x) && glist_istoplevel(x))
             canvas_setcursor(x, CURSOR_RUNMODE_NOTHING);
     }
-    sys_vgui("pdtk_canvas_editval .x%lx %d\n",
+    sys_vgui("pdtk_canvas_editmode .x%lx %d\n",
         glist_getcanvas(x), x->gl_edit);
 }
 

@@ -108,6 +108,9 @@ typedef struct _editor
     unsigned int e_lastmoved: 1;    /* one if mouse has moved since click */
     unsigned int e_textdirty: 1;    /* one if e_textedfor has changed */
     unsigned int e_selectedline: 1; /* one if a line is selected */
+    t_clock *e_clock;               /* clock to filter GUI move messages */
+    int e_xnew;                     /* xpos for next move event */
+    int e_ynew;                     /* ypos, similarly */
 } t_editor;
 
 #define MA_NONE    0    /* e_onmotion: do nothing on mouse motion */
@@ -478,7 +481,7 @@ EXTERN void canvas_resortinlets(t_canvas *x);
 EXTERN void canvas_resortoutlets(t_canvas *x);
 EXTERN void canvas_free(t_canvas *x);
 EXTERN void canvas_updatewindowlist( void);
-EXTERN void canvas_editmode(t_canvas *x, t_floatarg yesplease);
+EXTERN void canvas_editmode(t_canvas *x, t_floatarg state);
 EXTERN int canvas_isabstraction(t_canvas *x);
 EXTERN int canvas_istable(t_canvas *x);
 EXTERN int canvas_showtext(t_canvas *x);

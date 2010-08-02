@@ -675,7 +675,6 @@ static void gatom_key(void *z, t_floatarg f)
             gatom_retext(x, 1);
         return;
     }
-    else if (c == ' ') return;
     else if (c == '\b')
     {
         if (len > 0)
@@ -793,6 +792,7 @@ static void gatom_param(t_gatom *x, t_symbol *sel, int argc, t_atom *argv)
     x->a_symto = symto;
     x->a_expanded_to = canvas_realizedollar(x->a_glist, x->a_symto);
     gobj_vis(&x->a_text.te_g, x->a_glist, 1);
+    canvas_dirty(x->a_glist, 1);
 
     /* glist_retext(x->a_glist, &x->a_text); */
 }
@@ -1026,7 +1026,7 @@ static void text_displace(t_gobj *z, t_glist *glist,
         rtext_displace(y, dx, dy);
         text_drawborder(x, glist, rtext_gettag(y),
             rtext_width(y), rtext_height(y), 0);
-        canvas_fixlinesfor(glist_getcanvas(glist), x);
+        canvas_fixlinesfor(glist, x);
     }
 }
 

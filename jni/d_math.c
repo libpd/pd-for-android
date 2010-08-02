@@ -67,10 +67,12 @@ static void clip_setup(void)
 #define DUMTAB1SIZE 256
 #define DUMTAB2SIZE 1024
 
-#ifdef _WIN32
-#define int32_t long
+#ifdef _MSC_VER
+ typedef __int32 int32_t; /* use MSVC's internal type */
+#elif defined(IRIX)
+ typedef long int32_t;  /* a data type that has 32 bits */
 #else
-#include <stdint.h>
+# include <stdint.h>  /* this is where int32_t is defined in C99 */
 #endif
 
 static float rsqrt_exptab[DUMTAB1SIZE], rsqrt_mantissatab[DUMTAB2SIZE];
@@ -94,16 +96,18 @@ static void init_rsqrt(void)
 
     /* these are used in externs like "bonk" */
 
-t_float q8_rsqrt(t_float f)
+t_float q8_rsqrt(t_float f0)
 {
+    float f = (float)f0;
     long l = *(long *)(&f);
     if (f < 0) return (0);
     else return (rsqrt_exptab[(l >> 23) & 0xff] *
             rsqrt_mantissatab[(l >> 13) & 0x3ff]);
 }
 
-t_float q8_sqrt(t_float f)
+t_float q8_sqrt(t_float f0)
 {
+    float f = (float)f0;
     long l = *(long *)(&f);
     if (f < 0) return (0);
     else return (f * rsqrt_exptab[(l >> 23) & 0xff] *

@@ -61,13 +61,13 @@ int sys_nmidiin = -1;
 int sys_midiindevlist[MAXMIDIINDEV] = {1};
 int sys_midioutdevlist[MAXMIDIOUTDEV] = {1};
 
-char sys_font[100] = 
 #ifdef __APPLE__
-    "Monaco";
-#else
-    "Courier";
-#endif
+char sys_font[100] = "Monaco";
 char sys_fontweight[] = "normal";
+#else
+char sys_font[100] = "Courier";
+char sys_fontweight[] = "bold";
+#endif
 static int sys_main_srate;
 static int sys_main_advance;
 static int sys_main_callback;
@@ -258,15 +258,6 @@ void glob_initfromgui(void *dummy, t_symbol *s, int argc, t_atom *argv)
 
 static void sys_afterargparse(void);
 
-static void pd_makeversion(void)
-{
-    char foo[100];
-    sprintf(foo,  "Pd version %d.%d-%d%s\n",PD_MAJOR_VERSION,
-        PD_MINOR_VERSION,PD_BUGFIX_VERSION,PD_TEST_VERSION);
-    pd_version = malloc(strlen(foo)+1);
-    strcpy(pd_version, foo);
-}
-
 /* this is called from main() in s_entry.c */
 int sys_main(int argc, char **argv)
 {
@@ -290,8 +281,6 @@ int sys_main(int argc, char **argv)
     if (sys_argparse(argc-1, argv+1))           /* parse cmd line */
         return (1);
     sys_afterargparse();                    /* post-argparse settings */
-        /* build version string from defines in m_pd.h */
-    pd_makeversion();
     if (sys_verbose || sys_version) fprintf(stderr, "%scompiled %s %s\n",
         pd_version, pd_compiletime, pd_compiledate);
     if (sys_version)    /* if we were just asked our version, exit here. */
@@ -363,10 +352,6 @@ static char *(usagemessage[]) = {
 
 #ifdef USEAPI_ESD
 "-esd             -- use Enlightenment Sound Daemon (ESD) API\n",
-#endif
-
-#ifdef USEAPI_DUMMY
-"-dummy         -- use dummy API\n",
 #endif
 
 "      (default audio API for this platform:  ", API_DEFSTRING, ")\n\n",
@@ -681,13 +666,6 @@ int sys_argparse(int argc, char **argv)
         {
             sys_set_audio_api(API_ESD);
             argc--; argv++;
-        }
-#endif
-#ifdef USEAPI_DUMMY
-        else if (!strcmp(*argv, "-dummy"))
-        {
-        	sys_set_audio_api(API_DUMMY);
-        	argc--; argv++;
         }
 #endif
         else if (!strcmp(*argv, "-nomidiin"))
