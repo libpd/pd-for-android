@@ -26,19 +26,3 @@ LOCAL_LDLIBS := -ldl -llog
 
 include $(BUILD_SHARED_LIBRARY)
 
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := fiddle~
-
-LOCAL_C_INCLUDES := extra/fiddle~
-
-LOCAL_CFLAGS := -DPD
-
-LOCAL_SRC_FILES := extra/fiddle~/fiddle~.c
-
-LOCAL_SHARED_LIBRARIES := pdnative
-
-LOCAL_LDLIBS := -lc
-
-include $(BUILD_SHARED_LIBRARY)
-
