@@ -331,7 +331,7 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_bindSymbol
   // very naughty, returning a pointer to Java
 }
 
-JNIEXPORT int JNICALL Java_org_puredata_core_PdBase_unbindSymbol
+JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_unbindSymbol
 (JNIEnv *env, jclass cls, jint ptr) {
   CACHE_ENV
   return libpd_unbind((void *)ptr);
