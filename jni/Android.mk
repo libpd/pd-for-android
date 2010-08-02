@@ -4,7 +4,6 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := pdnative
 
-LOCAL_C_INCLUDES := /usr/include
 LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
 
 LOCAL_SRC_FILES := \
@@ -26,6 +25,3 @@ LOCAL_LDLIBS := -ldl -llog
 
 include $(BUILD_SHARED_LIBRARY)
 
-##d_fft_fftw.c \
-##d_fft_fftsg.c \
-##d_fftsg_h.c \
