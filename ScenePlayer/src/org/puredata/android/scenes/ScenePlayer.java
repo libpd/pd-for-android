@@ -146,35 +146,19 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		if (v != img) return false;
-		String action = null;
-		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			action = "down";
-			break;
-		case MotionEvent.ACTION_MOVE:
-			action = "xy";
-			break;
-		case MotionEvent.ACTION_UP:
-		case MotionEvent.ACTION_CANCEL:
-		case MotionEvent.ACTION_OUTSIDE:
-			action = "up";
-			break;
-		default:
-			break;
-		}
-		if (action == null) return false;
-		synchronized (serviceConnection) {
-			if (pdServiceProxy != null)
-				try {
-					float x = event.getX() * 320.0f / img.getWidth();
-					float y = event.getY() * 320.0f / img.getHeight();
-					PdUtils.sendMessage(pdServiceProxy, "#touch", action, 1, x, y);
-				} catch (RemoteException e) {
-					Log.e(TAG, e.toString());
+		boolean flag = false;
+		if (v == img) {
+			synchronized (serviceConnection) {
+				if (pdServiceProxy != null) {
+					try {
+						flag = VersionedTouch.evaluateTouch(pdServiceProxy, event, img.getWidth(), img.getHeight());
+					} catch (RemoteException e) {
+						Log.e(TAG, e.toString());
+					}
 				}
+			}
 		}
-		return true;
+		return flag;
 	}
 
 	@Override
