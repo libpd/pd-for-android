@@ -169,7 +169,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				try {
 					float x = event.getX() * 320.0f / img.getWidth();
 					float y = event.getY() * 320.0f / img.getHeight();
-					PdUtils.sendMessage(pdServiceProxy, "#touch", action, x, y);
+					PdUtils.sendMessage(pdServiceProxy, "#touch", action, 1, x, y);
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
 				}
