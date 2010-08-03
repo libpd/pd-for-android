@@ -212,6 +212,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				post("unable to start audio; exiting now");
 				finish();
 			} else {
+				PdUtils.sendMessage(pdServiceProxy, "#volume", "set", 1);
 				PdUtils.sendMessage(pdServiceProxy, "#transport", "play", 1);
 			}
 		} catch (RemoteException e) {
