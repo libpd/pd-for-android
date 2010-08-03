@@ -11,11 +11,14 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.puredata.android.ioutils.IoUtils;
 import org.puredata.android.service.IPdClient;
+import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
 import org.puredata.android.service.PdUtils;
+import org.puredata.android.service.IPdListener.Stub;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -44,6 +47,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	public static final String SCENE = "SCENE";
 	private static final String TAG = "Pd Scene Player";
+	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private final Handler handler = new Handler();
 	private ImageView img;
 	private TextView logs;
@@ -83,6 +87,24 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		public void print(String s) throws RemoteException {
 			post(s);
 		}
+	};
+	
+	private final IPdListener.Stub imageListener = new Stub() {
+		
+		@Override
+		public void receiveList(List args) throws RemoteException {
+			post("rj_image: " + args);
+		}
+		
+		// the remaining methods will never be called
+		@Override
+		public void receiveSymbol(String symbol) throws RemoteException {}
+		@Override
+		public void receiveMessage(String symbol, List args) throws RemoteException {}
+		@Override
+		public void receiveFloat(float x) throws RemoteException {}
+		@Override
+		public void receiveBang() throws RemoteException {}
 	};
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -182,6 +204,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		try {
 			pdServiceProxy.addClient(statusWatcher);
 			pdServiceProxy.addToSearchPath(libDir.getAbsolutePath());
+			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, imageListener);
 			patch = PdUtils.openPatch(pdServiceProxy, new File(folder, "_main.pd"));
 			int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
 			hasAudio = (err == 0);
@@ -217,6 +240,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			try {
 				// make sure to release all resources
 				pdServiceProxy.removeClient(statusWatcher);
+				pdServiceProxy.unsubscribe(RJ_IMAGE_ANDROID, imageListener);
 				PdUtils.closePatch(pdServiceProxy, patch);
 				if (hasAudio) {
 					hasAudio = false;
