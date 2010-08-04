@@ -15,7 +15,6 @@ import android.graphics.Paint;
 public class TextOverlay extends Overlay {
 
 	private volatile String text = "";
-	private volatile int size = 0;
 	private final Paint paint;
 	
 	public TextOverlay(String text) {
@@ -27,8 +26,8 @@ public class TextOverlay extends Overlay {
 		this.text = text;
 	}
 	
-	public void setSize(int size) {
-		this.size = size;
+	public void setSize(float size) {
+		paint.setTextSize(size);
 	}
 	
 	@Override

@@ -118,7 +118,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					if (cmd.equals("text")) {
 						textOverlay.setText((String) args.get(2));
 					} else if (cmd.equals("size")) {
-						textOverlay.setSize((int) ((Float) args.get(2)).floatValue());
+						textOverlay.setSize(((Float) args.get(2)).floatValue());
 					}
 				}
 			} else {
