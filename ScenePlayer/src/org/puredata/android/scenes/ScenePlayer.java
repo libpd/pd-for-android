@@ -166,6 +166,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			File common = new File(res.getString(R.string.scene_path_common));
 			sceneFolder = new File(common, res.getString(R.string.scene_name));
 		}
+		fixScene();
 		initGui();
 		try {
 			IoUtils.extractZipResource(getResources().openRawResource(R.raw.abstractions), libDir);
@@ -175,6 +176,14 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
 		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
 		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
+	}
+
+	private void fixScene() {
+		// weird little hack to avoid having our rj_image.pd and such masked by GEM versions in the scene
+		new File(sceneFolder, "rj_image.pd").delete();
+		new File(sceneFolder, "rj/rj_image.pd").delete();
+		new File(sceneFolder, "rj_text.pd").delete();
+		new File(sceneFolder, "rj/rj_text.pd").delete();
 	}
 
 	@Override
