@@ -49,7 +49,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	public static final String SCENE = "SCENE";
 	private static final String TAG = "Pd Scene Player";
-	private static final String RJDJ_ANDROID = "rjdj_android";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
 	private final Handler handler = new Handler();
@@ -139,36 +138,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		@Override public void receiveSymbol(String symbol) throws RemoteException {}
 		@Override public void receiveFloat(float x) throws RemoteException {}
 		@Override public void receiveBang() throws RemoteException {}
-	};
-
-	private final IPdListener.Stub rjdjListener = new IPdListener.Stub() {
-
-		@Override
-		public void receiveSymbol(String symbol) throws RemoteException {
-			// TODO Auto-generated method stub
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void receiveMessage(String symbol, List args) throws RemoteException {
-			// TODO Auto-generated method stub
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void receiveList(List args) throws RemoteException {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void receiveFloat(float x) throws RemoteException {
-			// TODO Auto-generated method stub
-		}
-
-		@Override
-		public void receiveBang() throws RemoteException {
-			// TODO Auto-generated method stub
-		}
 	};
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -273,7 +242,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		try {
 			pdServiceProxy.addClient(statusWatcher);
 			pdServiceProxy.addToSearchPath(libDir.getAbsolutePath());
-			pdServiceProxy.subscribe(RJDJ_ANDROID, rjdjListener);
 			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, overlayListener);
 			pdServiceProxy.subscribe(RJ_TEXT_ANDROID, overlayListener);
 			patch = PdUtils.openPatch(pdServiceProxy, new File(sceneFolder, "_main.pd"));
@@ -312,7 +280,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			try {
 				// make sure to release all resources
 				pdServiceProxy.removeClient(statusWatcher);
-				pdServiceProxy.unsubscribe(RJDJ_ANDROID, rjdjListener);
 				pdServiceProxy.unsubscribe(RJ_IMAGE_ANDROID, overlayListener);
 				pdServiceProxy.unsubscribe(RJ_TEXT_ANDROID, overlayListener);
 				PdUtils.closePatch(pdServiceProxy, patch);
