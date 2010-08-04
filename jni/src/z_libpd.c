@@ -13,6 +13,14 @@
 #include "s_stuff.h"
 
 void pd_init();
+void bonk_tilde_setup();
+void choice_setup();
+void expr_setup();
+void fiddle_tilde_setup();
+void loop_tilde_setup();
+void lrshift_tilde_setup();
+void pique_setup();
+void sigmund_tilde_setup();
 int sys_startgui(const char *guipath);  // do we really need this?
 
 t_libpd_printhook libpd_printhook = NULL;
@@ -27,6 +35,18 @@ static int ticks_per_buffer;
 static void *get_object(const char *s) {
   t_pd *x = gensym(s)->s_thing;
   return x;
+}
+
+static void externals_setup() {
+  libpdreceive_setup();
+  bonk_tilde_setup();
+  choice_setup();
+  expr_setup();
+  fiddle_tilde_setup();
+  loop_tilde_setup();
+  lrshift_tilde_setup();
+  pique_setup();
+  sigmund_tilde_setup();
 }
 
 /* this is called instead of sys_main() to start things */
@@ -46,7 +66,7 @@ void libpd_init() {
   sys_nmidiout = 0;
   sys_time = 0;
   pd_init();
-  libpdreceive_setup();
+  externals_setup();
   sys_set_audio_api(API_DUMMY);
   sys_startgui(NULL);
   sys_searchpath = NULL;

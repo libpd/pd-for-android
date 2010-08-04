@@ -216,6 +216,12 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 
 	private void initPd() {
 		Resources res = getResources();
+		try {
+			List<File> files = IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), new File("/sdcard/pd-externals"));
+			Log.i(PD_TEST, files.toString());
+		} catch (IOException e) {
+			Log.e(PD_TEST, "unable to unpack standard abstractions: " + e.toString());
+		}
 		File patchFile = null;
 		try {
 			proxy.addClient(client);
