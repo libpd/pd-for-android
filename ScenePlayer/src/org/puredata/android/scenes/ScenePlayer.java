@@ -40,12 +40,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener {
+public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener {
 
 	public static final String SCENE = "SCENE";
 	private static final String TAG = "Pd Scene Player";
@@ -54,9 +56,13 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private final Handler handler = new Handler();
 	private SceneView sceneView;
 	private TextView logs;
+	private Button pause;
+	private Button record;
 	private File sceneFolder;
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
+	private boolean paused = false;
+	private boolean recording = false;
 	private String patch;  // the path to the patch is defined in res/values/strings.xml
 	private final File libDir = new File("/sdcard/pd/.scenes");
 
@@ -240,6 +246,14 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		sceneView.setAdjustViewBounds(true);
 		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
 		layout.addView(sceneView, wrap, wrap);
+		pause = new Button(this);
+		pause.setText("Pause");
+		pause.setOnClickListener(this);
+		layout.addView(pause, fill, wrap);
+		record = new Button(this);
+		record.setText("Record");
+		record.setOnClickListener(this);
+		layout.addView(record, fill, wrap);
 		logs = new TextView(this);
 		logs.setMovementMethod(new ScrollingMovementMethod());
 		logs.setGravity(Gravity.BOTTOM);
@@ -305,6 +319,33 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		} catch (IllegalArgumentException e) {
 			// already unbound
 			pdServiceProxy = null;
+		}
+	}
+
+	@Override
+	public void onClick(View v) {
+		synchronized (serviceConnection) {
+			if (pdServiceProxy == null) return;
+			try {
+				if (v.equals(pause)) {
+					paused = !paused;
+					PdUtils.sendMessage(pdServiceProxy, "#transport", "play", paused ? 0 : 1);
+				} else if (v.equals(record)) {
+					recording = !recording;
+					Log.i(TAG, "recording: " + recording);
+					if (recording) {
+						String filename = "/sdcard/pd/scene" + System.currentTimeMillis() + ".wav";
+						PdUtils.sendMessage(pdServiceProxy, "#transport", "scene", filename);
+						post("recording to " + filename);
+						PdUtils.sendMessage(pdServiceProxy, "#transport", "record", 1);
+					} else {
+						PdUtils.sendMessage(pdServiceProxy, "#transport", "record", 0);
+						post("finished recording");
+					}
+				}
+			} catch (RemoteException e) {
+				Log.i(TAG, e.toString());
+			}
 		}
 	}
 }
