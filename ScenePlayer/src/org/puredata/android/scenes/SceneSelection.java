@@ -10,6 +10,7 @@
 package org.puredata.android.scenes;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,6 +23,7 @@ import org.puredata.android.ioutils.IoUtils;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -40,6 +42,15 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		initGui();
 	}
 
+	private void unpackAtsuke() {
+		try {
+			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd/scene"));
+			// many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
+		} catch (IOException e) {
+			Log.e("Scene Player", e.toString());
+		}
+	}
+
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
 		TextView item = (TextView) v;
@@ -55,6 +66,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		new Thread() {
 			@Override
 			public void run() {
+				unpackAtsuke();
 				List<String> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
 				for (String dir: list) {
 					scenes.put(new File(dir).getName(), dir);
