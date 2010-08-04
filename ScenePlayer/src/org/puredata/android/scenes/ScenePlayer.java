@@ -18,7 +18,6 @@ import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
 import org.puredata.android.service.PdUtils;
-import org.puredata.android.service.IPdListener.Stub;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -47,6 +46,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	public static final String SCENE = "SCENE";
 	private static final String TAG = "Pd Scene Player";
+	private static final String RJDJ_ANDROID = "rjdj_android";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private final Handler handler = new Handler();
 	private ImageView img;
@@ -89,22 +89,50 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		}
 	};
 	
-	private final IPdListener.Stub imageListener = new Stub() {
+	private final IPdListener.Stub imageListener = new IPdListener.Stub() {
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		public void receiveList(List args) throws RemoteException {
 			post("rj_image: " + args);
 		}
 		
 		// the remaining methods will never be called
+		@SuppressWarnings("unchecked")
+		@Override public void receiveMessage(String symbol, List args) throws RemoteException {}
+		@Override public void receiveSymbol(String symbol) throws RemoteException {}
+		@Override public void receiveFloat(float x) throws RemoteException {}
+		@Override public void receiveBang() throws RemoteException {}
+	};
+	
+	private final IPdListener.Stub rjdjListener = new IPdListener.Stub() {
+		
 		@Override
-		public void receiveSymbol(String symbol) throws RemoteException {}
+		public void receiveSymbol(String symbol) throws RemoteException {
+			// TODO Auto-generated method stub
+		}
+		
+		@SuppressWarnings("unchecked")
 		@Override
-		public void receiveMessage(String symbol, List args) throws RemoteException {}
+		public void receiveMessage(String symbol, List args) throws RemoteException {
+			// TODO Auto-generated method stub
+		}
+		
+		@SuppressWarnings("unchecked")
 		@Override
-		public void receiveFloat(float x) throws RemoteException {}
+		public void receiveList(List args) throws RemoteException {
+			// TODO Auto-generated method stub
+		}
+		
 		@Override
-		public void receiveBang() throws RemoteException {}
+		public void receiveFloat(float x) throws RemoteException {
+			// TODO Auto-generated method stub
+		}
+		
+		@Override
+		public void receiveBang() throws RemoteException {
+			// TODO Auto-generated method stub
+		}
 	};
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -134,18 +162,14 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			folder = new File(common, res.getString(R.string.scene_name));
 		}
 		initGui();
-		createPdLib();
-		bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
-		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
-	}
-
-	private void createPdLib() {
 		try {
 			IoUtils.extractZipResource(getResources().openRawResource(R.raw.abstractions), libDir);
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
 		}
+		bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
+		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	@Override
@@ -204,6 +228,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		try {
 			pdServiceProxy.addClient(statusWatcher);
 			pdServiceProxy.addToSearchPath(libDir.getAbsolutePath());
+			pdServiceProxy.subscribe(RJDJ_ANDROID, rjdjListener);
 			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, imageListener);
 			patch = PdUtils.openPatch(pdServiceProxy, new File(folder, "_main.pd"));
 			int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
@@ -241,6 +266,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			try {
 				// make sure to release all resources
 				pdServiceProxy.removeClient(statusWatcher);
+				pdServiceProxy.unsubscribe(RJDJ_ANDROID, rjdjListener);
 				pdServiceProxy.unsubscribe(RJ_IMAGE_ANDROID, imageListener);
 				PdUtils.closePatch(pdServiceProxy, patch);
 				if (hasAudio) {
