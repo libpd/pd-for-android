@@ -11,7 +11,9 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.puredata.android.ioutils.IoUtils;
 import org.puredata.android.service.IPdClient;
@@ -35,10 +37,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -48,10 +51,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJDJ_ANDROID = "rjdj_android";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
+	private static final String RJ_TEXT_ANDROID = "rj_text_android";
 	private final Handler handler = new Handler();
-	private ImageView img;
+	private SceneView sceneView;
 	private TextView logs;
-	private File folder;
+	private File sceneFolder;
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
 	private String patch;  // the path to the patch is defined in res/values/strings.xml
@@ -88,15 +92,48 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			post(s);
 		}
 	};
-	
-	private final IPdListener.Stub imageListener = new IPdListener.Stub() {
-		
+
+	private final IPdListener.Stub overlayListener = new IPdListener.Stub() {
+
+		private final Map<String, Overlay> overlays = new HashMap<String, Overlay>();
+
 		@SuppressWarnings("unchecked")
 		@Override
-		public void receiveList(List args) throws RemoteException {
-			post("rj_image: " + args);
+		public synchronized void receiveList(List args) throws RemoteException {
+			Log.i(TAG, args.toString());
+			String key = (String) args.get(0);
+			String cmd = (String) args.get(1);
+			if (overlays.containsKey(key)) {
+				Overlay overlay = overlays.get(key);
+				if (cmd.equals("visible")) {
+					boolean flag = ((Float) args.get(2)).floatValue() > 0.5f;
+					overlay.setVisible(flag);
+				} else if (cmd.equals("move")) {
+					float x = ((Float) args.get(2)).floatValue();
+					float y = ((Float) args.get(3)).floatValue();
+					overlay.setPosition(x, y);
+				} else {
+					if (!(overlay instanceof TextOverlay)) return;
+					TextOverlay textOverlay = (TextOverlay) overlay;
+					if (cmd.equals("text")) {
+						textOverlay.setText((String) args.get(2));
+					} else if (cmd.equals("size")) {
+						textOverlay.setSize((int) ((Float) args.get(2)).floatValue());
+					}
+				}
+			} else {
+				String arg = (String) args.get(2);
+				Overlay overlay;
+				if (cmd.equals("load")) {
+					overlay = new ImageOverlay(new File(sceneFolder, arg).getAbsolutePath());
+				} else if (cmd.equals("text")) {
+					overlay = new TextOverlay(arg);
+				} else return;
+				sceneView.addOverlay(overlay);
+				overlays.put(key, overlay);
+			}
 		}
-		
+
 		// the remaining methods will never be called
 		@SuppressWarnings("unchecked")
 		@Override public void receiveMessage(String symbol, List args) throws RemoteException {}
@@ -104,31 +141,31 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		@Override public void receiveFloat(float x) throws RemoteException {}
 		@Override public void receiveBang() throws RemoteException {}
 	};
-	
+
 	private final IPdListener.Stub rjdjListener = new IPdListener.Stub() {
-		
+
 		@Override
 		public void receiveSymbol(String symbol) throws RemoteException {
 			// TODO Auto-generated method stub
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public void receiveMessage(String symbol, List args) throws RemoteException {
 			// TODO Auto-generated method stub
 		}
-		
+
 		@SuppressWarnings("unchecked")
 		@Override
 		public void receiveList(List args) throws RemoteException {
 			// TODO Auto-generated method stub
 		}
-		
+
 		@Override
 		public void receiveFloat(float x) throws RemoteException {
 			// TODO Auto-generated method stub
 		}
-		
+
 		@Override
 		public void receiveBang() throws RemoteException {
 			// TODO Auto-generated method stub
@@ -155,11 +192,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		Intent intent = getIntent();
 		String path = intent.getStringExtra(SCENE);
 		if (path != null) {
-			folder = new File(path);
+			sceneFolder = new File(path);
 		} else {
 			Resources res = getResources();
 			File common = new File(res.getString(R.string.scene_path_common));
-			folder = new File(common, res.getString(R.string.scene_name));
+			sceneFolder = new File(common, res.getString(R.string.scene_name));
 		}
 		initGui();
 		try {
@@ -193,11 +230,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		boolean flag = false;
-		if (v == img) {
+		if (v == sceneView) {
 			synchronized (serviceConnection) {
 				if (pdServiceProxy != null) {
 					try {
-						flag = VersionedTouch.evaluateTouch(pdServiceProxy, event, img.getWidth(), img.getHeight());
+						flag = VersionedTouch.evaluateTouch(pdServiceProxy, event, sceneView.getWidth(), sceneView.getHeight());
 					} catch (RemoteException e) {
 						Log.e(TAG, e.toString());
 					}
@@ -214,14 +251,23 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void initGui() {
-		setContentView(R.layout.main);
-		TextView tv = (TextView) findViewById(R.id.scene_title);
-		tv.setText(folder.getName());
-		logs = (TextView) findViewById(R.id.scene_logs);
+		int fill = LinearLayout.LayoutParams.FILL_PARENT;
+		int wrap = LinearLayout.LayoutParams.WRAP_CONTENT;
+		LinearLayout layout = new LinearLayout(this);
+		layout.setOrientation(LinearLayout.VERTICAL);
+		TextView tv = new TextView(this);
+		tv.setText(sceneFolder.getName());
+		layout.addView(tv, fill, wrap);
+		sceneView = new SceneView(this);
+		sceneView.setOnTouchListener(this);
+		sceneView.setAdjustViewBounds(true);
+		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
+		layout.addView(sceneView, wrap, wrap);
+		logs = new TextView(this);
 		logs.setMovementMethod(new ScrollingMovementMethod());
-		img = (ImageView) findViewById(R.id.scene_image);
-		img.setOnTouchListener(this);
-		img.setImageBitmap(BitmapFactory.decodeFile(new File(folder, "image.jpg").getAbsolutePath()));
+		logs.setGravity(Gravity.BOTTOM);
+		layout.addView(logs, fill, fill);
+		setContentView(layout);
 	}
 
 	private void initPd() {
@@ -229,8 +275,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			pdServiceProxy.addClient(statusWatcher);
 			pdServiceProxy.addToSearchPath(libDir.getAbsolutePath());
 			pdServiceProxy.subscribe(RJDJ_ANDROID, rjdjListener);
-			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, imageListener);
-			patch = PdUtils.openPatch(pdServiceProxy, new File(folder, "_main.pd"));
+			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, overlayListener);
+			pdServiceProxy.subscribe(RJ_TEXT_ANDROID, overlayListener);
+			patch = PdUtils.openPatch(pdServiceProxy, new File(sceneFolder, "_main.pd"));
 			int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
 			hasAudio = (err == 0);
 			if (!hasAudio) {
@@ -267,7 +314,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				// make sure to release all resources
 				pdServiceProxy.removeClient(statusWatcher);
 				pdServiceProxy.unsubscribe(RJDJ_ANDROID, rjdjListener);
-				pdServiceProxy.unsubscribe(RJ_IMAGE_ANDROID, imageListener);
+				pdServiceProxy.unsubscribe(RJ_IMAGE_ANDROID, overlayListener);
+				pdServiceProxy.unsubscribe(RJ_TEXT_ANDROID, overlayListener);
 				PdUtils.closePatch(pdServiceProxy, patch);
 				if (hasAudio) {
 					hasAudio = false;
