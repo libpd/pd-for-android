@@ -100,7 +100,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		@SuppressWarnings("unchecked")
 		@Override
 		public synchronized void receiveList(List args) throws RemoteException {
-			Log.i(TAG, args.toString());
 			String key = (String) args.get(0);
 			String cmd = (String) args.get(1);
 			if (overlays.containsKey(key)) {
