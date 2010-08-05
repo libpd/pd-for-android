@@ -320,21 +320,23 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_blockSize
   return libpd_blocksize();
 }
 
-JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_bindSymbol
+JNIEXPORT jlong JNICALL Java_org_puredata_core_PdBase_bindSymbol
 (JNIEnv *env, jclass cls, jstring jsym) {
   if (jsym == NULL) return 0;
   CACHE_ENV
   const char *csym = (char *) (*env)->GetStringUTFChars(env, jsym, NULL);
-  jint ptr = (jint) libpd_bind(csym);
+  jlong ptr = (jlong) libpd_bind(csym);
   (*env)->ReleaseStringUTFChars(env, jsym, csym);
   return ptr;
   // very naughty, returning a pointer to Java
+  // using long integer in case we're on a 64bit CPU
 }
 
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_unbindSymbol
-(JNIEnv *env, jclass cls, jint ptr) {
+(JNIEnv *env, jclass cls, jlong ptr) {
   CACHE_ENV
   return libpd_unbind((void *)ptr);
   // even naughtier, using a pointer from Java
+  // using long integer in case we're on a 64bit CPU
 }
 

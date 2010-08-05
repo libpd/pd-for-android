@@ -37,7 +37,7 @@ import java.util.Map;
 
 public final class PdBase {
 
-	private final static Map<String, Integer> bindings = new HashMap<String, Integer>();
+	private final static Map<String, Long> bindings = new HashMap<String, Long>();
 	
 	static {
 		System.loadLibrary("pdnative");
@@ -67,7 +67,7 @@ public final class PdBase {
 	 */
 	public synchronized static void release() {
 		setReceiver(null);
-		for (int ptr: bindings.values()) {
+		for (long ptr: bindings.values()) {
 			unbindSymbol(ptr);
 		}
 		bindings.clear();
@@ -136,7 +136,7 @@ public final class PdBase {
 		if (bindings.get(symbol) != null) {
 			return 0;
 		}
-		int ptr = bindSymbol(symbol);
+		long ptr = bindSymbol(symbol);
 		if (ptr == 0) {
 			return -1;
 		}
@@ -151,7 +151,7 @@ public final class PdBase {
 	 * @return error code, 0 on success
 	 */
 	public synchronized static int unsubscribe(String symbol) {
-		Integer ptr = bindings.get(symbol);
+		Long ptr = bindings.get(symbol);
 		if (ptr == null) {
 			return 0;
 		}
@@ -240,6 +240,6 @@ public final class PdBase {
 	private native static void addSymbol(String s);
 	private native static int finishList(String receive);
 	private native static int finishMessage(String receive, String message);
-	private native static int bindSymbol(String s);
-	private native static int unbindSymbol(int p);
+	private native static long bindSymbol(String s);
+	private native static int unbindSymbol(long p);
 }

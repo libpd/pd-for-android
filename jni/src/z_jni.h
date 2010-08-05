@@ -154,18 +154,18 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_finishMessage
 /*
  * Class:     org_puredata_core_PdBase
  * Method:    bindSymbol
- * Signature: (Ljava/lang/String;)I
+ * Signature: (Ljava/lang/String;)J
  */
-JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_bindSymbol
+JNIEXPORT jlong JNICALL Java_org_puredata_core_PdBase_bindSymbol
   (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     org_puredata_core_PdBase
  * Method:    unbindSymbol
- * Signature: (I)I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_unbindSymbol
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

@@ -4,7 +4,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := pdnative
 
-LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
+LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY \
+		-Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
 
 LOCAL_SRC_FILES := \
 	d_arithmetic.c d_array.c d_ctl.c d_dac.c d_delay.c d_fft.c d_fftroutine.c \
