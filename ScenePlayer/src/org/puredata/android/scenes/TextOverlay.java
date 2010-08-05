@@ -12,7 +12,7 @@ package org.puredata.android.scenes;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
+
 
 public class TextOverlay extends Overlay {
 
@@ -40,9 +40,8 @@ public class TextOverlay extends Overlay {
 		int ym = (int) (y * ch / YS);
 		Rect bounds = new Rect();
 		paint.getTextBounds(text, 0, text.length(), bounds);
-		int xd = (bounds.right + bounds.left) / 2;
+		int xd = (bounds.right + bounds.left) / 2;  // the sign looks wrong, but it turns out to be correct
 		int yd = (bounds.top + bounds.bottom) / 2;
-		Log.i("Pd overlay", bounds.toString());
 		canvas.drawText(text, xm - xd, ym - yd, paint);
 	}
 }

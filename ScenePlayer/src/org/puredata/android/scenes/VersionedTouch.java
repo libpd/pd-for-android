@@ -17,6 +17,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.MotionEvent;
 
+
 // Cute little hack to support multiple versions of the Android API, based on an idea
 // from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 public final class VersionedTouch {
