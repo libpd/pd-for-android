@@ -25,7 +25,6 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -50,21 +49,28 @@ import android.widget.TextView;
 public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener {
 
 	public static final String SCENE = "SCENE";
+	private static final String RECORD = "Record";
+	private static final String STOP_RECORDING = "Stop recording";
+	private static final String MUTE = "Mute";
+	private static final String UNMUTE = "Unmute";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
+	private static final String TRANSPORT = "#transport";
+	private static final String ACCELERATE = "#accelerate";
 	private final Handler handler = new Handler();
 	private SceneView sceneView;
 	private TextView logs;
-	private Button pause;
+	private Button mute;
 	private Button record;
 	private File sceneFolder;
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
-	private boolean paused = false;
+	private boolean muted = false;
 	private boolean recording = false;
-	private String patch;  // the path to the patch is defined in res/values/strings.xml
+	private String patch;
 	private final File libDir = new File("/sdcard/pd/.scenes");
+	private final File recDir = new File("/sdcard/pd");
 
 	private void post(final String msg) {
 		handler.post(new Runnable() {
@@ -167,29 +173,28 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		String path = intent.getStringExtra(SCENE);
 		if (path != null) {
 			sceneFolder = new File(path);
+			fixScene();
+			initGui();
+			try {
+				IoUtils.extractZipResource(getResources().openRawResource(R.raw.abstractions), libDir);
+			} catch (IOException e) {
+				Log.e(TAG, e.toString());
+			}
+			bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
+			SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 		} else {
-			Resources res = getResources();
-			File common = new File(res.getString(R.string.scene_path_common));
-			sceneFolder = new File(common, res.getString(R.string.scene_name));
+			Log.e(TAG, "launch intent without scene path");
+			finish();
 		}
-		fixScene();
-		initGui();
-		try {
-			IoUtils.extractZipResource(getResources().openRawResource(R.raw.abstractions), libDir);
-		} catch (IOException e) {
-			Log.e(TAG, e.toString());
-		}
-		bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
-		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	private void fixScene() {
-		// weird little hack to avoid having our rj_image.pd and such masked by GEM versions in the scene
-		new File(sceneFolder, "rj_image.pd").delete();
-		new File(sceneFolder, "rj/rj_image.pd").delete();
-		new File(sceneFolder, "rj_text.pd").delete();
-		new File(sceneFolder, "rj/rj_text.pd").delete();
+		// weird little hack to avoid having our rj_image.pd and such masked by files in the scene
+		for (String s: new String[] {"rj_image", "rj_text", "soundinput", "soundoutput"}) {
+			new File(sceneFolder, s + ".pd").delete();
+			new File(sceneFolder, "rj/" + s + ".pd").delete();
+		}
 	}
 
 	@Override
@@ -197,7 +202,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		synchronized (serviceConnection) {
 			if (pdServiceProxy != null) {
 				try {
-					PdUtils.sendList(pdServiceProxy, "#accelerate", event.values[0], event.values[1], event.values[2]);
+					PdUtils.sendList(pdServiceProxy, ACCELERATE, event.values[0], event.values[1], event.values[2]);
 				} catch (RemoteException e) {
 					Log.e(TAG, e.toString());
 				}
@@ -246,14 +251,17 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		sceneView.setAdjustViewBounds(true);
 		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
 		layout.addView(sceneView, wrap, wrap);
-		pause = new Button(this);
-		pause.setText("Pause");
-		pause.setOnClickListener(this);
-		layout.addView(pause, fill, wrap);
+		LinearLayout buttons = new LinearLayout(this);
+		buttons.setOrientation(LinearLayout.HORIZONTAL);
+		mute = new Button(this);
+		mute.setText(MUTE);
+		mute.setOnClickListener(this);
+		buttons.addView(mute, fill, wrap);
 		record = new Button(this);
-		record.setText("Record");
+		record.setText(RECORD);
 		record.setOnClickListener(this);
-		layout.addView(record, fill, wrap);
+		buttons.addView(record, wrap, wrap);
+		layout.addView(buttons, wrap, wrap);
 		logs = new TextView(this);
 		logs.setMovementMethod(new ScrollingMovementMethod());
 		logs.setGravity(Gravity.BOTTOM);
@@ -274,8 +282,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				post("unable to start audio; exiting now");
 				finish();
 			} else {
-				PdUtils.sendMessage(pdServiceProxy, "#volume", "set", 1);
-				PdUtils.sendMessage(pdServiceProxy, "#transport", "play", 1);
+				muteAudio(false);
 			}
 		} catch (RemoteException e) {
 			Log.e(TAG, e.toString());
@@ -302,6 +309,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			if (pdServiceProxy == null) return;
 			try {
 				// make sure to release all resources
+				stopRecording();
 				pdServiceProxy.removeClient(statusWatcher);
 				pdServiceProxy.unsubscribe(RJ_IMAGE_ANDROID, overlayListener);
 				pdServiceProxy.unsubscribe(RJ_TEXT_ANDROID, overlayListener);
@@ -327,24 +335,46 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		synchronized (serviceConnection) {
 			if (pdServiceProxy == null) return;
 			try {
-				if (v.equals(pause)) {
-					paused = !paused;
-					PdUtils.sendMessage(pdServiceProxy, "#transport", "play", paused ? 0 : 1);
+				if (v.equals(mute)) {
+					muteAudio(!muted);
+					mute.setText(muted ? UNMUTE : MUTE);
 				} else if (v.equals(record)) {
-					recording = !recording;
-					Log.i(TAG, "recording: " + recording);
-					if (recording) {
-						String filename = "/sdcard/pd/scene" + System.currentTimeMillis() + ".wav";
-						PdUtils.sendMessage(pdServiceProxy, "#transport", "scene", filename);
-						post("recording to " + filename);
-						PdUtils.sendMessage(pdServiceProxy, "#transport", "record", 1);
+					if (!recording) {
+						startRecording();
 					} else {
-						PdUtils.sendMessage(pdServiceProxy, "#transport", "record", 0);
-						post("finished recording");
+						stopRecording();
 					}
+					record.setText(recording ? STOP_RECORDING : RECORD);
 				}
 			} catch (RemoteException e) {
 				Log.i(TAG, e.toString());
+			}
+		}
+	}
+
+	private void startRecording() throws RemoteException {
+		String name = sceneFolder.getName();
+		String filename = new File(recDir, name.substring(0, name.length()-3) + "-" + System.currentTimeMillis() + ".wav").getAbsolutePath();
+		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "scene", filename);
+		post("recording to " + filename);
+		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 1);
+		recording = true;
+	}
+	
+	private void stopRecording() throws RemoteException {
+		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 0);
+		post("finished recording");
+		recording = false;
+	}
+	
+	private void muteAudio(boolean flag) throws RemoteException {
+		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", flag ? 0 : 1);
+		muted = flag;
+		if (muted) {
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				// do nothing
 			}
 		}
 	}
