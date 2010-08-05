@@ -14,12 +14,14 @@ import java.util.Arrays;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdUtils;
 
+import android.content.Context;
+
 
 public class PdAudio {
 	
 	private static AudioWrapper audioWrapper = null;
 	
-	public synchronized static void startAudio(int sampleRate, int inChannels, int outChannels,
+	public synchronized static void startAudio(Context context, int sampleRate, int inChannels, int outChannels,
 			int ticksPerBuffer, boolean restart) {
 		if (isRunning() && !restart) return;
 		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
@@ -36,7 +38,7 @@ public class PdAudio {
 				return PdBase.process(inBuffer, outBuffer);
 			}
 		};
-		audioWrapper.start();
+		audioWrapper.start(context);
 	}
 
 	public synchronized static void stopAudio() {

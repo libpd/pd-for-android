@@ -322,7 +322,7 @@ public class PdService extends Service {
 	private void startAudio(int srate, int nic, int noc, float millis) throws IOException {
 		if (activeCount > 0) return;
 		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize()) + 1;
-		PdAudio.startAudio(srate, nic, noc, tpb, true);
+		PdAudio.startAudio(this, srate, nic, noc, tpb, true);
 		fgManager.startForeground();
 		sampleRate = srate;
 		inputChannels = nic;

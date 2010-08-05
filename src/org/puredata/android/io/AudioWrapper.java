@@ -11,9 +11,13 @@
 
 package org.puredata.android.io;
 
+import org.puredata.android.R;
+
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.media.MediaPlayer;
 import android.os.Process;
 import android.util.Log;
 
@@ -44,7 +48,8 @@ public abstract class AudioWrapper {
 
 	protected abstract int process(short inBuffer[], short outBuffer[]);
 	
-	public synchronized void start() {
+	public synchronized void start(Context context) {
+		avoidClickHack(context);
 		if (rec != null) rec.start();
 		track.play();
 		audioThread = new Thread() {
@@ -95,5 +100,19 @@ public abstract class AudioWrapper {
 
 	public boolean isRunning() {
 		return audioThread != null && audioThread.getState() != Thread.State.TERMINATED;
+	}
+
+	// weird little hack; eliminates the nasty click when AudioTrack (dis)engages by playing
+	// a few milliseconds of silence before starting AudioTrack
+	private void avoidClickHack(Context context) {
+		MediaPlayer mp = MediaPlayer.create(context, R.raw.silence);
+		mp.start();
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		mp.stop();
+		mp.release();
 	}
 }
