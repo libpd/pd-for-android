@@ -15,13 +15,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.puredata.android.ioutils.IoUtils;
 import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
 import org.puredata.android.service.PdUtils;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -53,6 +62,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String STOP_RECORDING = "Stop recording";
 	private static final String MUTE = "Mute";
 	private static final String UNMUTE = "Unmute";
+	private static final String INFO = "Info";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -63,6 +73,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private TextView logs;
 	private Button mute;
 	private Button record;
+	private Button info;
 	private File sceneFolder;
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
@@ -71,6 +82,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private String patch;
 	private final File libDir = new File("/sdcard/pd/.scenes");
 	private final File recDir = new File("/sdcard/pd");
+	private final Map<String, String> infoEntries = new HashMap<String, String>();
 
 	private void post(final String msg) {
 		handler.post(new Runnable() {
@@ -261,6 +273,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		record.setText(RECORD);
 		record.setOnClickListener(this);
 		buttons.addView(record, wrap, wrap);
+		info = new Button(this);
+		info.setText(INFO);
+		info.setOnClickListener(this);
+		buttons.addView(info, wrap, wrap);
 		layout.addView(buttons, wrap, wrap);
 		logs = new TextView(this);
 		logs.setMovementMethod(new ScrollingMovementMethod());
@@ -345,9 +361,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 						stopRecording();
 					}
 					record.setText(recording ? STOP_RECORDING : RECORD);
+				} else if (v.equals(info)) {
+					showInfo();
 				}
 			} catch (RemoteException e) {
-				Log.i(TAG, e.toString());
+				Log.e(TAG, e.toString());
 			}
 		}
 	}
@@ -360,13 +378,13 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 1);
 		recording = true;
 	}
-	
+
 	private void stopRecording() throws RemoteException {
 		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 0);
 		post("finished recording");
 		recording = false;
 	}
-	
+
 	private void muteAudio(boolean flag) throws RemoteException {
 		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", flag ? 0 : 1);
 		muted = flag;
@@ -376,6 +394,62 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			} catch (InterruptedException e) {
 				// do nothing
 			}
+		}
+	}
+
+	private void showInfo() {
+		readInfo();
+		AlertDialog.Builder ad = new AlertDialog.Builder(this);
+		if (infoEntries.isEmpty()) {
+			ad.setTitle("Oops");
+			ad.setMessage("Info not available...");
+		} else {
+			ad.setTitle("" + infoEntries.get("name") + "\n" + infoEntries.get("author"));
+			ad.setMessage("" + infoEntries.get("description") + "\n\nCategory: " + infoEntries.get("category"));
+		}
+		ad.setNeutralButton(android.R.string.ok, null);
+		ad.setCancelable(true);
+		ad.show();
+	}
+
+	private void readInfo() {
+		if (!infoEntries.isEmpty()) return;
+		try {
+			SAXParserFactory spf = SAXParserFactory.newInstance();
+			SAXParser sp = spf.newSAXParser();
+			sp.parse(new File(sceneFolder, "Info.plist"), new DefaultHandler() {
+				private String key = "", val = "";
+				private boolean expectKey;
+				@Override
+				public void startElement(String uri, String localName,
+						String qName, Attributes attributes) throws SAXException {
+					expectKey = localName.equalsIgnoreCase("key");
+					if (expectKey) {
+						key = val = "";
+					}
+				}
+
+				@Override
+				public void characters(char[] ch, int start, int length) throws SAXException {
+					String s = new String(ch, start, length);
+					if (expectKey) {
+						key += s;
+					} else {
+						val += s;
+					}
+				}
+
+				@Override
+				public void endElement(String uri, String localName, String qName) throws SAXException {
+					key = key.trim();
+					val = val.trim();
+					if (key.length() > 0) {
+						infoEntries.put(key, val);
+					}
+				}
+			});
+		} catch (Exception e) {
+			infoEntries.clear();
 		}
 	}
 }
