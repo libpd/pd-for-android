@@ -11,6 +11,8 @@ package org.puredata.android.scenes;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.util.Log;
 
 public class TextOverlay extends Overlay {
 
@@ -36,6 +38,11 @@ public class TextOverlay extends Overlay {
 		int ch = container.getHeight();
 		int xm = (int) (x * cw / XS);
 		int ym = (int) (y * ch / YS);
-		canvas.drawText(text, xm, ym, paint);
+		Rect bounds = new Rect();
+		paint.getTextBounds(text, 0, text.length(), bounds);
+		int xd = (bounds.right + bounds.left) / 2;
+		int yd = (bounds.top + bounds.bottom) / 2;
+		Log.i("Pd overlay", bounds.toString());
+		canvas.drawText(text, xm - xd, ym - yd, paint);
 	}
 }
