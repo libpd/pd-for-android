@@ -58,8 +58,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	public static final String SCENE = "SCENE";
 	private static final String RECORD = "Record";
 	private static final String STOP_RECORDING = "Stop recording";
-	private static final String MUTE = "Mute";
-	private static final String UNMUTE = "Unmute";
+	private static final String PAUSE = "Pause";
+	private static final String PLAY = "Play";
 	private static final String INFO = "Info";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
@@ -69,13 +69,13 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private final Handler handler = new Handler();
 	private SceneView sceneView;
 	private TextView logs;
-	private Button mute;
+	private Button pause;
 	private Button record;
 	private Button info;
 	private File sceneFolder;
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
-	private boolean muted = false;
+	private boolean paused = false;
 	private boolean recording = false;
 	private String patch;
 	private final File libDir = new File("/sdcard/pd/.scenes");
@@ -263,10 +263,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		layout.addView(sceneView, wrap, wrap);
 		LinearLayout buttons = new LinearLayout(this);
 		buttons.setOrientation(LinearLayout.HORIZONTAL);
-		mute = new Button(this);
-		mute.setText(MUTE);
-		mute.setOnClickListener(this);
-		buttons.addView(mute, fill, wrap);
+		pause = new Button(this);
+		pause.setText(PAUSE);
+		pause.setOnClickListener(this);
+		buttons.addView(pause, fill, wrap);
 		record = new Button(this);
 		record.setText(RECORD);
 		record.setOnClickListener(this);
@@ -290,14 +290,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, overlayListener);
 			pdServiceProxy.subscribe(RJ_TEXT_ANDROID, overlayListener);
 			patch = PdUtils.openPatch(pdServiceProxy, new File(sceneFolder, "_main.pd"));
-			int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
-			hasAudio = (err == 0);
-			if (!hasAudio) {
-				post("unable to start audio; exiting now");
-				finish();
-			} else {
-				muteAudio(false);
-			}
+			pauseAudio(false);
 		} catch (RemoteException e) {
 			Log.e(TAG, e.toString());
 			disconnected();
@@ -349,16 +342,16 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		synchronized (serviceConnection) {
 			if (pdServiceProxy == null) return;
 			try {
-				if (v.equals(mute)) {
-					muteAudio(!muted);
-					mute.setText(muted ? UNMUTE : MUTE);
+				if (v.equals(pause)) {
+					pause.setText(paused ? PAUSE : PLAY);
+					pauseAudio(!paused);
 				} else if (v.equals(record)) {
+					record.setText(recording ? RECORD : STOP_RECORDING);
 					if (!recording) {
 						startRecording();
 					} else {
 						stopRecording();
 					}
-					record.setText(recording ? STOP_RECORDING : RECORD);
 				} else if (v.equals(info)) {
 					showInfo();
 				}
@@ -383,14 +376,23 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		recording = false;
 	}
 
-	private void muteAudio(boolean flag) throws RemoteException {
+	private void pauseAudio(boolean flag) throws RemoteException {
 		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", flag ? 0 : 1);
-		muted = flag;
-		if (muted) {
+		paused = flag;
+		if (paused) {
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
 				// do nothing
+			}
+			pdServiceProxy.releaseAudio();
+			hasAudio = false;
+		} else {
+			int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
+			hasAudio = (err == 0);
+			if (!hasAudio) {
+				post("unable to start audio; exiting now");
+				finish();
 			}
 		}
 	}
