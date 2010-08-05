@@ -74,7 +74,7 @@ public final class VersionedTouch {
 	private static class TouchCupcake {
 
 		static {
-			Log.i("Pd Version", "loading touch support for Donut");
+			Log.i("Pd Version", "loading touch support for Cupcake");
 		}
 
 		public static boolean evaluateTouch(IPdService service, MotionEvent event, int xImg, int yImg) throws RemoteException {
