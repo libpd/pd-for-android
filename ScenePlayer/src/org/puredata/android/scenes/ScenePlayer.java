@@ -75,7 +75,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private File sceneFolder;
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
-	private boolean paused = false;
 	private boolean recording = false;
 	private String patch;
 	private final File libDir = new File("/sdcard/pd/.scenes");
@@ -290,7 +289,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, overlayListener);
 			pdServiceProxy.subscribe(RJ_TEXT_ANDROID, overlayListener);
 			patch = PdUtils.openPatch(pdServiceProxy, new File(sceneFolder, "_main.pd"));
-			pauseAudio(false);
+			startAudio();
 		} catch (RemoteException e) {
 			Log.e(TAG, e.toString());
 			disconnected();
@@ -343,14 +342,20 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			if (pdServiceProxy == null) return;
 			try {
 				if (v.equals(pause)) {
-					pause.setText(paused ? PAUSE : PLAY);
-					pauseAudio(!paused);
+					if (hasAudio) {
+						stopAudio();
+						pause.setText(PLAY);
+					} else {
+						startAudio();
+						pause.setText(PAUSE);
+					}
 				} else if (v.equals(record)) {
-					record.setText(recording ? RECORD : STOP_RECORDING);
 					if (!recording) {
 						startRecording();
+						record.setText(STOP_RECORDING);
 					} else {
 						stopRecording();
+						record.setText(RECORD);
 					}
 				} else if (v.equals(info)) {
 					showInfo();
@@ -376,25 +381,25 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		recording = false;
 	}
 
-	private void pauseAudio(boolean flag) throws RemoteException {
-		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", flag ? 0 : 1);
-		paused = flag;
-		if (paused) {
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// do nothing
-			}
-			pdServiceProxy.releaseAudio();
-			hasAudio = false;
-		} else {
-			int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
-			hasAudio = (err == 0);
-			if (!hasAudio) {
-				post("unable to start audio; exiting now");
-				finish();
-			}
+	private void startAudio() throws RemoteException {
+		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", 1);
+		int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
+		hasAudio = (err == 0);
+		if (!hasAudio) {
+			post("unable to start audio; exiting now");
+			finish();
 		}
+	}
+	
+	private void stopAudio() throws RemoteException {
+		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", 0);
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			// do nothing
+		}
+		hasAudio = false;
+		pdServiceProxy.releaseAudio();
 	}
 
 	private void showInfo() {
