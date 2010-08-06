@@ -32,6 +32,7 @@ import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -185,7 +186,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			fixScene();
 			initGui();
 			try {
-				IoUtils.extractZipResource(getResources().openRawResource(R.raw.abstractions), libDir);
+				Resources res = getResources();
+				IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir);
+				IoUtils.extractZipResource(res.openRawResource(R.raw.externals), libDir);
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
 			}

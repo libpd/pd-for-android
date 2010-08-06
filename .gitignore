@@ -2,5 +2,6 @@
 /PdClient/obj/
 /ScenePlayer/bin/
 /ScenePlayer/obj/
+/ScenePlayer/libs/
 TAGS
 local.properties
