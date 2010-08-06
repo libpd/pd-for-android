@@ -24,7 +24,6 @@ int libpd_exists(const char *);
 void *libpd_bind(const char *);
 int libpd_unbind(void *p);
 
-#define MAXMSGLENGTH 32
 int libpd_bang(const char *);
 int libpd_float(const char *, float);
 int libpd_symbol(const char *, const char *);

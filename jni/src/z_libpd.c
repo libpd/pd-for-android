@@ -12,6 +12,8 @@
 #include "x_libpdreceive.h"
 #include "s_stuff.h"
 
+#define MAXMSGLENGTH 32
+
 void pd_init();
 void bonk_tilde_setup();
 void choice_setup();

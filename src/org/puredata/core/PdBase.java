@@ -40,7 +40,8 @@ public final class PdBase {
 	private final static Map<String, Long> bindings = new HashMap<String, Long>();
 	
 	static {
-		System.loadLibrary("pdnative");
+		System.loadLibrary("pd");
+		System.loadLibrary("pdjava");
 		initialize();
 	}
 
