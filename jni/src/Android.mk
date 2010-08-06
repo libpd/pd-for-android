@@ -25,7 +25,7 @@ LOCAL_SRC_FILES := \
 	../extra/sigmund~/sigmund~.c ../extra/expr~/vexp_fun.c \
 	../extra/expr~/vexp_if.c ../extra/expr~/vexp.c ../extra/bonk~/bonk~.c
 
-LOCAL_LDLIBS := -ldl -llog
+LOCAL_LDLIBS := -ldl
 
 include $(BUILD_SHARED_LIBRARY)
 
