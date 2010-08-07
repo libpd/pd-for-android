@@ -17,7 +17,7 @@ public abstract class Overlay implements Runnable {
 	protected final int XS = 320, YS = 320; // magic constants dictated by RjDj
 	protected volatile View container;
 	protected volatile float x = 0, y = 0;
-	private volatile boolean visible = false;
+	private volatile boolean visible = true;
 	
 	public void setContainer(View container) {
 		this.container = container;
