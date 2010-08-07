@@ -10,7 +10,6 @@
 
 #include "m_pd.h"
 
-
 void libpd_init();
 void libpd_clear_search_path();
 void libpd_add_to_search_path(const char *s);

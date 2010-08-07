@@ -1,20 +1,9 @@
 LOCAL_PATH := $(call my-dir)
 
-#----------------------------------------------------------------------------
-
 include $(CLEAR_VARS)
-LOCAL_MODULE := pdjava
-LOCAL_CFLAGS := -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
-LOCAL_SRC_FILES := z_jni.c
-LOCAL_LDLIBS := -llog
-LOCAL_SHARED_LIBRARIES := pd
-include $(BUILD_SHARED_LIBRARY)
-
-#----------------------------------------------------------------------------
-
-include $(CLEAR_VARS)
-LOCAL_MODULE := pd
-LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
+LOCAL_MODULE := pdnative
+LOCAL_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY \
+			-Wno-int-to-pointer-cast -Wno-pointer-to-int-cast		
 LOCAL_SRC_FILES := \
 	d_arithmetic.c d_array.c d_ctl.c d_dac.c d_delay.c d_fft.c d_fftroutine.c \
 	d_fft_mayer.c d_filter.c d_global.c d_math.c d_misc.c d_osc.c \
@@ -27,11 +16,8 @@ LOCAL_SRC_FILES := \
 	s_file.c s_inter.c s_loader.c s_main.c s_midi.c s_midi_dummy.c s_path.c \
 	s_print.c x_acoustics.c x_arithmetic.c x_connective.c x_gui.c x_interface.c \
 	x_libpdreceive.c x_list.c x_midi.c x_misc.c x_net.c x_qlist.c x_time.c \
-	z_libpd.c \
-	../extra/pique/pique.c ../extra/fiddle~/fiddle~.c ../extra/choice/choice.c \
-	../extra/lrshift~/lrshift~.c ../extra/loop~/loop~.c \
-	../extra/sigmund~/sigmund~.c ../extra/expr~/vexp_fun.c \
-	../extra/expr~/vexp_if.c ../extra/expr~/vexp.c ../extra/bonk~/bonk~.c
+	z_jni.c z_libpd.c
+
 LOCAL_LDLIBS := -ldl
 include $(BUILD_SHARED_LIBRARY)
 
