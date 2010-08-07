@@ -10,7 +10,6 @@
 
 #include "m_pd.h"
 
-
 void libpd_init();
 void libpd_clear_search_path();
 void libpd_add_to_search_path(const char *s);
@@ -24,7 +23,6 @@ int libpd_exists(const char *);
 void *libpd_bind(const char *);
 int libpd_unbind(void *p);
 
-#define MAXMSGLENGTH 32
 int libpd_bang(const char *);
 int libpd_float(const char *, float);
 int libpd_symbol(const char *, const char *);

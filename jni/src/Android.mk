@@ -19,11 +19,7 @@ LOCAL_SRC_FILES := \
 	s_file.c s_inter.c s_loader.c s_main.c s_midi.c s_midi_dummy.c s_path.c \
 	s_print.c x_acoustics.c x_arithmetic.c x_connective.c x_gui.c x_interface.c \
 	x_libpdreceive.c x_list.c x_midi.c x_misc.c x_net.c x_qlist.c x_time.c \
-	z_jni.c z_libpd.c \
-	../extra/pique/pique.c ../extra/fiddle~/fiddle~.c ../extra/choice/choice.c \
-	../extra/lrshift~/lrshift~.c ../extra/loop~/loop~.c \
-	../extra/sigmund~/sigmund~.c ../extra/expr~/vexp_fun.c \
-	../extra/expr~/vexp_if.c ../extra/expr~/vexp.c ../extra/bonk~/bonk~.c
+	z_jni.c z_libpd.c
 
 LOCAL_LDLIBS := -ldl
 

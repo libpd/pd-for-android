@@ -1,4 +1,4 @@
-#N canvas 150 147 240 290 10;
+#N canvas 153 228 463 302 10;
 #X obj 78 116 dac~;
 #X obj 157 81 *~ 1;
 #X obj 158 37 *~ 0.2;
@@ -21,6 +21,7 @@
 #X obj 87 262 print PD_RUNS;
 #X obj 87 216 sel 0;
 #X obj 132 217 sel 1;
+#X obj 315 108 sigmund~;
 #X connect 1 0 0 1;
 #X connect 2 0 1 0;
 #X connect 3 0 0 0;
