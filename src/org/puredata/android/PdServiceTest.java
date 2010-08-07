@@ -215,17 +215,15 @@ public class PdServiceTest extends Activity implements OnClickListener, OnEditor
 	}
 
 	private void initPd() {
-		File libDir = getFilesDir();
 		Resources res = getResources();
 		try {
-			List<File> files = IoUtils.extractZipResource(res.openRawResource(R.raw.extra), libDir);
+			List<File> files = IoUtils.extractZipResource(res.openRawResource(R.raw.extra), getFilesDir());
 			Log.i(PD_TEST, files.toString());
 		} catch (IOException e) {
 			Log.e(PD_TEST, "unable to unpack extras: " + e.toString());
 		}
 		File patchFile = null;
 		try {
-			proxy.addToSearchPath(libDir.getAbsolutePath());
 			proxy.addClient(client);
 			proxy.subscribe("android", receiver);
 			InputStream in = res.openRawResource(R.raw.test);

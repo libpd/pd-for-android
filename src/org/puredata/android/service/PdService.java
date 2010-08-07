@@ -355,6 +355,7 @@ public class PdService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		PdBase.addToSearchPath(getFilesDir().getAbsolutePath());
 		PdBase.setReceiver(dispatcher);
 	};
 
