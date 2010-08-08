@@ -1,10 +1,6 @@
 /**
  * 
- * @author Pet"", getCacheDir());
-//				List<File> files = IoUtils.extractZipResource(in, dir);
-//				for (File file: files) file.deleteOnExit();
-//				dir.deleteOnExit();
-//				PdBase.addToSearchPath(dir.getAbsolutePath());er Brinkmann (peter.brinkmann@gmail.com)
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
@@ -240,11 +236,12 @@ public class PdService extends Service {
 		public int installExternals(String uri) throws RemoteException {
 			int err = 0;
 			try {
-				AssetFileDescriptor afd = getContentResolver().openAssetFileDescriptor(Uri.parse(uri), "r");
-				InputStream in = afd.createInputStream();
 				File dir = getCacheDir();
 				PdBase.addToSearchPath(dir.getAbsolutePath());
+				AssetFileDescriptor afd = getContentResolver().openAssetFileDescriptor(Uri.parse(uri), "r");
+				InputStream in = afd.createInputStream();
 				List<File> files = IoUtils.extractZipResource(in, dir);
+				in.close();
 				for (File file: files) file.deleteOnExit();
 			} catch (IOException e) {
 				Log.e(PD_SERVICE, e.toString());
