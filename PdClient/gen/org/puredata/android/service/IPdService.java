@@ -107,6 +107,16 @@ reply.writeNoException();
 reply.writeInt(((_result)?(1):(0)));
 return true;
 }
+case TRANSACTION_installExternals:
+{
+data.enforceInterface(DESCRIPTOR);
+java.lang.String _arg0;
+_arg0 = data.readString();
+int _result = this.installExternals(_arg0);
+reply.writeNoException();
+reply.writeInt(_result);
+return true;
+}
 case TRANSACTION_getSampleRate:
 {
 data.enforceInterface(DESCRIPTOR);
@@ -380,6 +390,30 @@ _data.recycle();
 }
 return _result;
 }
+/**
+	 * unpack a zip file belonging to the client in the cache directory of the service, by invoking
+	 * openAssetFileDescriptor on a content provider in the client; it's a bit convoluted, but that's
+	 * what it takes to get around security constraints on Android.  See ScenePlayer sample for an
+	 * example of how to use this.
+	 */
+public int installExternals(java.lang.String uri) throws android.os.RemoteException
+{
+android.os.Parcel _data = android.os.Parcel.obtain();
+android.os.Parcel _reply = android.os.Parcel.obtain();
+int _result;
+try {
+_data.writeInterfaceToken(DESCRIPTOR);
+_data.writeString(uri);
+mRemote.transact(Stub.TRANSACTION_installExternals, _data, _reply, 0);
+_reply.readException();
+_result = _reply.readInt();
+}
+finally {
+_reply.recycle();
+_data.recycle();
+}
+return _result;
+}
 public int getSampleRate() throws android.os.RemoteException
 {
 android.os.Parcel _data = android.os.Parcel.obtain();
@@ -595,18 +629,19 @@ static final int TRANSACTION_requestAudio = (android.os.IBinder.FIRST_CALL_TRANS
 static final int TRANSACTION_releaseAudio = (android.os.IBinder.FIRST_CALL_TRANSACTION + 4);
 static final int TRANSACTION_stop = (android.os.IBinder.FIRST_CALL_TRANSACTION + 5);
 static final int TRANSACTION_isRunning = (android.os.IBinder.FIRST_CALL_TRANSACTION + 6);
-static final int TRANSACTION_getSampleRate = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
-static final int TRANSACTION_getInputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
-static final int TRANSACTION_getOutputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
-static final int TRANSACTION_getBufferSizeMillis = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
-static final int TRANSACTION_exists = (android.os.IBinder.FIRST_CALL_TRANSACTION + 11);
-static final int TRANSACTION_subscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 12);
-static final int TRANSACTION_unsubscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 13);
-static final int TRANSACTION_sendBang = (android.os.IBinder.FIRST_CALL_TRANSACTION + 14);
-static final int TRANSACTION_sendFloat = (android.os.IBinder.FIRST_CALL_TRANSACTION + 15);
-static final int TRANSACTION_sendSymbol = (android.os.IBinder.FIRST_CALL_TRANSACTION + 16);
-static final int TRANSACTION_sendList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 17);
-static final int TRANSACTION_sendMessage = (android.os.IBinder.FIRST_CALL_TRANSACTION + 18);
+static final int TRANSACTION_installExternals = (android.os.IBinder.FIRST_CALL_TRANSACTION + 7);
+static final int TRANSACTION_getSampleRate = (android.os.IBinder.FIRST_CALL_TRANSACTION + 8);
+static final int TRANSACTION_getInputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 9);
+static final int TRANSACTION_getOutputChannels = (android.os.IBinder.FIRST_CALL_TRANSACTION + 10);
+static final int TRANSACTION_getBufferSizeMillis = (android.os.IBinder.FIRST_CALL_TRANSACTION + 11);
+static final int TRANSACTION_exists = (android.os.IBinder.FIRST_CALL_TRANSACTION + 12);
+static final int TRANSACTION_subscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 13);
+static final int TRANSACTION_unsubscribe = (android.os.IBinder.FIRST_CALL_TRANSACTION + 14);
+static final int TRANSACTION_sendBang = (android.os.IBinder.FIRST_CALL_TRANSACTION + 15);
+static final int TRANSACTION_sendFloat = (android.os.IBinder.FIRST_CALL_TRANSACTION + 16);
+static final int TRANSACTION_sendSymbol = (android.os.IBinder.FIRST_CALL_TRANSACTION + 17);
+static final int TRANSACTION_sendList = (android.os.IBinder.FIRST_CALL_TRANSACTION + 18);
+static final int TRANSACTION_sendMessage = (android.os.IBinder.FIRST_CALL_TRANSACTION + 19);
 }
 /**
 	 * adds an entry to the search path for pd externals
@@ -638,6 +673,13 @@ public void stop() throws android.os.RemoteException;
 	 * indicates whether the audio thread is running
 	 */
 public boolean isRunning() throws android.os.RemoteException;
+/**
+	 * unpack a zip file belonging to the client in the cache directory of the service, by invoking
+	 * openAssetFileDescriptor on a content provider in the client; it's a bit convoluted, but that's
+	 * what it takes to get around security constraints on Android.  See ScenePlayer sample for an
+	 * example of how to use this.
+	 */
+public int installExternals(java.lang.String uri) throws android.os.RemoteException;
 public int getSampleRate() throws android.os.RemoteException;
 public int getInputChannels() throws android.os.RemoteException;
 public int getOutputChannels() throws android.os.RemoteException;

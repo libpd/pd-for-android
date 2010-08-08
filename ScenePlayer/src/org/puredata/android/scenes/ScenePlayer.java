@@ -188,7 +188,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			try {
 				Resources res = getResources();
 				IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir);
-				IoUtils.extractZipResource(res.openRawResource(R.raw.externals), libDir);
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
 			}
@@ -288,6 +287,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private void initPd() {
 		try {
 			pdServiceProxy.addClient(statusWatcher);
+			pdServiceProxy.installExternals("content://org.puredata.android.scenes/res/raw/externals.zip");
 			pdServiceProxy.addToSearchPath(libDir.getAbsolutePath());
 			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, overlayListener);
 			pdServiceProxy.subscribe(RJ_TEXT_ANDROID, overlayListener);
