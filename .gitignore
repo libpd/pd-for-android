@@ -2,3 +2,5 @@
 /obj/
 TAGS
 local.properties
+*.o
+/jni/src/libpdnative.so
