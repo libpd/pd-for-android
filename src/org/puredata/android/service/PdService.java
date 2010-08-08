@@ -1,6 +1,10 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ * @author Pet"", getCacheDir());
+//				List<File> files = IoUtils.extractZipResource(in, dir);
+//				for (File file: files) file.deleteOnExit();
+//				dir.deleteOnExit();
+//				PdBase.addToSearchPath(dir.getAbsolutePath());er Brinkmann (peter.brinkmann@gmail.com)
  * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
@@ -11,13 +15,16 @@
 
 package org.puredata.android.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
 import org.puredata.android.R;
 import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
+import org.puredata.android.ioutils.IoUtils;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
@@ -29,7 +36,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -125,7 +134,7 @@ public class PdService extends Service {
 	private final IPdService.Stub binder = new IPdService.Stub() {
 
 		private final Object empty[] = new Object[0];
-		
+
 		@Override
 		public void addToSearchPath(String s) throws RemoteException {
 			PdBase.addToSearchPath(s);
@@ -225,6 +234,23 @@ public class PdService extends Service {
 		@Override
 		public void sendMessage(String dest, String symbol, List args) throws RemoteException {
 			PdBase.sendMessage(dest, symbol, (args == null) ? empty : args.toArray());
+		}
+
+		@Override
+		public int installExternals(String uri) throws RemoteException {
+			int err = 0;
+			try {
+				AssetFileDescriptor afd = getContentResolver().openAssetFileDescriptor(Uri.parse(uri), "r");
+				InputStream in = afd.createInputStream();
+				File dir = getCacheDir();
+				PdBase.addToSearchPath(dir.getAbsolutePath());
+				List<File> files = IoUtils.extractZipResource(in, dir);
+				for (File file: files) file.deleteOnExit();
+			} catch (IOException e) {
+				Log.e(PD_SERVICE, e.toString());
+				err = -1;
+			}
+			return err;
 		}
 	};
 
