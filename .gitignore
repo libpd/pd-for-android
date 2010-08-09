@@ -1,6 +1,8 @@
 /PdClient/bin/
+/PdClient/gen/
 /PdClient/obj/
 /ScenePlayer/bin/
+/ScenePlayer/gen/
 /ScenePlayer/obj/
 /ScenePlayer/libs/
 TAGS
