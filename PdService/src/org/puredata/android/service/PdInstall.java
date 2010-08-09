@@ -49,7 +49,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class PdInstall extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-	private static final String PD_TEST = "Pd Test";
+	private static final String PD_INSTALL = "Pd Install";
 	private static final int PREFS_ACTIVITY_ID = 1;
 	private final Handler handler = new Handler();
 
@@ -66,7 +66,7 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), PD_TEST + ": " + msg, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), PD_INSTALL + ": " + msg, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -173,7 +173,7 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 		try {
 			restartAudio();
 		} catch (RemoteException e) {
-			Log.e(PD_TEST, e.toString());
+			Log.e(PD_INSTALL, e.toString());
 		}
 	}
 
@@ -213,9 +213,9 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 		Resources res = getResources();
 		try {
 			List<File> files = IoUtils.extractZipResource(res.openRawResource(R.raw.extra), getFilesDir());
-			Log.i(PD_TEST, files.toString());
+			Log.i(PD_INSTALL, files.toString());
 		} catch (IOException e) {
-			Log.e(PD_TEST, "unable to unpack extras: " + e.toString());
+			Log.e(PD_INSTALL, "unable to unpack extras: " + e.toString());
 		}
 		File patchFile = null;
 		try {
@@ -226,10 +226,10 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 			patch = PdUtils.openPatch(proxy, patchFile);
 			restartAudio();
 		} catch (RemoteException e) {
-			Log.e(PD_TEST, e.toString());
+			Log.e(PD_INSTALL, e.toString());
 			disconnected();
 		} catch (IOException e) {
-			Log.e(PD_TEST, e.toString());
+			Log.e(PD_INSTALL, e.toString());
 			finish();
 		} finally {
 			if (patchFile != null) patchFile.delete();
@@ -266,7 +266,7 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 					proxy.releaseAudio();
 				}
 			} catch (RemoteException e) {
-				Log.e(PD_TEST, e.toString());
+				Log.e(PD_INSTALL, e.toString());
 				disconnected();
 			}
 		}
