@@ -1,6 +1,6 @@
-/bin/
-/obj/
-TAGS
+PdCore/bin/
+PdCore/gen/
+PdCore/obj/
+PdService/bin/
+PdService/gen/
 local.properties
-*.o
-/jni/src/libpdnative.so
