@@ -10,6 +10,6 @@ Quick note on building the native pd library, libpdnative.so:
     libpdnative.so, is in git, so that you only need to run ndk-build if you
     actually change the native code.
 
-  - If you change the class PdBase.java, you need to run make in jni/src in
-    order to update the JNI headers and rebuild libpdnative.so.
+  - If you change the class PdBase.java, you need to run make in the project
+    directory in order to update the JNI headers and rebuild libpdnative.so.
 

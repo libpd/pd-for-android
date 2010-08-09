@@ -9,7 +9,7 @@
  * 
  */
 
-package org.puredata.android;
+package org.puredata.android.service;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +19,6 @@ import java.util.List;
 import java.util.Scanner;
 
 import org.puredata.android.ioutils.IoUtils;
-import org.puredata.android.service.IPdClient;
-import org.puredata.android.service.IPdListener;
-import org.puredata.android.service.IPdService;
-import org.puredata.android.service.PdPreferences;
-import org.puredata.android.service.PdUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -52,7 +47,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
-public class PdServiceTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class PdInstall extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String PD_TEST = "Pd Test";
 	private static final int PREFS_ACTIVITY_ID = 1;
