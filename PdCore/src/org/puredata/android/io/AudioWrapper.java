@@ -24,7 +24,7 @@ import android.util.Log;
 
 public abstract class AudioWrapper {
 
-	private static final String PD_AUDIO_WRAPPER = "Pd AudioWrapper";
+	private static final String AUDIO_WRAPPER = "AudioWrapper";
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 	private final AudioRecordWrapper rec;
 	private final AudioTrack track;
@@ -47,7 +47,7 @@ public abstract class AudioWrapper {
 	}
 
 	protected abstract int process(short inBuffer[], short outBuffer[]);
-	
+
 	public synchronized void start(Context context) {
 		avoidClickHack(context);
 		if (rec != null) rec.start();
@@ -70,7 +70,7 @@ public abstract class AudioWrapper {
 						if (newBuf != null) {
 							inBuf = newBuf;
 						} else {
-							Log.w(PD_AUDIO_WRAPPER, "no input buffer available");
+							Log.w(AUDIO_WRAPPER, "no input buffer available");
 						}
 					}
 				}
@@ -78,7 +78,7 @@ public abstract class AudioWrapper {
 		};
 		audioThread.start();
 	}
-	
+
 	public synchronized void stop() {
 		if (rec != null) rec.stop();
 		if (audioThread == null) return;
@@ -105,14 +105,14 @@ public abstract class AudioWrapper {
 	// weird little hack; eliminates the nasty click when AudioTrack (dis)engages by playing
 	// a few milliseconds of silence before starting AudioTrack
 	private void avoidClickHack(Context context) {
-		MediaPlayer mp = MediaPlayer.create(context, R.raw.silence);
-		mp.start();
 		try {
+			MediaPlayer mp = MediaPlayer.create(context, R.raw.silence);
+			mp.start();
 			Thread.sleep(10);
-		} catch (InterruptedException e) {
-			// do nothing
+			mp.stop();
+			mp.release();
+		} catch (Exception e) {
+			Log.e(AUDIO_WRAPPER, e.toString());
 		}
-		mp.stop();
-		mp.release();
 	}
 }
