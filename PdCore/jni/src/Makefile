@@ -1,6 +1,6 @@
-# tentative makefile for pd Java library; essentially untested...
+# tentative makefile for libpd; essentially untested...
 #
-TARGET = libpdnative.so
+TARGET = libpd.so
 
 CFILES = d_arithmetic.c d_array.c d_ctl.c d_dac.c d_delay.c d_fft.c \
 	d_fft_mayer.c d_fftroutine.c d_filter.c d_global.c d_math.c d_misc.c \
@@ -13,11 +13,9 @@ CFILES = d_arithmetic.c d_array.c d_ctl.c d_dac.c d_delay.c d_fft.c \
 	s_file.c s_inter.c s_loader.c s_main.c s_midi.c s_midi_dummy.c s_path.c \
 	s_print.c x_acoustics.c x_arithmetic.c x_connective.c x_gui.c x_interface.c \
 	x_libpdreceive.c x_list.c x_midi.c x_misc.c x_net.c x_qlist.c x_time.c \
-	z_jni.c z_libpd.c
+	z_libpd.c
 
-CFLAGS = -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY \
-			-Wno-int-to-pointer-cast -Wno-pointer-to-int-cast	\
-			-I/usr/lib/jvm/java-6-openjdk/include
+CFLAGS = -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
 
 .PHONY: clean clobber
 
