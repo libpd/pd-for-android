@@ -18,6 +18,9 @@ Some general hints regarding quirks of the Android SDK and Eclipse:
    components will have a makefile in their root directory.  (Make sure to
    refresh your projects in Eclipse after building native libraries.)
 
+   Note: The git repositories contain native binaries, and so you only need to
+   run make if you change the native components.
+
  * After importing the projects of pd-for-android into Eclipse, you will
    probably see a number of bogus error messages.  Here's the incantation that
    makes them go away on my machine (your mileage may vary):
