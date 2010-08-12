@@ -14,15 +14,16 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.AttributeSet;
 import android.widget.ImageView;
 
 public class SceneView extends ImageView {
 
-	private final List<Overlay> overlays = new ArrayList<Overlay>();
-	
-	public SceneView(Context context) {
-		super(context);
+	public SceneView(Context context, AttributeSet attrs) {
+		super(context, attrs);
 	}
+
+	private final List<Overlay> overlays = new ArrayList<Overlay>();
 
 	public synchronized void addOverlay(Overlay overlay) {
 		overlay.setContainer(this);

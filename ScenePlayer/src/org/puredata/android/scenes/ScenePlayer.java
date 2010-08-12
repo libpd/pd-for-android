@@ -44,13 +44,11 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -250,38 +248,23 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void initGui() {
-		int fill = LinearLayout.LayoutParams.FILL_PARENT;
-		int wrap = LinearLayout.LayoutParams.WRAP_CONTENT;
-		LinearLayout layout = new LinearLayout(this);
-		layout.setOrientation(LinearLayout.VERTICAL);
-		TextView tv = new TextView(this);
+		setContentView(R.layout.main);
+		TextView tv = (TextView) findViewById(R.id.scene_title);
 		tv.setText(sceneFolder.getName());
-		layout.addView(tv, fill, wrap);
-		sceneView = new SceneView(this);
+		sceneView = (SceneView) findViewById(R.id.scene_pic);
 		sceneView.setOnTouchListener(this);
-		sceneView.setAdjustViewBounds(true);
 		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
-		layout.addView(sceneView, wrap, wrap);
-		LinearLayout buttons = new LinearLayout(this);
-		buttons.setOrientation(LinearLayout.HORIZONTAL);
-		pause = new Button(this);
+		pause = (Button) findViewById(R.id.scene_pause);
 		pause.setText(PAUSE);
 		pause.setOnClickListener(this);
-		buttons.addView(pause, fill, wrap);
-		record = new Button(this);
+		record = (Button) findViewById(R.id.scene_record);
 		record.setText(RECORD);
 		record.setOnClickListener(this);
-		buttons.addView(record, wrap, wrap);
-		info = new Button(this);
+		info = (Button) findViewById(R.id.scene_info);
 		info.setText(INFO);
 		info.setOnClickListener(this);
-		buttons.addView(info, wrap, wrap);
-		layout.addView(buttons, wrap, wrap);
-		logs = new TextView(this);
+		logs = (TextView) findViewById(R.id.scene_logs);
 		logs.setMovementMethod(new ScrollingMovementMethod());
-		logs.setGravity(Gravity.BOTTOM);
-		layout.addView(logs, fill, fill);
-		setContentView(layout);
 	}
 
 	private void initPd() {

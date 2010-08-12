@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<TextView android:id="@+id/scene_title" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+	<org.puredata.android.scenes.SceneView
+		android:id="@+id/scene_pic" android:adjustViewBounds="true"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" />
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="horizontal" android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+		<Button android:id="@+id/scene_pause" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+		<Button android:id="@+id/scene_record" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+		<Button android:id="@+id/scene_info" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+	</LinearLayout>
+	<TextView android:id="@+id/scene_logs" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:gravity="bottom"
+		android:scrollbars="vertical"/>
+</LinearLayout>
