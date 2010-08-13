@@ -22,6 +22,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -102,7 +103,9 @@ public class CircleOfFifths extends Activity {
 		super.onCreate(savedInstanceState);
 		initGui();
 		try {
-			patchFile = IoUtils.extractResource(getResources().openRawResource(R.raw.chords), "chords.pd", new File("/sdcard/pd"));
+			File dir = new File("/sdcard/pd");
+			IoUtils.extractZipResource(getResources().openRawResource(R.raw.patch), dir, true);
+			patchFile = new File(dir, "chords.pd");
 		} catch (IOException e) {
 			post(e.toString());
 			finish();
