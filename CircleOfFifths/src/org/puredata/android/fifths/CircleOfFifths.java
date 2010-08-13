@@ -9,6 +9,10 @@
 
 package org.puredata.android.fifths;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.puredata.android.ioutils.IoUtils;
 import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdService;
 import org.puredata.android.service.PdUtils;
@@ -18,7 +22,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,6 +39,7 @@ public class CircleOfFifths extends Activity {
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
 	private TextView logs;
+	private File patchFile;
 	private String patch;
 
 	private void post(final String msg) {
@@ -75,7 +79,7 @@ public class CircleOfFifths extends Activity {
 
 		@Override
 		public void print(String s) throws RemoteException {
-			Log.i(PD_CIRCLE, s);
+			log(s);
 		}
 	};
 
@@ -97,6 +101,12 @@ public class CircleOfFifths extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initGui();
+		try {
+			patchFile = IoUtils.extractResource(getResources().openRawResource(R.raw.chords), "chords.pd", new File("/sdcard/pd"));
+		} catch (IOException e) {
+			post(e.toString());
+			finish();
+		}
 		bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
 	}
 
@@ -122,11 +132,9 @@ public class CircleOfFifths extends Activity {
 	}
 
 	private void initPd() {
-		Resources res = getResources();
-//		String path = res.getString(R.string.path_to_patch);
 		try {
 			pdServiceProxy.addClient(statusWatcher);
-//			patch = PdUtils.openPatch(pdServiceProxy, path);
+			patch = PdUtils.openPatch(pdServiceProxy, patchFile.getAbsoluteFile());
 			int err = pdServiceProxy.requestAudio(-1, 1, 2, -1); // negative values default to PdService preferences
 			hasAudio = (err == 0);
 			if (!hasAudio) {
@@ -136,11 +144,10 @@ public class CircleOfFifths extends Activity {
 		} catch (RemoteException e) {
 			Log.e(PD_CIRCLE, e.toString());
 			disconnected();
-		} 
-//		catch (IOException e) {
-//			post(e.toString() + "; exiting now");
-//			finish();
-//		}
+		} catch (IOException e) {
+			post(e.toString() + "; exiting now");
+			finish();
+		}
 	}
 
 	@Override
@@ -175,14 +182,38 @@ public class CircleOfFifths extends Activity {
 	}
 
 	public void playChord(int n, boolean b) {
-		log("play: (" + n + ", " + (b ? "major" : "minor") + ")");
+		synchronized (serviceConnection) {
+			if (pdServiceProxy == null) return;
+			try {
+				PdUtils.sendList(pdServiceProxy, "playchord", n, b ? 1 : 0);
+			} catch (RemoteException e) {
+				post(e.toString());
+				finish();
+			}
+		}
 	}
 
 	public void shift(int d) {
-		log("shift: " + d);
+		synchronized (serviceConnection) {
+			if (pdServiceProxy == null) return;
+			try {
+				pdServiceProxy.sendFloat("shift", d);
+			} catch (RemoteException e) {
+				post(e.toString());
+				finish();
+			}
+		}
 	}
 
 	public void endChord() {
-		log("chord ended");
+		synchronized (serviceConnection) {
+			if (pdServiceProxy == null) return;
+			try {
+				pdServiceProxy.sendBang("endchord");
+			} catch (RemoteException e) {
+				post(e.toString());
+				finish();
+			}
+		}
 	}
 }
