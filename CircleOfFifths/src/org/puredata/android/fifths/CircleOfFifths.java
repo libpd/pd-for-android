@@ -138,7 +138,7 @@ public class CircleOfFifths extends Activity {
 		try {
 			pdServiceProxy.addClient(statusWatcher);
 			patch = PdUtils.openPatch(pdServiceProxy, patchFile.getAbsoluteFile());
-			int err = pdServiceProxy.requestAudio(-1, 1, 2, -1); // negative values default to PdService preferences
+			int err = pdServiceProxy.requestAudio(44100, 1, 2, 50);
 			hasAudio = (err == 0);
 			if (!hasAudio) {
 				post("unable to start audio; exiting now");
