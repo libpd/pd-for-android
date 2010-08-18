@@ -42,26 +42,8 @@
 		<item>6</item>
 		<item>8</item>
 	</string-array>
-	<string-array name="tpb_labels">
-		<item>1</item>
-		<item>2</item>
-		<item>4</item>
-		<item>8</item>
-		<item>16</item>
-		<item>32</item>
-		<item>64</item>
-		<item>128</item>
-	</string-array>
-	<string-array name="tpb_values">
-		<item>1</item>
-		<item>2</item>
-		<item>4</item>
-		<item>8</item>
-		<item>16</item>
-		<item>32</item>
-		<item>64</item>
-		<item>128</item>
-	</string-array>
+	
+	
 	<string-array name="bufsize_labels">
 		<item>10ms</item>
 		<item>50ms</item>
