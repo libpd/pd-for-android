@@ -8,6 +8,7 @@
 #include "m_imp.h"
 #include "s_stuff.h"
 #include "g_canvas.h"
+#include "s_utf8.h" /*-- moo --*/
 #include <string.h>
 #ifdef _MSC_VER  /* This is only for Microsoft's compiler, not cygwin, e.g. */
 #define snprintf sprintf_s
@@ -716,7 +717,7 @@ static void glist_doreload(t_glist *gl, t_symbol *name, t_symbol *dir,
 {
     t_gobj *g;
     int i, nobj = glist_getindex(gl, 0);  /* number of objects */
-    int hadwindow = gl->gl_havewindow;
+    int hadwindow = (gl->gl_editor != 0);
     for (g = gl->gl_list, i = 0; g && i < nobj; i++)
     {
         if (g != except && pd_class(&g->g_pd) == canvas_class &&
@@ -729,8 +730,10 @@ static void glist_doreload(t_glist *gl, t_symbol *name, t_symbol *dir,
                 replacement will be at the end of the list, so we don't
                 do g = g->g_next in this case. */
             int j = glist_getindex(gl, g);
-            if (!gl->gl_havewindow)
-                canvas_vis(glist_getcanvas(gl), 1);
+            if (!gl->gl_editor)
+                canvas_vis(gl, 1);
+            if (!gl->gl_editor)
+                bug("editor");
             glist_noselect(gl);
             glist_select(gl, g);
             canvas_setundo(gl, canvas_undo_cut,
@@ -747,7 +750,7 @@ static void glist_doreload(t_glist *gl, t_symbol *name, t_symbol *dir,
              g = g->g_next;
         }
     }
-    if (!hadwindow && gl->gl_havewindow)
+    if (!hadwindow && gl->gl_editor)
         canvas_vis(glist_getcanvas(gl), 0);
 }
 
@@ -924,9 +927,6 @@ void canvas_vis(t_canvas *x, t_floatarg f)
 {
     char buf[30];
     int flag = (f != 0);
-    /* why is this here, what's the problem? This gets triggered by GOPs */
-    if (x != glist_getcanvas(x))
-        bug("canvas_vis");
     if (flag)
     {
         /* If a subpatch/abstraction has GOP/gl_isgraph set, then it will have
@@ -1032,16 +1032,7 @@ void canvas_setgraph(t_glist *x, int flag, int nogoprect)
             gobj_vis(&x->gl_gobj, x->gl_owner, 0);
         x->gl_isgraph = 1;
         x->gl_hidetext = !(!(flag&2));
-        if (!nogoprect && !x->gl_goprect)
-        {
-            t_gobj *g;
-            for (g = x->gl_list; g; g = g->g_next)
-                if (pd_checkobject(&g->g_pd))
-            {
-                x->gl_goprect = 1;
-                break;
-            }
-        }
+        x->gl_goprect = !nogoprect;
         if (glist_isvisible(x) && x->gl_goprect)
             glist_redraw(x);
         if (x->gl_owner && !x->gl_loading && glist_isvisible(x->gl_owner))
@@ -1676,7 +1667,7 @@ void canvas_key(t_canvas *x, t_symbol *s, int ac, t_atom *av)
         gotkeysym = av[1].a_w.w_symbol;
     else if (av[1].a_type == A_FLOAT)
     {
-        char buf[3];
+        char buf[UTF8_MAXBYTES1];
         switch((int)(av[1].a_w.w_float))
         {
         case 8:  gotkeysym = gensym("BackSpace"); break;
@@ -1686,7 +1677,8 @@ void canvas_key(t_canvas *x, t_symbol *s, int ac, t_atom *av)
         case 32: gotkeysym = gensym("Space"); break;
         case 127:gotkeysym = gensym("Delete"); break;
         default:
-            sprintf(buf, "%c", (int)(av[1].a_w.w_float));
+        /*-- moo: assume keynum is a Unicode codepoint; encode as UTF-8 --*/
+            u8_wc_toutf8_nul(buf, (UCS4)(av[1].a_w.w_float));
             gotkeysym = gensym(buf);
         }
     }
@@ -1894,9 +1886,8 @@ void glob_verifyquit(void *dummy, t_floatarg f)
         if (g2 = glist_finddirty(g))
     {
         canvas_vis(g2, 1);
-        sys_vgui(
-"pdtk_check .x%lx {Discard changes to '%s'?} {.x%lx menuclose 3;\n} no\n",
-            canvas_getrootfor(g2), canvas_getrootfor(g2)->gl_name->s_name, g2);
+            sys_vgui("pdtk_canvas_menuclose .x%lx {.x%lx menuclose 3;\n}\n",
+                     canvas_getrootfor(g2), g2);
         return;
     }
     if (f == 0 && sys_perf)
@@ -1923,16 +1914,14 @@ void canvas_menuclose(t_canvas *x, t_floatarg fforce)
         if (g)
         {
             vmess(&g->gl_pd, gensym("menu-open"), "");
-            sys_vgui(
-"pdtk_check .x%lx {Discard changes to '%s'?} {.x%lx menuclose 2;\n} no\n",
-                canvas_getrootfor(g), canvas_getrootfor(g)->gl_name->s_name, g);
+            sys_vgui("pdtk_canvas_menuclose .x%lx {.x%lx menuclose 2;\n}\n",
+                     canvas_getrootfor(g), g);
             return;
         }
         else if (sys_perf)
         {
-            sys_vgui(
-"pdtk_check .x%lx {Close '%s'?} {.x%lx menuclose 1;\n} yes\n",
-                canvas_getrootfor(x), canvas_getrootfor(x)->gl_name->s_name, x);
+            sys_vgui("pdtk_canvas_menuclose .x%lx {.x%lx menuclose 1;\n}\n",
+                     canvas_getrootfor(g), g);
         }
         else pd_free(&x->gl_pd);
     }
@@ -1947,9 +1936,8 @@ void canvas_menuclose(t_canvas *x, t_floatarg fforce)
         if (g)
         {
             vmess(&g->gl_pd, gensym("menu-open"), "");
-            sys_vgui(
-"pdtk_check .x%lx {Discard changes to '%s'?} {.x%lx menuclose 2;\n} no\n",
-                canvas_getrootfor(x), canvas_getrootfor(x)->gl_name->s_name, g);
+            sys_vgui("pdtk_canvas_menuclose .x%lx {.x%lx menuclose 2;\n}\n",
+                     canvas_getrootfor(x), g);
             return;
         }
         else pd_free(&x->gl_pd);

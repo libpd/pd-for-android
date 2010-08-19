@@ -383,6 +383,8 @@ void sys_close_audio(void)
     sched_set_using_audio(SCHED_AUDIO_NONE);
     audio_state = 0;
     audio_callback_is_open = 0;
+
+    sys_vgui("set pd_whichapi 0\n");
 }
 
     /* open audio using whatever parameters were last used */
@@ -403,6 +405,7 @@ void sys_reopen_audio( void)
     if (sys_audioapi == API_PORTAUDIO)
     {
         int blksize = (sys_blocksize ? sys_blocksize : 64);
+        fprintf(stderr, "blksize %d, advance %d\n", blksize, sys_advance_samples/blksize);
         outcome = pa_open_audio((naudioindev > 0 ? chindev[0] : 0),
         (naudiooutdev > 0 ? choutdev[0] : 0), rate, sys_soundin,
             sys_soundout, blksize, sys_advance_samples/blksize, 
@@ -415,7 +418,8 @@ void sys_reopen_audio( void)
 #ifdef USEAPI_JACK
     if (sys_audioapi == API_JACK) 
         outcome = jack_open_audio((naudioindev > 0 ? chindev[0] : 0),
-            (naudioindev > 0 ? choutdev[0] : 0), rate);
+            (naudioindev > 0 ? choutdev[0] : 0), rate,
+                (callback ? sched_audio_callbackfn : 0));
 
     else
 #endif    
@@ -599,6 +603,7 @@ static void audio_getdevs(char *indevlist, int *nindevs,
     {
         jack_getdevs(indevlist, nindevs, outdevlist, noutdevs, canmulti,
             maxndev, devdescsize);
+        *cancallback = 1;
     }
     else
 #endif
@@ -850,7 +855,9 @@ void sys_listdevs(void )
     else
 #endif
 #ifdef USEAPI_AUDIOUNIT
-/* TODO does audio units need this? */
+    if (sys_audioapi == API_AUDIOUNIT)
+        sys_listaudiodevs();
+    else
 #endif
 #ifdef USEAPI_ESD
     if (sys_audioapi == API_ESD)
@@ -865,6 +872,16 @@ void sys_listdevs(void )
     post("unknown API");    
 
     sys_listmididevs();
+}
+
+void sys_get_audio_devs(char *indevlist, int *nindevs,
+    char *outdevlist, int *noutdevs, int *canmulti, int *cancallback, 
+                        int maxndev, int devdescsize)
+{
+  audio_getdevs(indevlist, nindevs,
+                outdevlist, noutdevs, 
+                canmulti, cancallback, 
+                maxndev, devdescsize);
 }
 
 void sys_setblocksize(int n)
