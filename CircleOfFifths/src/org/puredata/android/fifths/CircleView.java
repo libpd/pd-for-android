@@ -126,8 +126,11 @@ public final class CircleView extends View {
 			if (segment % 2 == 0) {
 				float radius = x * x + y * y;
 				boolean major = radius > R1 * R1;
-				int note = (top + segment * 7 / 2 + (major ? 0 : 9)) % 12;
-				owner.playChord(note, major);
+				int note = (segment * 7 / 2 + (major ? 0 : 9)) % 12;
+				if (note > 6) note -= 12;
+				note += top;
+				if (top > 6) note -= 12;
+				owner.playChord(note + top, major);
 			}
 			break;
 		case MotionEvent.ACTION_MOVE:
