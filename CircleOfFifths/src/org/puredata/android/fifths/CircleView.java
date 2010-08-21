@@ -130,7 +130,7 @@ public final class CircleView extends View {
 				if (note > 6) note -= 12;
 				note += top;
 				if (top > 6) note -= 12;
-				owner.playChord(note + top, major);
+				owner.playChord(note, major);
 			}
 			break;
 		case MotionEvent.ACTION_MOVE:
