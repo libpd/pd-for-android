@@ -28,11 +28,13 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 
 
-public class CircleOfFifths extends Activity {
+public class CircleOfFifths extends Activity implements OnCheckedChangeListener {
 
 	private static final String PD_CIRCLE = "Pd Circle Of Fifths";
 	private final Handler handler = new Handler();
@@ -41,6 +43,8 @@ public class CircleOfFifths extends Activity {
 	private TextView logs;
 	private File patchFile;
 	private String patch;
+	private RadioGroup options;
+	private int option = 0;
 
 	private void post(final String msg) {
 		handler.post(new Runnable() {
@@ -131,6 +135,8 @@ public class CircleOfFifths extends Activity {
 		circle.setOwner(this);
 		logs = (TextView) findViewById(R.id.logview);
 		logs.setMovementMethod(new ScrollingMovementMethod());
+		options = (RadioGroup) findViewById(R.id.options);
+		options.setOnCheckedChangeListener(this);
 	}
 
 	private void initPd() {
@@ -183,15 +189,17 @@ public class CircleOfFifths extends Activity {
 		}
 	}
 
-	public void playChord(int n, boolean b) {
+	public void playChord(int type, int n) {
 		synchronized (serviceConnection) {
 			if (pdServiceProxy == null) return;
 			try {
-				PdUtils.sendList(pdServiceProxy, "playchord", n, b ? 1 : 0);
+				PdUtils.sendList(pdServiceProxy, "playchord", option + type, n);
 			} catch (RemoteException e) {
 				post(e.toString());
 				finish();
 			}
+			option = 0;
+			options.clearCheck();
 		}
 	}
 
@@ -216,6 +224,27 @@ public class CircleOfFifths extends Activity {
 				post(e.toString());
 				finish();
 			}
+		}
+	}
+
+	@Override
+	public void onCheckedChanged(RadioGroup group, int checkedId) {
+		switch (checkedId) {
+		case R.id.domdim:
+			option = 2;
+			break;
+		case R.id.majmin:
+			option = 4;
+			break;
+		case R.id.sixth:
+			option = 6;
+			break;
+		case R.id.susp:
+			option = 8;
+			break;
+		default:
+			option = 0;
+			break;
 		}
 	}
 }

@@ -118,26 +118,23 @@ public final class CircleView extends View {
 	public boolean onTouchEvent(MotionEvent event) {
 		float x = (event.getX() - xCenter) * xNorm;
 		float y = (event.getY() - yCenter) * yNorm;
-		float angle = (float) (Math.atan2(x, -y) * 12 / Math.PI);
-		int segment = (int) (angle + 24.5f) % 24;
+		float angle = (float) (Math.atan2(x, -y) * 6 / Math.PI);
+		int segment = (int) (angle + 12.5f) % 12;
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			initialSegment = segment;
-			if (segment % 2 == 0) {
-				float radius = x * x + y * y;
-				boolean major = radius > R1 * R1;
-				int note = (top + segment * 7 / 2 + (major ? 0 : 9)) % 12;
-				owner.playChord(note, major);
-			}
+			float radius = x * x + y * y;
+			boolean major = radius > R1 * R1;
+			int note = (top + segment * 7 + (major ? 0 : 9)) % 12;
+			owner.playChord(major ? 1 : 0, note);
 			break;
 		case MotionEvent.ACTION_MOVE:
-			int step = (initialSegment - segment + 24) % 24;
-			if (step > 1 && step < 23) {
+			int step = (initialSegment - segment + 12) % 12;
+			if (step > 0) {
 				initialSegment = segment;
-				int shift = (step / 2) % 12;
-				top = (top + shift * 7 + 24 * 12) % 12;
+				top = (top + step * 7 + 24 * 12) % 12;
 				invalidate();
-				owner.shift(shift);
+				owner.shift(step);
 			}
 			break;
 		case MotionEvent.ACTION_UP:
