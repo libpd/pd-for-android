@@ -122,24 +122,32 @@ public final class CircleView extends View {
 		int segment = (int) (angle + 12.5f) % 12;
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			initialSegment = segment;
-			float radius = x * x + y * y;
-			boolean major = radius > R1 * R1;
-			int note = (top + segment * 7 + (major ? 0 : 9)) % 12;
-			owner.playChord(major ? 1 : 0, note);
+			float radiusSquared = x * x + y * y;
+			if (radiusSquared > R0 * R0) {
+				initialSegment = segment;
+				boolean major = radiusSquared > R1 * R1;
+				int note = (top + segment * 7 + (major ? 0 : 9)) % 12;
+				owner.playChord(major ? 1 : 0, note);
+			} else {
+				initialSegment = -1;
+			}
 			break;
 		case MotionEvent.ACTION_MOVE:
-			int step = (initialSegment - segment + 12) % 12;
-			if (step > 0) {
-				initialSegment = segment;
-				top = (top + step * 7 + 24 * 12) % 12;
-				invalidate();
-				owner.shift(step);
+			if (initialSegment > -1) {
+				int step = (initialSegment - segment + 12) % 12;
+				if (step > 0) {
+					initialSegment = segment;
+					top = (top + step * 7 + 24 * 12) % 12;
+					invalidate();
+					owner.shift(step);
+				}
 			}
 			break;
 		case MotionEvent.ACTION_UP:
 		default:
-			owner.endChord();
+			if (initialSegment > -1) {
+				owner.endChord();
+			}
 			break;
 		}
 		return true;
