@@ -2,6 +2,8 @@
  * 
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  * 
+ * Some visual elements adapted from http://mindtherobot.com/blog/534/android-ui-making-an-analog-rotary-knob/
+ * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  * 
@@ -20,10 +22,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
-import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.graphics.BlurMaskFilter.Blur;
-import android.graphics.Paint.Style;
 import android.graphics.Shader.TileMode;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -76,31 +75,25 @@ public final class CircleView extends View {
 	private void init() {
 		texture = BitmapFactory.decodeResource(getResources(), R.drawable.bgtexture);
 		backgroundPaint = createDefaultPaint();
-		BitmapShader textureShader = new BitmapShader(texture, TileMode.MIRROR, TileMode.MIRROR);
+		BitmapShader shader = new BitmapShader(texture, TileMode.MIRROR, TileMode.MIRROR);
 		Matrix textureMatrix = new Matrix();
 		textureMatrix.setScale(2.0f / texture.getWidth(), 2.0f / texture.getHeight());
 		textureMatrix.postTranslate(1f, 1f);
-		textureShader.setLocalMatrix(textureMatrix);
-		backgroundPaint.setShader(textureShader);
+		shader.setLocalMatrix(textureMatrix);
+		backgroundPaint.setShader(shader);
 
 		ridgePaint = createDefaultPaint();
 		ridgePaint.setMaskFilter(new BlurMaskFilter(0.01f, Blur.NORMAL));
 		ridgePaint.setStyle(Paint.Style.STROKE);
-		ridgePaint.setShader(textureShader);
+		ridgePaint.setShader(shader);
 		ridgePaint.setStrokeWidth(RIDGE_WIDTH);
 
 		linearShadowPaint = createDefaultPaint();
-		linearShadowPaint.setShader(new LinearGradient(0, 1, 0, -1, 
-				new int[] { 0x99000000, 0x44000000 }, 
-				null,
-				TileMode.CLAMP));
+		linearShadowPaint.setShader(new LinearGradient(0, 1, 0, -1, new int[] { 0x99000000, 0x44000000 }, null, TileMode.CLAMP));
 		linearShadowPaint.setMaskFilter(new BlurMaskFilter(0.01f, Blur.NORMAL));
 
 		radialShadowPaint = createDefaultPaint();
-		radialShadowPaint.setShader(new RadialGradient(0, 0, R0, 
-				new int[] { 0x00ffffff, 0x44000000 }, 
-				null,
-				TileMode.CLAMP));
+		radialShadowPaint.setShader(new RadialGradient(0, 0, R0, new int[] { 0x00ffffff, 0x44000000 }, null, TileMode.CLAMP));
 		radialShadowPaint.setMaskFilter(new BlurMaskFilter(0.01f, Blur.NORMAL));
 		
 		labelPaint = createDefaultPaint();
