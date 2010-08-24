@@ -7,12 +7,16 @@
 	<RadioGroup android:id="@+id/options" android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:orientation="horizontal">
 		<RadioButton android:id="@+id/domdim" android:checked="false" android:text="Dom7/dim7"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
 		<RadioButton android:id="@+id/majmin" android:checked="false" android:text="Maj7/min7"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
 		<RadioButton android:id="@+id/sixth" android:checked="false" android:text="Added6"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
 		<RadioButton android:id="@+id/susp" android:checked="false" android:text="Sus4/sus2"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
 	</RadioGroup>
 	<TextView android:id="@+id/logview" android:layout_width="fill_parent"
