@@ -189,11 +189,11 @@ public class CircleOfFifths extends Activity implements OnCheckedChangeListener 
 		}
 	}
 
-	public void playChord(int type, int n) {
+	public void playChord(boolean major, int n) {
 		synchronized (serviceConnection) {
 			if (pdServiceProxy == null) return;
 			try {
-				PdUtils.sendList(pdServiceProxy, "playchord", option + type, n);
+				PdUtils.sendList(pdServiceProxy, "playchord", option + (major ? 1 : 0), n);
 			} catch (RemoteException e) {
 				post(e.toString());
 				finish();

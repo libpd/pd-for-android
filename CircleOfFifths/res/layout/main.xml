@@ -2,15 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
-	<TextView android:layout_width="fill_parent" android:layout_height="wrap_content" />
 	<org.puredata.android.fifths.CircleView android:id="@+id/circleview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" />
 	<RadioGroup android:id="@+id/options" android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:orientation="horizontal">
-		<RadioButton android:id="@+id/domdim" android:checked="false" android:text="D7/d7" />
-		<RadioButton android:id="@+id/majmin" android:checked="false" android:text="M7/m7" />
-		<RadioButton android:id="@+id/sixth" android:checked="false" android:text="6" />
-		<RadioButton android:id="@+id/susp" android:checked="false" android:text="sus4/2" />
+		<RadioButton android:id="@+id/domdim" android:checked="false" android:text="Dom7/dim7"
+		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
+		<RadioButton android:id="@+id/majmin" android:checked="false" android:text="Maj7/min7"
+		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
+		<RadioButton android:id="@+id/sixth" android:checked="false" android:text="Added6"
+		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
+		<RadioButton android:id="@+id/susp" android:checked="false" android:text="Sus4/sus2"
+		android:background="@drawable/radiobuttons" android:button="@null" android:layout_weight="0.25" />
 	</RadioGroup>
 	<TextView android:id="@+id/logview" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:gravity="bottom"

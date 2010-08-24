@@ -3,4 +3,9 @@
   <string name="app_name">ScenePlayer</string>
   
   
+<string name="playing">Playing</string>
+<string name="paused">Paused</string>
+<string name="startrec">Record</string>
+<string name="stoprec">Recording</string>
+<string name="info">Info</string>
 </resources>

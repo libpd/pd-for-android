@@ -50,16 +50,12 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 
 public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener {
 
 	public static final String SCENE = "SCENE";
-	private static final String RECORD = "Record";
-	private static final String STOP_RECORDING = "Stop recording";
-	private static final String PAUSE = "Pause";
-	private static final String PLAY = "Play";
-	private static final String INFO = "Info";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -68,13 +64,12 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private final Handler handler = new Handler();
 	private SceneView sceneView;
 	private TextView logs;
-	private Button pause;
-	private Button record;
+	private ToggleButton play;
+	private ToggleButton record;
 	private Button info;
 	private File sceneFolder;
 	private IPdService pdServiceProxy = null;
 	private boolean hasAudio = false;
-	private boolean recording = false;
 	private String patch;
 	private final File libDir = new File("/sdcard/pd/.scenes");
 	private final File recDir = new File("/sdcard/pd");
@@ -254,14 +249,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		sceneView = (SceneView) findViewById(R.id.scene_pic);
 		sceneView.setOnTouchListener(this);
 		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
-		pause = (Button) findViewById(R.id.scene_pause);
-		pause.setText(PAUSE);
-		pause.setOnClickListener(this);
-		record = (Button) findViewById(R.id.scene_record);
-		record.setText(RECORD);
+		play = (ToggleButton) findViewById(R.id.scene_pause);
+		play.setOnClickListener(this);
+		record = (ToggleButton) findViewById(R.id.scene_record);
 		record.setOnClickListener(this);
 		info = (Button) findViewById(R.id.scene_info);
-		info.setText(INFO);
 		info.setOnClickListener(this);
 		logs = (TextView) findViewById(R.id.scene_logs);
 		logs.setMovementMethod(new ScrollingMovementMethod());
@@ -327,21 +319,17 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		synchronized (serviceConnection) {
 			if (pdServiceProxy == null) return;
 			try {
-				if (v.equals(pause)) {
-					if (hasAudio) {
-						stopAudio();
-						pause.setText(PLAY);
-					} else {
+				if (v.equals(play)) {
+					if (play.isChecked()) {
 						startAudio();
-						pause.setText(PAUSE);
+					} else {
+						stopAudio();
 					}
 				} else if (v.equals(record)) {
-					if (!recording) {
+					if (record.isChecked()) {
 						startRecording();
-						record.setText(STOP_RECORDING);
 					} else {
 						stopRecording();
-						record.setText(RECORD);
 					}
 				} else if (v.equals(info)) {
 					showInfo();
@@ -358,13 +346,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "scene", filename);
 		post("recording to " + filename);
 		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 1);
-		recording = true;
 	}
 
 	private void stopRecording() throws RemoteException {
 		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 0);
 		post("finished recording");
-		recording = false;
 	}
 
 	private void startAudio() throws RemoteException {

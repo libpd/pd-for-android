@@ -176,20 +176,20 @@ public final class CircleView extends View {
 		float y = (event.getY() - yCenter) * yNorm;
 		float angle = (float) (Math.atan2(x, -y) * 6 / Math.PI);
 		int segment = (int) (angle + 12.5f) % 12;
+		float radiusSquared = x * x + y * y;
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			float radiusSquared = x * x + y * y;
-			if (radiusSquared > R0 * R0) {
+			if (radiusSquared > R0 * R0 && radiusSquared < 1) {
 				initialSegment = segment;
 				boolean major = radiusSquared > R1 * R1;
 				int note = (top * 7 + segment * 7 + (major ? 0 : 9)) % 12;
-				owner.playChord(major ? 1 : 0, note);
+				owner.playChord(major, note);
 			} else {
 				initialSegment = -1;
 			}
 			break;
 		case MotionEvent.ACTION_MOVE:
-			if (initialSegment > -1) {
+			if (initialSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
 				int step = (initialSegment - segment + 12) % 12;
 				if (step > 0) {
 					initialSegment = segment;
@@ -201,7 +201,7 @@ public final class CircleView extends View {
 			break;
 		case MotionEvent.ACTION_UP:
 		default:
-			if (initialSegment > -1) {
+			if (initialSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
 				owner.endChord();
 			}
 			break;
