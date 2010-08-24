@@ -14,7 +14,6 @@ package org.puredata.core.utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.puredata.core.PdBase;
 
@@ -47,7 +46,7 @@ public class PdUtils {
 		if (PdBase.exists(patch)) {
 			throw new IOException("patch is already open; close first, then reload");
 		}
-		PdBase.sendMessage("pd", "open", Arrays.asList(new Object[] {filename, folder}));
+		PdBase.sendMessage("pd", "open", filename, folder);
 		if (!PdBase.exists(patch)) {
 			throw new IOException("patch " + path + " failed to open, no idea why");
 		}
