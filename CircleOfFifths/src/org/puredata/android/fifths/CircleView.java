@@ -40,7 +40,8 @@ public final class CircleView extends View {
 	private static final float R1 = (float) Math.sqrt((1 + R0 * R0) / 2);  // equal area for major and minor fields
 	private int top = 0;
 	private float xCenter, yCenter, xNorm, yNorm;
-	private int initialSegment;
+	private int selectedSegment = -1;
+	private boolean selectedMajor;
 	private CircleOfFifths owner;
 	
 	private Bitmap wheel = null;
@@ -49,6 +50,7 @@ public final class CircleView extends View {
 	private Paint ridgePaint;
 	private Paint radialShadowPaint;
 	private Paint labelPaint;
+	private Paint selectedPaint;
 
 	public CircleView(Context context) {
 		super(context);
@@ -96,6 +98,10 @@ public final class CircleView extends View {
 		labelPaint.setColor(Color.BLACK);
 		labelPaint.setTextAlign(Paint.Align.CENTER);
 		labelPaint.setTextSize(0.2f);
+		
+		selectedPaint = createDefaultPaint();
+		selectedPaint.setColor(Color.RED);
+		selectedPaint.setStyle(Paint.Style.FILL);
 	}
 
 	public void setOwner(CircleOfFifths owner) {
@@ -128,6 +134,9 @@ public final class CircleView extends View {
 		int c = (top * 7) % 12;
 		int s0 = shifts[c];
 		for (int i = 0; i < 12; i++) {
+			if (i == selectedSegment) {
+				canvas.drawCircle(0, -(R1 + (selectedMajor ? 1 : R0)) / 2f, 0.2f, selectedPaint);
+			}
 			int s1 = s0 + i;
 			if (i > 6) s1 -= 12;
 			String label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
@@ -180,19 +189,18 @@ public final class CircleView extends View {
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			if (radiusSquared > R0 * R0 && radiusSquared < 1) {
-				initialSegment = segment;
-				boolean major = radiusSquared > R1 * R1;
-				int note = (top * 7 + segment * 7 + (major ? 0 : 9)) % 12;
-				owner.playChord(major, note);
-			} else {
-				initialSegment = -1;
+				selectedSegment = segment;
+				selectedMajor = radiusSquared > R1 * R1;
+				int note = (top * 7 + segment * 7 + (selectedMajor ? 0 : 9)) % 12;
+				owner.playChord(selectedMajor, note);
+				invalidate();
 			}
 			break;
 		case MotionEvent.ACTION_MOVE:
-			if (initialSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
-				int step = (initialSegment - segment + 12) % 12;
+			if (selectedSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
+				int step = (selectedSegment - segment + 12) % 12;
 				if (step > 0) {
-					initialSegment = segment;
+					selectedSegment = segment;
 					top = (top + step) % 12;
 					invalidate();
 					owner.shift(step);
@@ -201,9 +209,11 @@ public final class CircleView extends View {
 			break;
 		case MotionEvent.ACTION_UP:
 		default:
-			if (initialSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
+			if (selectedSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
 				owner.endChord();
 			}
+			selectedSegment = -1;
+			invalidate();
 			break;
 		}
 		return true;
