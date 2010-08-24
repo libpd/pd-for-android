@@ -143,7 +143,7 @@ public class CircleOfFifths extends Activity implements OnCheckedChangeListener 
 		try {
 			pdServiceProxy.addClient(statusWatcher);
 			patch = PdUtils.openPatch(pdServiceProxy, patchFile.getAbsoluteFile());
-			int err = pdServiceProxy.requestAudio(44100, 1, 2, 50);
+			int err = pdServiceProxy.requestAudio(44100, 0, 2, 50);
 			hasAudio = (err == 0);
 			if (!hasAudio) {
 				post("unable to start audio; exiting now");

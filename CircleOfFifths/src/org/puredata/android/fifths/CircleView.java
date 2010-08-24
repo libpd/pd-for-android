@@ -18,10 +18,10 @@ import android.graphics.BitmapShader;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
+import android.graphics.Rect;
 import android.graphics.BlurMaskFilter.Blur;
 import android.graphics.Shader.TileMode;
 import android.util.AttributeSet;
@@ -43,10 +43,10 @@ public final class CircleView extends View {
 	private int initialSegment;
 	private CircleOfFifths owner;
 	
+	private Bitmap wheel = null;
 	private Bitmap texture;
 	private Paint backgroundPaint;
 	private Paint ridgePaint;
-	private Paint linearShadowPaint;
 	private Paint radialShadowPaint;
 	private Paint labelPaint;
 
@@ -83,14 +83,10 @@ public final class CircleView extends View {
 		backgroundPaint.setShader(shader);
 
 		ridgePaint = createDefaultPaint();
-		ridgePaint.setMaskFilter(new BlurMaskFilter(0.01f, Blur.NORMAL));
+		ridgePaint.setColor(Color.DKGRAY);
+		ridgePaint.setMaskFilter(new BlurMaskFilter(0.005f, Blur.NORMAL));
 		ridgePaint.setStyle(Paint.Style.STROKE);
-		ridgePaint.setShader(shader);
 		ridgePaint.setStrokeWidth(RIDGE_WIDTH);
-
-		linearShadowPaint = createDefaultPaint();
-		linearShadowPaint.setShader(new LinearGradient(0, 1, 0, -1, new int[] { 0x99000000, 0x44000000 }, null, TileMode.CLAMP));
-		linearShadowPaint.setMaskFilter(new BlurMaskFilter(0.01f, Blur.NORMAL));
 
 		radialShadowPaint = createDefaultPaint();
 		radialShadowPaint.setShader(new RadialGradient(0, 0, R0, new int[] { 0x00ffffff, 0x44000000 }, null, TileMode.CLAMP));
@@ -123,16 +119,13 @@ public final class CircleView extends View {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		int mid = getWidth() / 2;
-		canvas.translate(mid, mid);
-		canvas.scale(mid, mid);
-		canvas.drawCircle(0, 0, 1, backgroundPaint);
-		canvas.drawCircle(0, 0, 1,  linearShadowPaint);
-		canvas.drawCircle(0, 0, R0,  radialShadowPaint);
-		canvas.drawCircle(0, 0, R0, ridgePaint);
-		canvas.drawCircle(0, 0, R1, ridgePaint);
-		canvas.drawCircle(0, 0, 1 - RIDGE_WIDTH / 2, ridgePaint);
-		int c = top;
+		canvas.translate(xCenter, yCenter);
+		canvas.scale(xCenter, yCenter);
+		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.rotate(-top * 30);
+		canvas.drawBitmap(wheel, null, new Rect(-1, -1, 1, 1), null);
+		canvas.restore();
+		int c = (top * 7) % 12;
 		int s0 = shifts[c];
 		for (int i = 0; i < 12; i++) {
 			int s1 = s0 + i;
@@ -143,9 +136,7 @@ public final class CircleView extends View {
 			label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
 			canvas.drawText(label.toLowerCase(), 0, -(R1 + R0) / 2.2f, labelPaint);
 			c = (c + 10) % 12;
-			canvas.rotate(15);
-			canvas.drawLine(0, R0, 0, 1, ridgePaint);
-			canvas.rotate(15);
+			canvas.rotate(30);
 		}
 	}
 
@@ -155,6 +146,28 @@ public final class CircleView extends View {
 		xNorm = 1 / xCenter;
 		yCenter = h / 2;
 		yNorm = 1 / yCenter;
+		drawWheel(w, h);
+	}
+
+	private void drawWheel(int w, int h) {
+		if (wheel != null) {
+			wheel.recycle();
+		}
+        Canvas canvas = new Canvas();
+        wheel = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(wheel);
+		canvas.translate(xCenter, yCenter);
+		canvas.scale(xCenter, yCenter);
+		canvas.drawCircle(0, 0, 1, backgroundPaint);
+		canvas.drawCircle(0, 0, R0,  radialShadowPaint);
+		canvas.drawCircle(0, 0, R0, ridgePaint);
+		canvas.drawCircle(0, 0, R1, ridgePaint);
+		canvas.drawCircle(0, 0, 1 - RIDGE_WIDTH / 2, ridgePaint);
+		canvas.rotate(15);
+		for (int i = 0; i < 12; i++) {
+			canvas.drawLine(0, R0, 0, 1, ridgePaint);
+			canvas.rotate(30);
+		}
 	}
 
 	@Override
@@ -169,7 +182,7 @@ public final class CircleView extends View {
 			if (radiusSquared > R0 * R0) {
 				initialSegment = segment;
 				boolean major = radiusSquared > R1 * R1;
-				int note = (top + segment * 7 + (major ? 0 : 9)) % 12;
+				int note = (top * 7 + segment * 7 + (major ? 0 : 9)) % 12;
 				owner.playChord(major ? 1 : 0, note);
 			} else {
 				initialSegment = -1;
@@ -180,7 +193,7 @@ public final class CircleView extends View {
 				int step = (initialSegment - segment + 12) % 12;
 				if (step > 0) {
 					initialSegment = segment;
-					top = (top + step * 7 + 24 * 12) % 12;
+					top = (top + step) % 12;
 					invalidate();
 					owner.shift(step);
 				}
