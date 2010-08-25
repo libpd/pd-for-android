@@ -9,6 +9,6 @@
 <string name="sus4sus2">Sus4\nSus2</string>
 <string name="help_title">Help</string>
 <string name="about_title">About</string>
-<string name="about_msg">Circle of Fifths\nCopyright 2010 Peter Brinkmann\n(peter.brinkmann@gmail.com)\nhttp://gitorious.org/pdlib</string>
+<string name="about_msg">Circle of Fifths\nCopyright 2010 Peter Brinkmann\n(pbnewyork@gmail.com)\nhttp://gitorious.org/pdlib</string>
 <string name="help_msg">Tap a field in order to play the corresponding chord.  Change the key signature by dragging the new tonic to the top of the circle.  The top line of a button describes the effect on major chords; the bottom line describes the effect on minor chords.</string>
 </resources>
