@@ -63,6 +63,15 @@ public final class CircleView extends View {
 		super(context, attrs, defStyle);
 		init();
 	}
+	
+	public void setOwner(CircleOfFifths owner) {
+		this.owner = owner;
+	}
+	
+	public void setTop(int top) {
+		this.top = top;
+		invalidate();
+	}
 
 	private static Paint createDefaultPaint() {
 		Paint paint = new Paint();
@@ -95,10 +104,6 @@ public final class CircleView extends View {
 		selectedPaint = new Paint(labelPaint);
 		selectedPaint.setColor(Color.RED);
 		selectedPaint.setTextSize(0.3f);
-	}
-
-	public void setOwner(CircleOfFifths owner) {
-		this.owner = owner;
 	}
 
 	@Override
@@ -205,7 +210,7 @@ public final class CircleView extends View {
 					selectedSegment = segment;
 					top = (top + step) % 12;
 					invalidate();
-					owner.shift(step);
+					owner.setTop(top);
 				}
 			}
 			break;

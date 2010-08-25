@@ -33,6 +33,7 @@ import android.widget.RadioGroup;
 public class CircleOfFifths extends Activity implements OnClickListener {
 
 	private static final String PD_CIRCLE = "Pd Circle Of Fifths";
+	private static final String TOP = "top";
 	private String patch;
 	private RadioGroup options;
 	private int option = 0;
@@ -60,6 +61,8 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 		setContentView(R.layout.main);
 		CircleView circle = (CircleView) findViewById(R.id.circleview);
 		circle.setOwner(this);
+		int top = getPreferences(MODE_PRIVATE).getInt(TOP, 0);
+		circle.setTop(top);
 		options = (RadioGroup) findViewById(R.id.options);
 		findViewById(R.id.domdim).setOnClickListener(this);
 		findViewById(R.id.majmin).setOnClickListener(this);
@@ -93,8 +96,9 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 		options.clearCheck();
 	}
 
-	public void shift(int d) {
-		PdBase.sendFloat("shift", d);
+	public void setTop(int top) {
+		PdBase.sendFloat("shift", top);
+		getPreferences(MODE_PRIVATE).edit().putInt(TOP, top).commit();
 	}
 
 	public void endChord() {
