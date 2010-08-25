@@ -22,6 +22,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.BlurMaskFilter.Blur;
 import android.graphics.Shader.TileMode;
 import android.util.AttributeSet;
@@ -33,8 +34,8 @@ public final class CircleView extends View {
 
 	private static final float RIDGE_WIDTH = 0.01f;
 	private static final String TAG = "Pd Circle of Fifths";
-	private static final String[] notesSharp = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-	private static final String[] notesFlat  = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
+	private static final String[] notesSharp = { "C", "C\u266f", "D", "D\u266f", "E", "F", "F\u266f", "G", "G\u266f", "A", "A\u266f", "B" };
+	private static final String[] notesFlat  = { "C", "D\u266d", "D", "E\u266d", "E", "F", "G\u266d", "G", "A\u266d", "A", "B\u266d", "B" };
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
 	private static final float R0 = 0.28f;
 	private static final float R1 = (float) Math.sqrt((1 + R0 * R0) / 2);  // equal area for major and minor fields
@@ -43,7 +44,7 @@ public final class CircleView extends View {
 	private int selectedSegment = -1;
 	private boolean selectedMajor;
 	private CircleOfFifths owner;
-	
+
 	private Bitmap wheel = null;
 	private Bitmap texture;
 	private Paint backgroundPaint;
@@ -73,7 +74,7 @@ public final class CircleView extends View {
 		paint.setFilterBitmap(true);
 		return paint;
 	}
-	
+
 	private void init() {
 		texture = BitmapFactory.decodeResource(getResources(), R.drawable.bgtexture);
 		backgroundPaint = createDefaultPaint();
@@ -93,12 +94,13 @@ public final class CircleView extends View {
 		radialShadowPaint = createDefaultPaint();
 		radialShadowPaint.setShader(new RadialGradient(0, 0, R0, new int[] { 0x00ffffff, 0x44000000 }, null, TileMode.CLAMP));
 		radialShadowPaint.setMaskFilter(new BlurMaskFilter(0.01f, Blur.NORMAL));
-		
+
 		labelPaint = createDefaultPaint();
 		labelPaint.setColor(Color.BLACK);
 		labelPaint.setTextAlign(Paint.Align.CENTER);
+		labelPaint.setTypeface(Typeface.MONOSPACE);
 		labelPaint.setTextSize(0.2f);
-		
+
 		selectedPaint = createDefaultPaint();
 		selectedPaint.setColor(Color.RED);
 		selectedPaint.setStyle(Paint.Style.FILL);
@@ -140,10 +142,22 @@ public final class CircleView extends View {
 			int s1 = s0 + i;
 			if (i > 6) s1 -= 12;
 			String label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			canvas.drawText(label, 0, -(1 + R1) / 2.2f, labelPaint);
+			float r = -(1 + R1) / 2.2f;
+			if (label.length() > 1) {
+				canvas.drawText(label.charAt(0) + " ", 0, r, labelPaint);
+				canvas.drawText(" " + label.charAt(1), 0, r, labelPaint);
+			} else {
+				canvas.drawText(label, 0, r, labelPaint);				
+			}
 			c = (c + 9) % 12;
 			label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			canvas.drawText(label.toLowerCase(), 0, -(R1 + R0) / 2.2f, labelPaint);
+			r = -(R1 + R0) / 2.2f;
+			if (label.length() > 1) {
+				canvas.drawText(label.toLowerCase().charAt(0) + " ", 0, r, labelPaint);
+				canvas.drawText(" " + label.charAt(1), 0, r, labelPaint);
+			} else {
+				canvas.drawText(label.toLowerCase(), 0, r, labelPaint);
+			}
 			c = (c + 10) % 12;
 			canvas.rotate(30);
 		}
@@ -162,9 +176,9 @@ public final class CircleView extends View {
 		if (wheel != null) {
 			wheel.recycle();
 		}
-        Canvas canvas = new Canvas();
-        wheel = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        canvas.setBitmap(wheel);
+		Canvas canvas = new Canvas();
+		wheel = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+		canvas.setBitmap(wheel);
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter, yCenter);
 		canvas.drawCircle(0, 0, 1, backgroundPaint);

@@ -1,3 +1,9 @@
+This repository contains a number of sample applications built on top of Pd
+for Android:  PdClient is a minimal client that uses Pd as a remote service;
+ScenePlayer is an elaborate example of a client that uses Pd as a remote
+service, and CircleOfFifths is a stand-alone application that uses Pd directly
+and does not require PdService to be installed.
+
 Some general hints regarding quirks of the Android SDK and Eclipse:
 
  * Although I am a big fan of the command line and not at all fond of Eclipse,
