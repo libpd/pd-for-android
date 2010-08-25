@@ -25,11 +25,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 
 
-public class CircleOfFifths extends Activity implements OnCheckedChangeListener {
+public class CircleOfFifths extends Activity implements OnClickListener {
 
 	private static final String PD_CIRCLE = "Pd Circle Of Fifths";
 	private String patch;
@@ -60,7 +61,10 @@ public class CircleOfFifths extends Activity implements OnCheckedChangeListener 
 		CircleView circle = (CircleView) findViewById(R.id.circleview);
 		circle.setOwner(this);
 		options = (RadioGroup) findViewById(R.id.options);
-		options.setOnCheckedChangeListener(this);
+		findViewById(R.id.domdim).setOnClickListener(this);
+		findViewById(R.id.majmin).setOnClickListener(this);
+		findViewById(R.id.sixth).setOnClickListener(this);
+		findViewById(R.id.susp).setOnClickListener(this);
 	}
 
 	private void initPd() {
@@ -98,23 +102,30 @@ public class CircleOfFifths extends Activity implements OnCheckedChangeListener 
 	}
 
 	@Override
-	public void onCheckedChanged(RadioGroup group, int checkedId) {
-		switch (checkedId) {
+	public void onClick(View v) {
+		int newOption;
+		switch (v.getId()) {
 		case R.id.domdim:
-			option = 2;
+			newOption = 2;
 			break;
 		case R.id.majmin:
-			option = 4;
+			newOption = 4;
 			break;
 		case R.id.sixth:
-			option = 6;
+			newOption = 6;
 			break;
 		case R.id.susp:
-			option = 8;
+			newOption = 8;
 			break;
 		default:
-			option = 0;
+			newOption = 0;
 			break;
+		}
+		if (option == newOption) {
+			option = 0;
+			options.clearCheck();
+		} else {
+			option = newOption;
 		}
 	}
 	
