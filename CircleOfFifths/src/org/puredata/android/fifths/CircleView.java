@@ -13,12 +13,9 @@ package org.puredata.android.fifths;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
@@ -46,7 +43,6 @@ public final class CircleView extends View {
 	private CircleOfFifths owner;
 
 	private Bitmap wheel = null;
-	private Bitmap texture;
 	private Paint backgroundPaint;
 	private Paint ridgePaint;
 	private Paint radialShadowPaint;
@@ -76,14 +72,9 @@ public final class CircleView extends View {
 	}
 
 	private void init() {
-		texture = BitmapFactory.decodeResource(getResources(), R.drawable.bgtexture);
 		backgroundPaint = createDefaultPaint();
-		BitmapShader shader = new BitmapShader(texture, TileMode.MIRROR, TileMode.MIRROR);
-		Matrix textureMatrix = new Matrix();
-		textureMatrix.setScale(2.0f / texture.getWidth(), 2.0f / texture.getHeight());
-		textureMatrix.postTranslate(1f, 1f);
-		shader.setLocalMatrix(textureMatrix);
-		backgroundPaint.setShader(shader);
+		backgroundPaint.setColor(Color.LTGRAY);
+		backgroundPaint.setStyle(Paint.Style.FILL);
 
 		ridgePaint = createDefaultPaint();
 		ridgePaint.setColor(Color.DKGRAY);
@@ -101,9 +92,9 @@ public final class CircleView extends View {
 		labelPaint.setTypeface(Typeface.MONOSPACE);
 		labelPaint.setTextSize(0.2f);
 
-		selectedPaint = createDefaultPaint();
+		selectedPaint = new Paint(labelPaint);
 		selectedPaint.setColor(Color.RED);
-		selectedPaint.setStyle(Paint.Style.FILL);
+		selectedPaint.setTextSize(0.3f);
 	}
 
 	public void setOwner(CircleOfFifths owner) {
@@ -136,28 +127,27 @@ public final class CircleView extends View {
 		int c = (top * 7) % 12;
 		int s0 = shifts[c];
 		for (int i = 0; i < 12; i++) {
-			if (i == selectedSegment) {
-				canvas.drawCircle(0, -(R1 + (selectedMajor ? 1 : R0)) / 2f, 0.2f, selectedPaint);
-			}
 			int s1 = s0 + i;
 			if (i > 6) s1 -= 12;
 			String label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			drawLabel(canvas, label, -(1 + R1) / 2.2f);
+			drawLabel(canvas, label, (1 + R1) / 2, selectedMajor && i == selectedSegment);
 			c = (c + 9) % 12;
 			label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			drawLabel(canvas, label.toLowerCase(), -(R1 + R0) / 2.15f);
+			drawLabel(canvas, label.toLowerCase(), (R1 + R0) / 2, !selectedMajor && i == selectedSegment);
 			c = (c + 10) % 12;
 			canvas.rotate(30);
 		}
 	}
 
-	// ugly hack to work around unicode spacing problem
-	private void drawLabel(Canvas canvas, String label, float r) {
+	private void drawLabel(Canvas canvas, String label, float r, boolean selected) {
+		Paint paint = selected ? selectedPaint : labelPaint;
+		float d = paint.getTextSize() / 3f - r;
 		if (label.length() > 1) {
-			canvas.drawText(label.charAt(0) + " ", 0, r, labelPaint);
-			canvas.drawText(" " + label.charAt(1), 0, r, labelPaint);
+			// ugly hack to work around unicode spacing problem
+			canvas.drawText(label.charAt(0) + " ", 0, d, paint);
+			canvas.drawText(" " + label.charAt(1), 0, d, paint);
 		} else {
-			canvas.drawText(label, 0, r, labelPaint);				
+			canvas.drawText(label, 0, d, paint);				
 		}
 	}
 
