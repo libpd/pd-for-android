@@ -14,12 +14,17 @@ import java.io.IOException;
 
 import org.puredata.android.io.PdAudio;
 import org.puredata.android.ioutils.IoUtils;
+import org.puredata.android.service.R;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.PdUtils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
@@ -111,5 +116,33 @@ public class CircleOfFifths extends Activity implements OnCheckedChangeListener 
 			option = 0;
 			break;
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.circle_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		AlertDialog.Builder ad = new AlertDialog.Builder(this);
+		switch (item.getItemId()) {
+		case R.id.about_item:
+			ad.setTitle(R.string.about_title);
+			ad.setMessage(R.string.about_msg);
+			break;
+		case R.id.help_item:
+			ad.setTitle(R.string.help_title);
+			ad.setMessage(R.string.help_msg);
+			break;
+		default:
+			break;
+		}
+		ad.setNeutralButton(android.R.string.ok, null);
+		ad.setCancelable(true);
+		ad.show();
+		return true;
 	}
 }

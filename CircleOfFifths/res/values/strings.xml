@@ -3,4 +3,12 @@
     
     <string name="app_name">Circle Of Fifths</string>
 
+<string name="dom7dim7">Dom7\nDim7</string>
+<string name="maj7min7">Maj7\nMin7</string>
+<string name="addedsixth">Added\nSixth</string>
+<string name="sus4sus2">Sus4\nSus2</string>
+<string name="help_title">Help</string>
+<string name="about_title">About</string>
+<string name="about_msg">blablabla</string>
+<string name="help_msg">blubblubblub</string>
 </resources>

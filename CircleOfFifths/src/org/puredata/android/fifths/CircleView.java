@@ -142,24 +142,22 @@ public final class CircleView extends View {
 			int s1 = s0 + i;
 			if (i > 6) s1 -= 12;
 			String label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			float r = -(1 + R1) / 2.2f;
-			if (label.length() > 1) {
-				canvas.drawText(label.charAt(0) + " ", 0, r, labelPaint);
-				canvas.drawText(" " + label.charAt(1), 0, r, labelPaint);
-			} else {
-				canvas.drawText(label, 0, r, labelPaint);				
-			}
+			drawLabel(canvas, label, -(1 + R1) / 2.2f);
 			c = (c + 9) % 12;
 			label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			r = -(R1 + R0) / 2.2f;
-			if (label.length() > 1) {
-				canvas.drawText(label.toLowerCase().charAt(0) + " ", 0, r, labelPaint);
-				canvas.drawText(" " + label.charAt(1), 0, r, labelPaint);
-			} else {
-				canvas.drawText(label.toLowerCase(), 0, r, labelPaint);
-			}
+			drawLabel(canvas, label.toLowerCase(), -(R1 + R0) / 2.15f);
 			c = (c + 10) % 12;
 			canvas.rotate(30);
+		}
+	}
+
+	// ugly hack to work around unicode spacing problem
+	private void drawLabel(Canvas canvas, String label, float r) {
+		if (label.length() > 1) {
+			canvas.drawText(label.charAt(0) + " ", 0, r, labelPaint);
+			canvas.drawText(" " + label.charAt(1), 0, r, labelPaint);
+		} else {
+			canvas.drawText(label, 0, r, labelPaint);				
 		}
 	}
 
