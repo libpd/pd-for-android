@@ -13,12 +13,14 @@ package org.puredata.android.fifths;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.BlurMaskFilter.Blur;
 import android.graphics.Shader.TileMode;
@@ -42,6 +44,7 @@ public final class CircleView extends View {
 	private boolean selectedMajor;
 	private CircleOfFifths owner;
 
+	private Bitmap icon;
 	private Bitmap wheel = null;
 	private Paint backgroundPaint;
 	private Paint ridgePaint;
@@ -104,6 +107,8 @@ public final class CircleView extends View {
 		selectedPaint = new Paint(labelPaint);
 		selectedPaint.setColor(Color.RED);
 		selectedPaint.setTextSize(0.3f);
+		
+		icon = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
 	}
 
 	@Override
@@ -128,6 +133,8 @@ public final class CircleView extends View {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.rotate(-top * 30);
 		canvas.drawBitmap(wheel, null, new Rect(-1, -1, 1, 1), null);
+		float r = R0 / 1.8f;
+		canvas.drawBitmap(icon, null, new RectF(-r, -r, r, r), null);
 		canvas.restore();
 		int c = (top * 7) % 12;
 		int s0 = shifts[c];
@@ -175,7 +182,6 @@ public final class CircleView extends View {
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter, yCenter);
 		canvas.drawCircle(0, 0, 1, backgroundPaint);
-		canvas.drawCircle(0, 0, R0,  radialShadowPaint);
 		canvas.drawCircle(0, 0, R0, ridgePaint);
 		canvas.drawCircle(0, 0, R1, ridgePaint);
 		canvas.drawCircle(0, 0, 1 - RIDGE_WIDTH / 2, ridgePaint);
