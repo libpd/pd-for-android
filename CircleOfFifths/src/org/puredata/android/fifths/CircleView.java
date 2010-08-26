@@ -108,7 +108,7 @@ public final class CircleView extends View {
 		selectedPaint.setColor(Color.RED);
 		selectedPaint.setTextSize(0.3f);
 		
-		icon = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+		icon = BitmapFactory.decodeResource(getResources(), R.drawable.icon_large);
 	}
 
 	@Override
