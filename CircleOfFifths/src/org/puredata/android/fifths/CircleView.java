@@ -21,14 +21,12 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.BlurMaskFilter.Blur;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 public final class CircleView extends View {
 
 	private static final float RIDGE_WIDTH = 0.01f;
-	private static final String TAG = "Pd Circle of Fifths";
 	private static final String[] notesSharp = { "C", "C\u266f", "D", "D\u266f", "E", "F", "F\u266f", "G", "G\u266f", "A", "A\u266f", "B" };
 	private static final String[] notesFlat  = { "C", "D\u266d", "D", "E\u266d", "E", "F", "G\u266d", "G", "A\u266d", "A", "B\u266d", "B" };
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
@@ -115,7 +113,6 @@ public final class CircleView extends View {
 		int xDim = getDim(widthMeasureSpec);
 		int yDim = getDim(heightMeasureSpec);
 		int dim = Math.min(xDim, yDim);
-		Log.i(TAG, "dimension: " + dim);
 		setMeasuredDimension(dim, dim);
 	}
 
