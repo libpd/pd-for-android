@@ -2,8 +2,6 @@
  * 
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  * 
- * Some visual elements adapted from http://mindtherobot.com/blog/534/android-ui-making-an-analog-rotary-knob/
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  * 
@@ -12,18 +10,16 @@
 package org.puredata.android.fifths;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RadialGradient;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.BlurMaskFilter.Blur;
-import android.graphics.Shader.TileMode;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -44,11 +40,10 @@ public final class CircleView extends View {
 	private boolean selectedMajor;
 	private CircleOfFifths owner;
 
-	private Bitmap icon;
+	private Bitmap keySigs[];
 	private Bitmap wheel = null;
 	private Paint backgroundPaint;
 	private Paint ridgePaint;
-	private Paint radialShadowPaint;
 	private Paint labelPaint;
 	private Paint selectedPaint;
 
@@ -94,10 +89,6 @@ public final class CircleView extends View {
 		ridgePaint.setStyle(Paint.Style.STROKE);
 		ridgePaint.setStrokeWidth(RIDGE_WIDTH);
 
-		radialShadowPaint = createDefaultPaint();
-		radialShadowPaint.setShader(new RadialGradient(0, 0, R0, new int[] { 0x00ffffff, 0x44000000 }, null, TileMode.CLAMP));
-		radialShadowPaint.setMaskFilter(new BlurMaskFilter(0.01f, Blur.NORMAL));
-
 		labelPaint = createDefaultPaint();
 		labelPaint.setColor(Color.BLACK);
 		labelPaint.setTextAlign(Paint.Align.CENTER);
@@ -108,7 +99,15 @@ public final class CircleView extends View {
 		selectedPaint.setColor(Color.RED);
 		selectedPaint.setTextSize(0.3f);
 		
-		icon = BitmapFactory.decodeResource(getResources(), R.drawable.icon_large);
+		Resources res = getResources();
+		keySigs = new Bitmap[] {
+				BitmapFactory.decodeResource(res, R.drawable.ks00), BitmapFactory.decodeResource(res, R.drawable.ks01), 
+				BitmapFactory.decodeResource(res, R.drawable.ks02), BitmapFactory.decodeResource(res, R.drawable.ks03), 
+				BitmapFactory.decodeResource(res, R.drawable.ks04), BitmapFactory.decodeResource(res, R.drawable.ks05), 
+				BitmapFactory.decodeResource(res, R.drawable.ks06), BitmapFactory.decodeResource(res, R.drawable.ks07), 
+				BitmapFactory.decodeResource(res, R.drawable.ks08), BitmapFactory.decodeResource(res, R.drawable.ks09), 
+				BitmapFactory.decodeResource(res, R.drawable.ks10), BitmapFactory.decodeResource(res, R.drawable.ks11)
+		};
 	}
 
 	@Override
@@ -132,11 +131,12 @@ public final class CircleView extends View {
 		canvas.scale(xCenter, yCenter);
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.rotate(-top * 30);
-		canvas.drawBitmap(wheel, null, new Rect(-1, -1, 1, 1), null);
-		float r = R0 / 1.8f;
-		canvas.drawBitmap(icon, null, new RectF(-r, -r, r, r), null);
+		canvas.drawBitmap(wheel, null, new RectF(-1, -1, 1, 1), null);
 		canvas.restore();
 		int c = (top * 7) % 12;
+		float dy = R0 / 1.8f;
+		float dx = dy * 1.38f;
+		canvas.drawBitmap(keySigs[c], null, new RectF(-dx, -dy, dx, dy), null);
 		int s0 = shifts[c];
 		for (int i = 0; i < 12; i++) {
 			int s1 = s0 + i;
