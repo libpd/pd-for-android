@@ -31,14 +31,13 @@ public class PdUtils {
 	/**
 	 * reads a patch from a file
 	 * 
-	 * @param path to patch
+	 * @param patch file
 	 * @return pd symbol representing patch
 	 * @throws IOException in case patch fails to open
 	 */
-	public static String openPatch(String path) throws IOException {
-		File file = new File(path);
+	public static String openPatch(File file) throws IOException {
 		if (!file.exists()) {
-			throw new FileNotFoundException(path);
+			throw new FileNotFoundException(file.getPath());
 		}
 		String folder = file.getParentFile().getAbsolutePath();
 		String filename = file.getName();
@@ -48,9 +47,20 @@ public class PdUtils {
 		}
 		PdBase.sendMessage("pd", "open", filename, folder);
 		if (!PdBase.exists(patch)) {
-			throw new IOException("patch " + path + " failed to open, no idea why");
+			throw new IOException("patch " + file.getPath() + " failed to open, no idea why");
 		}
 		return patch;
+	}
+	
+	/**
+	 * reads a patch from a file
+	 * 
+	 * @param path to file
+	 * @return pd symbol representing patch
+	 * @throws IOException in case patch fails to open
+	 */
+	public static String openPatch(String path) throws IOException {
+		return openPatch(new File(path));
 	}
 	
 	/**
