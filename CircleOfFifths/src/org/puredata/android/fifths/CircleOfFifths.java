@@ -46,6 +46,18 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		PdAudio.startAudio(this, 44100, 0, 2, 32, true);
+	}
+	
+	@Override
+	protected void onPause() {
+		PdAudio.stopAudio();
+		super.onPause();
+	}
+	
+	@Override
 	protected void onDestroy() {
 		cleanup();
 		super.onDestroy();
@@ -76,7 +88,6 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 		try {
 			IoUtils.extractZipResource(getResources().openRawResource(R.raw.patch), dir, true);
 			patch = PdUtils.openPatch(patchFile.getAbsolutePath());
-			PdAudio.startAudio(this, 44100, 0, 2, 32, true);
 		} catch (IOException e) {
 			Log.e(PD_CIRCLE, e.toString() + "; exiting now");
 			finish();
@@ -92,17 +103,16 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 
 	public void playChord(boolean major, int n) {
 		PdBase.sendList("playchord", option + (major ? 1 : 0), n);
-		option = 0;
-		options.clearCheck();
+		resetOptions();
+	}
+	
+	public void endChord() {
+		PdBase.sendBang("endchord");
 	}
 
 	public void setTop(int top) {
 		PdBase.sendFloat("shift", top);
 		getPreferences(MODE_PRIVATE).edit().putInt(TOP, top).commit();
-	}
-
-	public void endChord() {
-		PdBase.sendBang("endchord");
 	}
 
 	@Override
@@ -126,11 +136,15 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 			break;
 		}
 		if (option == newOption) {
-			option = 0;
-			options.clearCheck();
+			resetOptions();
 		} else {
 			option = newOption;
 		}
+	}
+
+	private void resetOptions() {
+		option = 0;
+		options.clearCheck();
 	}
 	
 	@Override
