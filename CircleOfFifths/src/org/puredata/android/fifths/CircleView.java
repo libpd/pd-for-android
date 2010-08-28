@@ -204,15 +204,15 @@ public final class CircleView extends View {
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter, yCenter);
 		
-		Paint shade1 = new Paint();
-		shade1.setStyle(Paint.Style.FILL);
-		Paint shade2 = new Paint(shade1);
-		Paint shade3 = new Paint(shade1);
-		Paint shade4 = new Paint(shade1);
-		shade1.setColor(Color.argb(0xff, 0x98, 0x98, 0x98));
-		shade2.setColor(Color.argb(0xff, 0xb8, 0xb8, 0xb8));
-		shade3.setColor(Color.argb(0xff, 0xd8, 0xd8, 0xd8));
-		shade4.setColor(Color.argb(0xff, 0x78, 0x78, 0x78));
+		Paint shades[] = new Paint[4];
+		for (int i = 0; i < 4; i++) {
+			int c = 0x98 + 0x10 * i;
+			shades[i] = new Paint();
+			shades[i].setStyle(Paint.Style.FILL);
+			shades[i].setColor(Color.argb(0xff, c, c, c));
+		}
+		Paint centerShade = new Paint(shades[0]);
+		centerShade.setColor(Color.argb(0xff, 0x78, 0x78, 0x78));
 		Paint shadowPaint = new Paint();
 		shadowPaint.setShader(new LinearGradient(0, -1, 0, 1, 
 				new int[] { 0x00ffffff, 0x77000000 }, null, TileMode.CLAMP));
@@ -226,15 +226,12 @@ public final class CircleView extends View {
 		canvas.drawCircle(0, 0, 1, shadowPaint);
 		
 		canvas.setBitmap(wheel);
-		canvas.drawCircle(0, 0, R0, shade4);
+		canvas.drawCircle(0, 0, R0, centerShade);
 		for (int i = 0; i < 12; i++) {
-			canvas.drawPath(minorField, shade1);
-			canvas.drawPath(majorField, shade2);
-			canvas.drawPath(rimField, shade3);
-			Paint tmp = shade1;
-			shade1 = shade2;
-			shade2 = shade3;
-			shade3 = tmp;
+			Paint shade = shades[i % 4];
+			canvas.drawPath(minorField, shade);
+			canvas.drawPath(majorField, shade);
+			canvas.drawPath(rimField, shade);
 			canvas.rotate(30);
 		}
 		
