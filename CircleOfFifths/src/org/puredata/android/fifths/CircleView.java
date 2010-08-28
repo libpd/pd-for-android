@@ -15,11 +15,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.Path.FillType;
+import android.graphics.Shader.TileMode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,7 +33,7 @@ public final class CircleView extends View {
 	private static final String[] notesFlat  = { "C", "D\u266d", "D", "E\u266d", "E", "F", "G\u266d", "G", "A\u266d", "A", "B\u266d", "B" };
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
 	private static final float R0 = 0.25f;
-	private static final float R2 = 0.95f;
+	private static final float R2 = 0.92f;
 	private static final float R1 = (float) Math.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
 	
 	private CircleOfFifths owner;
@@ -41,6 +43,8 @@ public final class CircleView extends View {
 	private State currentState = State.UP;
 	private Bitmap keySigs[];
 	private Bitmap wheel = null;
+	private Bitmap grid = null;
+	private Bitmap shadow = null;
 	private final Path minorField = new Path();
 	private final Path majorField = new Path();
 	private final Path rimField = new Path();
@@ -79,17 +83,17 @@ public final class CircleView extends View {
 		float phi = 255, dphi = 30;
 		
 		minorField.arcTo(r1, phi, dphi, true);
-		minorField.arcTo(r0, phi+dphi, -dphi, false);
+		minorField.arcTo(r0, phi+dphi, -dphi);
 		minorField.close();
 		minorField.setFillType(FillType.WINDING);
 		
 		majorField.arcTo(r2, phi, dphi, true);
-		majorField.arcTo(r1, phi+dphi, -dphi, false);
+		majorField.arcTo(r1, phi+dphi, -dphi);
 		majorField.close();
 		majorField.setFillType(FillType.WINDING);
 		
 		rimField.arcTo(r, phi, dphi, true);
-		rimField.arcTo(r2, phi+dphi, -dphi, false);
+		rimField.arcTo(r2, phi+dphi, -dphi);
 		rimField.close();
 		rimField.setFillType(FillType.WINDING);
 		
@@ -101,7 +105,7 @@ public final class CircleView extends View {
 		labelPaint.setColor(Color.BLACK);
 		labelPaint.setTextAlign(Paint.Align.CENTER);
 		labelPaint.setTypeface(Typeface.MONOSPACE);
-		labelPaint.setTextSize(0.2f);
+		labelPaint.setTextSize(0.16f);
 
 		Resources res = getResources();
 		keySigs = new Bitmap[] {
@@ -163,6 +167,8 @@ public final class CircleView extends View {
 			c = (c + 10) % 12;
 			canvas.rotate(30);
 		}
+		canvas.drawBitmap(grid, null, new RectF(-1, -1, 1, 1), null);
+		canvas.drawBitmap(shadow, null, new RectF(-1, -1, 1, 1), null);
 	}
 
 	private void drawLabel(Canvas canvas, String label, float r) {
@@ -182,34 +188,64 @@ public final class CircleView extends View {
 		xNorm = 1 / xCenter;
 		yCenter = h / 2;
 		yNorm = 1 / yCenter;
-		drawWheel(w, h);
+		drawBitmaps(w, h);
 	}
 
-	private void drawWheel(int w, int h) {
+	private void drawBitmaps(int w, int h) {
 		if (wheel != null) {
 			wheel.recycle();
+			shadow.recycle();
+			grid.recycle();
 		}
-		Canvas canvas = new Canvas();
 		wheel = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-		canvas.setBitmap(wheel);
+		shadow = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+		grid  = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+		Canvas canvas = new Canvas();
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter, yCenter);
-		Paint p1 = new Paint();
-		p1.setAntiAlias(true);
-		p1.setColor(Color.LTGRAY);
-		p1.setStyle(Paint.Style.FILL_AND_STROKE);
-		Paint p2 = new Paint(p1);
-		p2.setColor(Color.DKGRAY);
-		Paint p3 = new Paint(p1);
-		p3.setColor(Color.GRAY);
-		canvas.drawCircle(0, 0, R0, p3);
+		
+		Paint shade1 = new Paint();
+		shade1.setStyle(Paint.Style.FILL);
+		Paint shade2 = new Paint(shade1);
+		Paint shade3 = new Paint(shade1);
+		Paint shade4 = new Paint(shade1);
+		shade1.setColor(Color.argb(0xff, 0x98, 0x98, 0x98));
+		shade2.setColor(Color.argb(0xff, 0xb8, 0xb8, 0xb8));
+		shade3.setColor(Color.argb(0xff, 0xd8, 0xd8, 0xd8));
+		shade4.setColor(Color.argb(0xff, 0x78, 0x78, 0x78));
+		Paint shadowPaint = new Paint();
+		shadowPaint.setShader(new LinearGradient(0, -1, 0, 1, 
+				new int[] { 0x00ffffff, 0x88000000 }, null, TileMode.CLAMP));
+		Paint gridPaint = new Paint();
+		gridPaint.setAntiAlias(true);
+		gridPaint.setStrokeWidth(0.016f);
+		gridPaint.setStyle(Paint.Style.STROKE);
+		gridPaint.setColor(Color.DKGRAY);
+		
+		canvas.setBitmap(shadow);
+		canvas.drawCircle(0, 0, 1, shadowPaint);
+		
+		canvas.setBitmap(wheel);
+		canvas.drawCircle(0, 0, R0, shade4);
 		for (int i = 0; i < 12; i++) {
-			canvas.drawPath(minorField, p1);
-			canvas.drawPath(majorField, p2);
-			canvas.drawPath(rimField, p1);
-			Paint p = p1;
-			p1 = p2;
-			p2 = p;
+			canvas.drawPath(minorField, shade1);
+			canvas.drawPath(majorField, shade2);
+			canvas.drawPath(rimField, shade3);
+			Paint tmp = shade1;
+			shade1 = shade2;
+			shade2 = shade3;
+			shade3 = tmp;
+			canvas.rotate(30);
+		}
+		
+		canvas.setBitmap(grid);
+		canvas.drawCircle(0, 0, R0, gridPaint);
+		canvas.drawCircle(0, 0, R1, gridPaint);
+		canvas.drawCircle(0, 0, R2, gridPaint);
+		canvas.drawCircle(0, 0, 1, gridPaint);
+		canvas.rotate(15);
+		for (int i = 0; i < 12; i++) {
+			canvas.drawLine(0, R0, 0, 1, gridPaint);
 			canvas.rotate(30);
 		}
 	}
@@ -218,9 +254,9 @@ public final class CircleView extends View {
 	public boolean onTouchEvent(MotionEvent event) {
 		float x = (event.getX() - xCenter) * xNorm;
 		float y = (event.getY() - yCenter) * yNorm;
+		float radiusSquared = x * x + y * y;
 		float angle = (float) (Math.atan2(x, -y) * 6 / Math.PI);
 		int segment = (int) (angle + 12.5f) % 12;
-		float radiusSquared = x * x + y * y;
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			if (radiusSquared >= R0 * R0) {
@@ -246,11 +282,11 @@ public final class CircleView extends View {
 			if (currentState == State.SHIFT && radiusSquared >= R0 * R0) {
 				int step = (selectedSegment - segment + 12) % 12;
 				if (step > 0) {
-					selectedSegment = segment;
 					top = (top + step) % 12;
 					invalidate();
 					owner.setTop(top);
 				}
+				selectedSegment = segment;
 			}
 			break;
 		case MotionEvent.ACTION_UP:
