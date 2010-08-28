@@ -215,7 +215,7 @@ public final class CircleView extends View {
 		shade4.setColor(Color.argb(0xff, 0x78, 0x78, 0x78));
 		Paint shadowPaint = new Paint();
 		shadowPaint.setShader(new LinearGradient(0, -1, 0, 1, 
-				new int[] { 0x00ffffff, 0x88000000 }, null, TileMode.CLAMP));
+				new int[] { 0x00ffffff, 0x77000000 }, null, TileMode.CLAMP));
 		Paint gridPaint = new Paint();
 		gridPaint.setAntiAlias(true);
 		gridPaint.setStrokeWidth(0.016f);
