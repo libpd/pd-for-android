@@ -103,11 +103,11 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 
 	public void playChord(boolean major, int n) {
 		PdBase.sendList("playchord", option + (major ? 1 : 0), n);
-		resetOptions();
 	}
 	
 	public void endChord() {
 		PdBase.sendBang("endchord");
+		resetOptions();
 	}
 
 	public void setTop(int top) {

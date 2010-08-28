@@ -13,13 +13,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.graphics.BlurMaskFilter.Blur;
+import android.graphics.Path.FillType;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,25 +27,25 @@ import android.view.View;
 public final class CircleView extends View {
 
 	private static enum State { UP, MAJOR, MINOR, SHIFT };
-	private static final float RIDGE_WIDTH = 0.01f;
 	private static final String[] notesSharp = { "C", "C\u266f", "D", "D\u266f", "E", "F", "F\u266f", "G", "G\u266f", "A", "A\u266f", "B" };
 	private static final String[] notesFlat  = { "C", "D\u266d", "D", "E\u266d", "E", "F", "G\u266d", "G", "A\u266d", "A", "B\u266d", "B" };
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
 	private static final float R0 = 0.25f;
 	private static final float R2 = 0.95f;
 	private static final float R1 = (float) Math.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
+	
+	private CircleOfFifths owner;
 	private int top = 0;
 	private float xCenter, yCenter, xNorm, yNorm;
-	private int selectedSegment = -1;
+	private int selectedSegment;
 	private State currentState = State.UP;
-	private CircleOfFifths owner;
-
 	private Bitmap keySigs[];
 	private Bitmap wheel = null;
-	private Paint backgroundPaint;
-	private Paint ridgePaint;
-	private Paint labelPaint;
-	private Paint selectedPaint;
+	private final Path minorField = new Path();
+	private final Path majorField = new Path();
+	private final Path rimField = new Path();
+	private final Paint labelPaint = new Paint();
+	private final Paint selectedPaint = new Paint();
 
 	public CircleView(Context context) {
 		super(context);
@@ -71,33 +71,37 @@ public final class CircleView extends View {
 		invalidate();
 	}
 
-	private static Paint createDefaultPaint() {
-		Paint paint = new Paint();
-		paint.setAntiAlias(true);
-		paint.setFilterBitmap(true);
-		return paint;
-	}
-
 	private void init() {
-		backgroundPaint = createDefaultPaint();
-		backgroundPaint.setColor(Color.LTGRAY);
-		backgroundPaint.setStyle(Paint.Style.FILL);
-
-		ridgePaint = createDefaultPaint();
-		ridgePaint.setColor(Color.DKGRAY);
-		ridgePaint.setMaskFilter(new BlurMaskFilter(0.005f, Blur.NORMAL));
-		ridgePaint.setStyle(Paint.Style.STROKE);
-		ridgePaint.setStrokeWidth(RIDGE_WIDTH);
-
-		labelPaint = createDefaultPaint();
+		RectF r0 = new RectF(-R0, -R0, R0, R0);
+		RectF r1 = new RectF(-R1, -R1, R1, R1);
+		RectF r2 = new RectF(-R2, -R2, R2, R2);
+		RectF r = new RectF(-1, -1, 1, 1);
+		float phi = 255, dphi = 30;
+		
+		minorField.arcTo(r1, phi, dphi, true);
+		minorField.arcTo(r0, phi+dphi, -dphi, false);
+		minorField.close();
+		minorField.setFillType(FillType.WINDING);
+		
+		majorField.arcTo(r2, phi, dphi, true);
+		majorField.arcTo(r1, phi+dphi, -dphi, false);
+		majorField.close();
+		majorField.setFillType(FillType.WINDING);
+		
+		rimField.arcTo(r, phi, dphi, true);
+		rimField.arcTo(r2, phi+dphi, -dphi, false);
+		rimField.close();
+		rimField.setFillType(FillType.WINDING);
+		
+		selectedPaint.setAntiAlias(true);
+		selectedPaint.setColor(Color.RED);
+		selectedPaint.setStyle(Paint.Style.FILL);
+		
+		labelPaint.setAntiAlias(true);
 		labelPaint.setColor(Color.BLACK);
 		labelPaint.setTextAlign(Paint.Align.CENTER);
 		labelPaint.setTypeface(Typeface.MONOSPACE);
 		labelPaint.setTextSize(0.2f);
-
-		selectedPaint = new Paint(labelPaint);
-		selectedPaint.setColor(Color.RED);
-		selectedPaint.setTextSize(0.3f);
 
 		Resources res = getResources();
 		keySigs = new Bitmap[] {
@@ -138,27 +142,37 @@ public final class CircleView extends View {
 		canvas.drawBitmap(keySigs[c], null, new RectF(-dx, -dy, dx, dy), null);
 		int s0 = shifts[c];
 		for (int i = 0; i < 12; i++) {
+			if (i == selectedSegment) {
+				if (currentState == State.MAJOR) {
+					canvas.drawPath(majorField, selectedPaint);
+				}
+				else if (currentState == State.MINOR) {
+					canvas.drawPath(minorField, selectedPaint);
+				}
+				else if (currentState == State.SHIFT) {
+					canvas.drawPath(rimField, selectedPaint);
+				}
+			}
 			int s1 = s0 + i;
 			if (i > 6) s1 -= 12;
 			String label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			drawLabel(canvas, label, (R1 + R2) / 2, currentState == State.MAJOR && i == selectedSegment);
+			drawLabel(canvas, label, (R1 + R2) / 2);
 			c = (c + 9) % 12;
 			label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			drawLabel(canvas, label.toLowerCase(), (R0 + R1) / 2, currentState == State.MINOR && i == selectedSegment);
+			drawLabel(canvas, label.toLowerCase(), (R0 + R1) / 2);
 			c = (c + 10) % 12;
 			canvas.rotate(30);
 		}
 	}
 
-	private void drawLabel(Canvas canvas, String label, float r, boolean selected) {
-		Paint paint = selected ? selectedPaint : labelPaint;
-		float d = paint.getTextSize() / 3f - r;
+	private void drawLabel(Canvas canvas, String label, float r) {
+		float d = labelPaint.getTextSize() / 3f - r;
 		if (label.length() > 1) {
 			// ugly hack to work around unicode spacing problem
-			canvas.drawText(label.charAt(0) + " ", 0, d, paint);
-			canvas.drawText(" " + label.charAt(1), 0, d, paint);
+			canvas.drawText(label.charAt(0) + " ", 0, d, labelPaint);
+			canvas.drawText(" " + label.charAt(1), 0, d, labelPaint);
 		} else {
-			canvas.drawText(label, 0, d, paint);				
+			canvas.drawText(label, 0, d, labelPaint);				
 		}
 	}
 
@@ -180,13 +194,22 @@ public final class CircleView extends View {
 		canvas.setBitmap(wheel);
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter, yCenter);
-		canvas.drawCircle(0, 0, 1, backgroundPaint);
-		canvas.drawCircle(0, 0, R0, ridgePaint);
-		canvas.drawCircle(0, 0, R1, ridgePaint);
-		canvas.drawCircle(0, 0, R2 - RIDGE_WIDTH / 2, ridgePaint);
-		canvas.rotate(15);
+		Paint p1 = new Paint();
+		p1.setAntiAlias(true);
+		p1.setColor(Color.LTGRAY);
+		p1.setStyle(Paint.Style.FILL_AND_STROKE);
+		Paint p2 = new Paint(p1);
+		p2.setColor(Color.DKGRAY);
+		Paint p3 = new Paint(p1);
+		p3.setColor(Color.GRAY);
+		canvas.drawCircle(0, 0, R0, p3);
 		for (int i = 0; i < 12; i++) {
-			canvas.drawLine(0, R0, 0, 1, ridgePaint);
+			canvas.drawPath(minorField, p1);
+			canvas.drawPath(majorField, p2);
+			canvas.drawPath(rimField, p1);
+			Paint p = p1;
+			p1 = p2;
+			p2 = p;
 			canvas.rotate(30);
 		}
 	}
@@ -204,6 +227,7 @@ public final class CircleView extends View {
 				selectedSegment = segment;
 				if (radiusSquared >= R2 * R2) {
 					currentState = State.SHIFT;
+					owner.setTop(top);
 				} else {
 					int note = (top * 7 + segment * 7) % 12;
 					if (radiusSquared >= R1 * R1) {
