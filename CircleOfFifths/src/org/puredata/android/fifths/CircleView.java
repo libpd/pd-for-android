@@ -26,16 +26,18 @@ import android.view.View;
 
 public final class CircleView extends View {
 
+	private static enum State { UP, MAJOR, MINOR, SHIFT };
 	private static final float RIDGE_WIDTH = 0.01f;
 	private static final String[] notesSharp = { "C", "C\u266f", "D", "D\u266f", "E", "F", "F\u266f", "G", "G\u266f", "A", "A\u266f", "B" };
 	private static final String[] notesFlat  = { "C", "D\u266d", "D", "E\u266d", "E", "F", "G\u266d", "G", "A\u266d", "A", "B\u266d", "B" };
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
-	private static final float R0 = 0.28f;
-	private static final float R1 = (float) Math.sqrt((1 + R0 * R0) / 2);  // equal area for major and minor fields
+	private static final float R0 = 0.25f;
+	private static final float R2 = 0.95f;
+	private static final float R1 = (float) Math.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
 	private int top = 0;
 	private float xCenter, yCenter, xNorm, yNorm;
 	private int selectedSegment = -1;
-	private boolean selectedMajor;
+	private State currentState = State.UP;
 	private CircleOfFifths owner;
 
 	private Bitmap keySigs[];
@@ -59,11 +61,11 @@ public final class CircleView extends View {
 		super(context, attrs, defStyle);
 		init();
 	}
-	
+
 	public void setOwner(CircleOfFifths owner) {
 		this.owner = owner;
 	}
-	
+
 	public void setTop(int top) {
 		this.top = top;
 		invalidate();
@@ -96,7 +98,7 @@ public final class CircleView extends View {
 		selectedPaint = new Paint(labelPaint);
 		selectedPaint.setColor(Color.RED);
 		selectedPaint.setTextSize(0.3f);
-		
+
 		Resources res = getResources();
 		keySigs = new Bitmap[] {
 				BitmapFactory.decodeResource(res, R.drawable.ks00), BitmapFactory.decodeResource(res, R.drawable.ks01), 
@@ -139,10 +141,10 @@ public final class CircleView extends View {
 			int s1 = s0 + i;
 			if (i > 6) s1 -= 12;
 			String label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			drawLabel(canvas, label, (1 + R1) / 2, selectedMajor && i == selectedSegment);
+			drawLabel(canvas, label, (R1 + R2) / 2, currentState == State.MAJOR && i == selectedSegment);
 			c = (c + 9) % 12;
 			label = (s1 >= 0) ? notesSharp[c] : notesFlat[c];
-			drawLabel(canvas, label.toLowerCase(), (R1 + R0) / 2, !selectedMajor && i == selectedSegment);
+			drawLabel(canvas, label.toLowerCase(), (R0 + R1) / 2, currentState == State.MINOR && i == selectedSegment);
 			c = (c + 10) % 12;
 			canvas.rotate(30);
 		}
@@ -181,7 +183,7 @@ public final class CircleView extends View {
 		canvas.drawCircle(0, 0, 1, backgroundPaint);
 		canvas.drawCircle(0, 0, R0, ridgePaint);
 		canvas.drawCircle(0, 0, R1, ridgePaint);
-		canvas.drawCircle(0, 0, 1 - RIDGE_WIDTH / 2, ridgePaint);
+		canvas.drawCircle(0, 0, R2 - RIDGE_WIDTH / 2, ridgePaint);
 		canvas.rotate(15);
 		for (int i = 0; i < 12; i++) {
 			canvas.drawLine(0, R0, 0, 1, ridgePaint);
@@ -198,16 +200,26 @@ public final class CircleView extends View {
 		float radiusSquared = x * x + y * y;
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			if (radiusSquared > R0 * R0 && radiusSquared < 1) {
+			if (radiusSquared >= R0 * R0) {
 				selectedSegment = segment;
-				selectedMajor = radiusSquared > R1 * R1;
-				int note = (top * 7 + segment * 7 + (selectedMajor ? 0 : 9)) % 12;
-				owner.playChord(selectedMajor, note);
+				if (radiusSquared >= R2 * R2) {
+					currentState = State.SHIFT;
+				} else {
+					int note = (top * 7 + segment * 7) % 12;
+					if (radiusSquared >= R1 * R1) {
+						currentState = State.MAJOR;
+						owner.playChord(true, note);
+					} else {
+						currentState = State.MINOR;
+						note = (note + 9) % 12;
+						owner.playChord(false, note);
+					}
+				}
 				invalidate();
 			}
 			break;
 		case MotionEvent.ACTION_MOVE:
-			if (selectedSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
+			if (currentState == State.SHIFT && radiusSquared >= R0 * R0) {
 				int step = (selectedSegment - segment + 12) % 12;
 				if (step > 0) {
 					selectedSegment = segment;
@@ -219,10 +231,10 @@ public final class CircleView extends View {
 			break;
 		case MotionEvent.ACTION_UP:
 		default:
-			if (selectedSegment > -1 && radiusSquared > R0 * R0 && radiusSquared < 1) {
+			if (currentState == State.MAJOR || currentState == State.MINOR) {
 				owner.endChord();
 			}
-			selectedSegment = -1;
+			currentState = State.UP;
 			invalidate();
 			break;
 		}

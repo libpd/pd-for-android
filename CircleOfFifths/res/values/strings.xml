@@ -10,7 +10,7 @@
 	<string name="about_msg">Circle of Fifths\nCopyright 2010 Peter
 		Brinkmann\n(pbnewyork@gmail.com)\nhttp://gitorious.org/pdlib</string>
 	<string name="help_msg">Tap a field in order to play the corresponding
-		chord. Change the key signature by dragging the new tonic to the top
-		of the circle. The top line of a button describes the effect on major
+		chord. Change the key signature by dragging the rim of the circle. The
+		top line of a button describes the effect on major
 		chords; the bottom line describes the effect on minor chords.</string>
 </resources>
