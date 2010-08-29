@@ -262,7 +262,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private void initPd() {
 		try {
 			pdServiceProxy.addClient(statusWatcher);
-			pdServiceProxy.installExternals("content://org.puredata.android.scenes/res/raw/externals.zip");
+			pdServiceProxy.installExternals(IoUtils.hasArmeabiV7a() ? "content://org.puredata.android.scenes/res/raw/externals_v7a.zip" :
+																		"content://org.puredata.android.scenes/res/raw/externals.zip");
 			pdServiceProxy.addToSearchPath(libDir.getAbsolutePath());
 			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, overlayListener);
 			pdServiceProxy.subscribe(RJ_TEXT_ANDROID, overlayListener);
