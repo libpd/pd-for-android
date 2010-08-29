@@ -212,8 +212,10 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 
 	private void initPd() {
 		Resources res = getResources();
+		File dir = getFilesDir();
 		try {
-			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.extra_v7a : R.raw.extra), getFilesDir(), true);
+			IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, true);
+			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, true);
 		} catch (IOException e) {
 			Log.e(PD_INSTALL, "unable to unpack abstractions/extras: " + e.toString());
 		}
