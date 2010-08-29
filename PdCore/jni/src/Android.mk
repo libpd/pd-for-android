@@ -16,7 +16,6 @@ LOCAL_SRC_FILES := \
 	s_main.c s_midi.c s_midi_dummy.c s_path.c s_print.c s_utf8.c x_acoustics.c \
 	x_arithmetic.c x_connective.c x_gui.c x_interface.c x_libpdreceive.c \
 	x_list.c x_midi.c x_misc.c x_net.c x_qlist.c x_time.c z_jni.c z_libpd.c
-
 LOCAL_LDLIBS := -ldl
 include $(BUILD_SHARED_LIBRARY)
 

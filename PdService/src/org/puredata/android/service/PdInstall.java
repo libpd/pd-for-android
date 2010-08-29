@@ -28,6 +28,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -212,7 +213,7 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 	private void initPd() {
 		Resources res = getResources();
 		try {
-			IoUtils.extractZipResource(res.openRawResource(R.raw.extra), getFilesDir());
+			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.extra_v7a : R.raw.extra), getFilesDir(), true);
 		} catch (IOException e) {
 			Log.e(PD_INSTALL, "unable to unpack abstractions/extras: " + e.toString());
 		}

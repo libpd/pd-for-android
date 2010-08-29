@@ -12,8 +12,20 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import android.os.Build;
+
 public class IoUtils {
 
+	private static final boolean v7aFlag = "armeabi-v7a".equals(Build.CPU_ABI);
+	
+	/**
+	 * hackish check for armeabi-v7a
+	 * @return true iff armeabi-v7a is available
+	 */
+	public static boolean hasArmeabiV7a() {
+		return v7aFlag;
+	}
+	
 	/**
 	 * extracts a resource into a real file
 	 * 
