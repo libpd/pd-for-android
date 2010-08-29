@@ -23,7 +23,7 @@ import android.view.MotionEvent;
 public final class VersionedTouch {
 
 	private static final String TOUCH_SYMBOL = "#touch", DOWN = "down", UP = "up", XY = "xy";
-	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
+	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= 5;
 	private static final float XS = 319.0f, YS = 319.0f;
 
 	private VersionedTouch() {
