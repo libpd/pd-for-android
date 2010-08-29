@@ -16,7 +16,14 @@ import android.os.Build;
 
 public class IoUtils {
 
-	private static final boolean v7aFlag = "armeabi-v7a".equals(Build.CPU_ABI);
+	private static final boolean v7aFlag = Integer.parseInt(Build.VERSION.SDK) >= 4 && VersionedAbiCheck.hasV7a();
+	
+	// use lazy class loading to hide Build.CPU_ABI from Cupcake
+	private static class VersionedAbiCheck {
+		private static boolean hasV7a() {
+			return "armeabi-v7a".equals(Build.CPU_ABI);
+		}
+	}
 	
 	/**
 	 * hackish check for armeabi-v7a

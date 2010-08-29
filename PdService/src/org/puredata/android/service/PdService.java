@@ -44,7 +44,7 @@ import android.util.Log;
 
 public class PdService extends Service {
 
-	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
+	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= 5;
 	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 	private final RemoteCallbackList<IPdClient> clients = new RemoteCallbackList<IPdClient>();
 	private static final String PD_SERVICE = "Pd Service";

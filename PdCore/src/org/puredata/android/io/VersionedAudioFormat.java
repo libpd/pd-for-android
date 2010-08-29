@@ -17,7 +17,7 @@ import android.util.Log;
 // from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 public final class VersionedAudioFormat {
 
-	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.ECLAIR;
+	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= 5;
 	
 	private VersionedAudioFormat() {
 		// do nothing
