@@ -13,7 +13,7 @@ all:
 	mv libs/armeabi-v7a/libexpr.so res/raw/expr.pd_linux
 	cp res/raw/expr.pd_linux res/raw/expr~.pd_linux
 	cp res/raw/expr.pd_linux res/raw/fexpr~.pd_linux
-	cd res/raw && zip extra_v7a.zip *.pd_linux && rm *.pd_linux
+	cd res/raw && zip extra_ext_v7a.zip *.pd_linux && rm *.pd_linux
 	mv libs/armeabi/libchoice.so res/raw/choice.pd_linux
 	mv libs/armeabi/libbonk~.so res/raw/bonk~.pd_linux
 	mv libs/armeabi/liblrshift~.so res/raw/lrshift~.pd_linux
@@ -24,5 +24,5 @@ all:
 	mv libs/armeabi/libexpr.so res/raw/expr.pd_linux
 	cp res/raw/expr.pd_linux res/raw/expr~.pd_linux
 	cp res/raw/expr.pd_linux res/raw/fexpr~.pd_linux
-	cd res/raw && zip extra.zip *.pd_linux && rm *.pd_linux
+	cd res/raw && zip extra_ext.zip *.pd_linux && rm *.pd_linux
 

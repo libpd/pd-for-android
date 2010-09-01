@@ -90,6 +90,15 @@ public final class PdBase {
 	 * @return error code, 0 on success
 	 */
 	public synchronized native static int openAudio(int inputChannels, int outputChannels, int sampleRate, int ticksPerBuffer);
+
+	/**
+	 * raw process callback, processes one pd tick, writes raw data to buffers without interlacing
+	 * 
+	 * @param inBuffer  must be an array of the right size, never null; use inBuffer = new short[0] if no input is desired
+	 * @param outBuffer must be an array of size outBufferSize from openAudio call
+	 * @return error code, 0 on success
+	 */
+	public synchronized native static int processRaw(float[] inBuffer, float[] outBuffer);
 	
 	/**
 	 * main process callback, reads samples from inBuffer and writes samples to outBuffer, using arrays of type short

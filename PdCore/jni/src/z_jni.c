@@ -161,6 +161,20 @@ jint srate, jint ticksPerBuffer) {
                (int) srate, (int) ticksPerBuffer);
 }
 
+JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_processRaw
+(JNIEnv *env, jclass cls, jfloatArray inBuffer, jfloatArray outBuffer) {
+  if (inBuffer == NULL || outBuffer == NULL) {
+    return -10;
+  }
+  CACHE_ENV
+  float *pIn = (*env)->GetFloatArrayElements(env, inBuffer, NULL);
+  float *pOut = (*env)->GetFloatArrayElements(env, outBuffer, NULL);
+  jint err = libpd_process_raw(pIn, pOut);
+  (*env)->ReleaseFloatArrayElements(env, inBuffer, pIn, 0);
+  (*env)->ReleaseFloatArrayElements(env, outBuffer, pOut, 0);
+  return err;
+}
+
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_process___3S_3S
 (JNIEnv *env, jclass cls, jshortArray inBuffer, jshortArray outBuffer) {
   if (inBuffer == NULL || outBuffer == NULL) {

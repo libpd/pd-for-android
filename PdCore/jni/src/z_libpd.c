@@ -78,6 +78,16 @@ int libpd_init_audio(int inChans, int outChans, int sampleRate, int tpb) {
   return 0;
 }
 
+int libpd_process_raw(float *inBuffer, float *outBuffer) {
+  size_t n_in = sys_inchannels*DEFDACBLKSIZE*sizeof(t_float);
+  size_t n_out = sys_outchannels*DEFDACBLKSIZE*sizeof(t_float);
+  memcpy(sys_soundin, inBuffer, n_in);
+  memset(sys_soundout, 0, n_out);
+  sched_tick(sys_time + sys_time_per_dsp_tick);
+  memcpy(outBuffer, sys_soundout, n_out);
+  return 0;
+}
+
 static const t_float float_to_short = SHRT_MAX,
                    short_to_float = 1.0 / (t_float) SHRT_MAX;
 

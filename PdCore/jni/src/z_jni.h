@@ -41,6 +41,14 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_openAudio
 
 /*
  * Class:     org_puredata_core_PdBase
+ * Method:    processRaw
+ * Signature: ([F[F)I
+ */
+JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_processRaw
+  (JNIEnv *, jclass, jfloatArray, jfloatArray);
+
+/*
+ * Class:     org_puredata_core_PdBase
  * Method:    process
  * Signature: ([S[S)I
  */
