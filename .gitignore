@@ -4,6 +4,7 @@ PdCore/bin/
 PdCore/gen/
 PdCore/obj/
 PdCore/jni/src/libpdnative.so
+PdCore/jni/src/libpd.so
 PdService/bin/
 PdService/gen/
 local.properties
