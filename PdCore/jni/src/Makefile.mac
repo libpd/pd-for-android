@@ -23,11 +23,11 @@ CFLAGS = -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY \
 all: $(LIBPD) $(PDJAVA)
 
 $(LIBPD): ${PD_FILES:.c=.o}
-	gcc -g -arch x86_64 -arch i386 -dynamiclib -ldl -lm -o $(LIBPD) $^
+	gcc -g -arch x86_64 -arch i386 -dynamiclib -ldl -lm -lpthread -o $(LIBPD) $^
 
 $(PDJAVA): ${PD_FILES:.c=.o} ${JNI_FILES:.c=.o}
-	gcc -g -arch x86_64 -arch i386 -dynamiclib -ldl -lm -o $(PDJAVA) $^ \
-  -framework JavaVM
+	gcc -g -arch x86_64 -arch i386 -dynamiclib -ldl -lm -lpthread \
+        -o $(PDJAVA) $^ -framework JavaVM
 
 clean:
 	-rm *.o
