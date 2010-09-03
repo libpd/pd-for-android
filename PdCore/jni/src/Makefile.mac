@@ -15,7 +15,7 @@ LIBPD = libpd.dylib
 PDJAVA = libpdnative.dylib
 
 CFLAGS = -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY \
-      -I/System/Library/Frameworks/JavaVM.framework/Versions/1.6/Headers \
+      -I/System/Library/Frameworks/JavaVM.framework/Headers \
       -arch x86_64 -arch i386 -g
 
 .PHONY: all clean clobber
