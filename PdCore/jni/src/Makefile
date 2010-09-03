@@ -23,10 +23,10 @@ CFLAGS = -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY \
 all: $(LIBPD) $(PDJAVA)
 
 $(LIBPD): ${PD_FILES:.c=.o}
-	gcc -shared -ldl -lm -o $(LIBPD) $^
+	gcc -shared -ldl -lm -lpthread -o $(LIBPD) $^
 
 $(PDJAVA): ${PD_FILES:.c=.o} ${JNI_FILES:.c=.o}
-	gcc -shared -ldl -lm -o $(PDJAVA) $^
+	gcc -shared -ldl -lm -lpthread -o $(PDJAVA) $^
 
 clean:
 	-rm *.o
