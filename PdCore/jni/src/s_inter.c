@@ -884,6 +884,7 @@ int sys_startgui(const char *libdir)
     inbinbuf = binbuf_new();
 
 #if !defined(_WIN32) && !defined(__CYGWIN__)
+#ifndef USEAPI_DUMMY
     signal(SIGHUP, sys_huphandler);
     signal(SIGINT, sys_exithandler);
     signal(SIGQUIT, sys_exithandler);
@@ -900,6 +901,7 @@ int sys_startgui(const char *libdir)
 #if 0  /* GG says: don't use that */
     signal(SIGSTKFLT, sys_exithandler);
 #endif
+#endif /* NOT USEAPI_DUMMY */
 #endif /* NOT _WIN32 && NOT __CYGWIN__ */
 
 #ifdef _WIN32
