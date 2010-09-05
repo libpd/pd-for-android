@@ -66,7 +66,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private Button info;
 	private File sceneFolder;
 	private PdService pdService = null;
-	private String patch;
+	private String patch = null;
 	private final File recDir = new File("/sdcard/pd");
 	private final Map<String, String> infoEntries = new HashMap<String, String>();
 
@@ -213,7 +213,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			PdBase.setReceiver(dispatcher);
 			dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
 			dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
-			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
 			startAudio();
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
@@ -231,7 +230,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		// make sure to release all resources
 		stopRecording();
 		stopAudio();
-		PdUtils.closePatch(patch);
+		if (patch != null) PdUtils.closePatch(patch);
 		PdBase.release();
 		try {
 			unbindService(serviceConnection);
@@ -279,8 +278,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void startAudio() throws IOException {
-		PdBase.sendMessage(TRANSPORT, "play", 1);
 		pdService.startAudio(22050, 1, 2, -1); // negative values default to PdService preferences
+		if (patch == null) patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
+		PdBase.sendMessage(TRANSPORT, "play", 1);
 	}
 
 	private void stopAudio() {
