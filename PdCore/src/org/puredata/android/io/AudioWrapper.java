@@ -11,7 +11,7 @@
 
 package org.puredata.android.io;
 
-import org.puredata.android.R;
+import org.puredata.android.service.R;
 
 import android.content.Context;
 import android.media.AudioFormat;

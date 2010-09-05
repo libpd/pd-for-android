@@ -9,16 +9,22 @@
  * 
  */
 
-package org.puredata.android.service;
+package org.puredata.android.test;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import org.puredata.android.service.PdPreferences;
+import org.puredata.android.service.PdService;
+import org.puredata.core.PdBase;
+import org.puredata.core.PdReceiver;
 import org.puredata.core.utils.IoUtils;
+import org.puredata.core.utils.PdUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -30,7 +36,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -47,7 +52,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
-public class PdInstall extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class PdTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String PD_INSTALL = "Pd Install";
 	private static final int PREFS_ACTIVITY_ID = 1;
@@ -58,9 +63,8 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 	private Button prefs;
 	private TextView logs;
 
-	private IPdService proxy = null;
+	private PdService proxy = null;
 	private String patch = null;
-	private boolean hasAudio = false;
 
 	private void toast(final String msg) {
 		handler.post(new Runnable() {
@@ -80,62 +84,40 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 		});
 	}
 
-	private final IPdClient.Stub client = new IPdClient.Stub() {
-
-		@Override
-		public void requestUnbind() throws RemoteException {
-			toast("Pure Data was stopped externally; finishing now");
-			finish();			
-		};
-
-		@Override
-		public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
-			if (sampleRate > 0) {
-				post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
-						", buffer size: " + bufferSizeMillis + "ms");
-			} else {
-				post("Audio stopped");
-			}
-		}
-
-		@Override
-		public void print(final String s) throws RemoteException {
-			post(s);
-		}
-	};
-
-	private IPdListener.Stub receiver = new IPdListener.Stub() {
+	private PdReceiver receiver = new PdReceiver() {
 
 		private void pdPost(String msg) {
 			toast("Pure Data says, \"" + msg + "\"");
 		}
 
 		@Override
-		public void receiveBang() throws RemoteException {
-			pdPost("bang!");
+		public void print(String s) {
+			post(s);
 		}
 
 		@Override
-		public void receiveFloat(float x) throws RemoteException {
+		public void receiveBang(String source) {
+			pdPost("bang");
+		}
+
+		@Override
+		public void receiveFloat(String source, float x) {
 			pdPost("float: " + x);
 		}
 
 		@Override
-		public void receiveSymbol(String symbol) throws RemoteException {
+		public void receiveList(String source, Object... args) {
+			pdPost("list: " + Arrays.toString(args));
+		}
+
+		@Override
+		public void receiveMessage(String source, String symbol, Object... args) {
+			pdPost("message: " + Arrays.toString(args));
+		}
+
+		@Override
+		public void receiveSymbol(String source, String symbol) {
 			pdPost("symbol: " + symbol);
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void receiveList(List args) throws RemoteException {
-			pdPost("list: " + args.toString());
-		}
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void receiveMessage(String symbol, List args)
-		throws RemoteException {
-			pdPost("symbol: " + symbol + ", args: " + args.toString());
 		}
 	};
 
@@ -148,7 +130,7 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 
 		@Override
 		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
-			proxy = IPdService.Stub.asInterface(service);
+			proxy = ((PdService.PdBinder)service).getService();
 			initPd();
 		}
 	};
@@ -159,7 +141,7 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 		PdPreferences.initPreferences(getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		initGui();
-		bindService(new Intent(PdUtils.LAUNCH_ACTION), connection, BIND_AUTO_CREATE);		
+		bindService(new Intent(this, PdService.class), connection, BIND_AUTO_CREATE);		
 	};
 
 	@Override
@@ -170,11 +152,7 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		try {
-			restartAudio();
-		} catch (RemoteException e) {
-			Log.e(PD_INSTALL, e.toString());
-		}
+		startAudio();
 	}
 
 	@Override
@@ -211,24 +189,14 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 
 	private void initPd() {
 		Resources res = getResources();
-		File dir = getFilesDir();
-		try {
-			IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, true);
-			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, true);
-		} catch (IOException e) {
-			Log.e(PD_INSTALL, "unable to unpack abstractions/extras: " + e.toString());
-		}
 		File patchFile = null;
 		try {
-			proxy.addClient(client);
-			proxy.subscribe("android", receiver);
+			PdBase.setReceiver(receiver);
+			PdBase.subscribe("android");
 			InputStream in = res.openRawResource(R.raw.test);
 			patchFile = IoUtils.extractResource(in, "test.pd", getCacheDir());
-			patch = PdUtils.openPatch(proxy, patchFile);
-			restartAudio();
-		} catch (RemoteException e) {
-			Log.e(PD_INSTALL, e.toString());
-			disconnected();
+			patch = PdUtils.openPatch(patchFile);
+			startAudio();
 		} catch (IOException e) {
 			Log.e(PD_INSTALL, e.toString());
 			finish();
@@ -237,40 +205,19 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 		}
 	}
 
-	private void restartAudio() throws RemoteException {
+	private void startAudio() {
 		synchronized (connection) {
-			if (proxy == null) return;
-			if (hasAudio) {
-				hasAudio = false;
-				proxy.releaseAudio();
-			}
-			if (proxy.isRunning()) {
-				toast("Warning: audio is already running; cannot change parameters");
-			}
-			int err = proxy.requestAudio(-1, -1, -1, -1);  // negative values stand for defaults/preferences
-			hasAudio = err == 0;
-			if (!hasAudio) {
-				toast("didn't get audio; check preferences");
+			try {
+				proxy.startAudio(-1, -1, -1, -1); // negative values stand for defaults/preferences
+			} catch (IOException e) {
+				toast(e.toString());
 			}
 		}
 	}
 
 	private void cleanup() {
-		synchronized (connection) {	
-			if (proxy == null) return;
-			try {
-				proxy.removeClient(client);
-				if (patch != null) PdUtils.closePatch(proxy, patch);
-				proxy.unsubscribe("android", receiver);
-				if (hasAudio) {
-					hasAudio = false;
-					proxy.releaseAudio();
-				}
-			} catch (RemoteException e) {
-				Log.e(PD_INSTALL, e.toString());
-				disconnected();
-			}
-		}
+		if (patch != null) PdUtils.closePatch(patch);
+		PdBase.release();
 		try {
 			unbindService(connection);
 		} catch (IllegalArgumentException e) {
@@ -319,43 +266,33 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 	public void onClick(View v) {
 		synchronized (connection) {
 			if (proxy == null) return;
-			try {
-				switch (v.getId()) {
-				case R.id.left_box:
-					proxy.sendFloat("left", left.isChecked() ? 1 : 0);
-					break;
-				case R.id.right_box:
-					proxy.sendFloat("right", right.isChecked() ? 1 : 0);
-					break;
-				case R.id.mic_box:
-					proxy.sendFloat("mic", mic.isChecked() ? 1 : 0);
-					break;
-				case R.id.pref_button:
-					startActivityForResult(new Intent(this, PdPreferences.class), PREFS_ACTIVITY_ID);
-					// we don't really want a result from PdPreferences, but we do want to be able to finish it with finishActivity(PREFS_ACTIVITY_ID)
-					break;
-				default:
-					break;
-				}
-			} catch (RemoteException e) {
-				disconnected();
+			switch (v.getId()) {
+			case R.id.left_box:
+				PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
+				break;
+			case R.id.right_box:
+				PdBase.sendFloat("right", right.isChecked() ? 1 : 0);
+				break;
+			case R.id.mic_box:
+				PdBase.sendFloat("mic", mic.isChecked() ? 1 : 0);
+				break;
+			case R.id.pref_button:
+				startActivityForResult(new Intent(this, PdPreferences.class), PREFS_ACTIVITY_ID);
+				// we don't really want a result from PdPreferences, but we do want to be able to finish it with finishActivity(PREFS_ACTIVITY_ID)
+				break;
+			default:
+				break;
 			}
 		}
 	}
 
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		synchronized (connection) {	
-			try {
-				if (proxy != null) evaluateMessage(msg.getText().toString());
-			} catch (RemoteException e) {
-				disconnected();
-			}
-		}
+		evaluateMessage(msg.getText().toString());
 		return true;
 	}
 
-	private void evaluateMessage(String s) throws RemoteException {
+	private void evaluateMessage(String s) {
 		String dest = "test", symbol = null;
 		boolean isAny = s.length() > 0 && s.charAt(0) == ';';
 		Scanner sc = new Scanner(isAny ? s.substring(1) : s);
@@ -381,22 +318,22 @@ public class PdInstall extends Activity implements OnClickListener, OnEditorActi
 			}
 		}
 		if (isAny) {
-			proxy.sendMessage(dest, symbol, list);
+			PdBase.sendMessage(dest, symbol, list.toArray());
 		} else {
 			switch (list.size()) {
 			case 0:
-				proxy.sendBang(dest);
+				PdBase.sendBang(dest);
 				break;
 			case 1:
 				Object x = list.get(0);
 				if (x instanceof String) {
-					proxy.sendSymbol(dest, (String) x);
+					PdBase.sendSymbol(dest, (String) x);
 				} else {
-					proxy.sendFloat(dest, (Float) x);
+					PdBase.sendFloat(dest, (Float) x);
 				}
 				break;
 			default:
-				proxy.sendList(dest, list);
+				PdBase.sendList(dest, list.toArray());
 				break;
 			}
 		}

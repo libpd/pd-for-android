@@ -9,6 +9,7 @@
 
 package org.puredata.android.io;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.puredata.core.PdBase;
@@ -22,10 +23,10 @@ public class PdAudio {
 	private static AudioWrapper audioWrapper = null;
 	
 	public synchronized static void startAudio(Context context, int sampleRate, int inChannels, int outChannels,
-			int ticksPerBuffer, boolean restart) {
+			int ticksPerBuffer, boolean restart) throws IOException {
 		if (isRunning() && !restart) return;
 		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
-			throw new IllegalArgumentException("bad audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
+			throw new IOException("bad audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
 		}
 		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate, ticksPerBuffer);

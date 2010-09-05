@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>PdService</name>
+	<name>PdTest</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -31,11 +31,6 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
 	<linkedResources>
-		<link>
-			<name>PdCommon</name>
-			<type>2</type>
-			<locationURI>_android_PdCommon/src</locationURI>
-		</link>
 		<link>
 			<name>PdCore</name>
 			<type>2</type>
