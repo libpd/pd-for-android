@@ -1,4 +1,4 @@
-package org.puredata.android.ioutils;
+package org.puredata.core.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
