@@ -9,12 +9,10 @@
 
 package org.puredata.android.scenes;
 
-import org.puredata.android.service.IPdService;
-import org.puredata.android.service.PdUtils;
+import org.puredata.core.PdBase;
 
 import android.os.Build;
 import android.os.RemoteException;
-import android.util.Log;
 import android.view.MotionEvent;
 
 
@@ -30,17 +28,13 @@ public final class VersionedTouch {
 		// do nothing
 	}
 	
-	public static boolean evaluateTouch(IPdService service, MotionEvent event, int xImg, int yImg) throws RemoteException {
-		return (hasEclair) ? TouchEclair.evaluateTouch(service, event, xImg, yImg) : TouchCupcake.evaluateTouch(service, event, xImg, yImg);
+	public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) throws RemoteException {
+		return (hasEclair) ? TouchEclair.evaluateTouch(event, xImg, yImg) : TouchCupcake.evaluateTouch(event, xImg, yImg);
 	}
 
 	private static class TouchEclair {
 
-		static {
-			Log.i("Pd Version", "loading touch support for Eclair");
-		}
-
-		public static boolean evaluateTouch(IPdService service, MotionEvent event, int xImg, int yImg) throws RemoteException {
+		public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) throws RemoteException {
 			int action = event.getAction();
 			String actionTag = null;
 			switch (action & MotionEvent.ACTION_MASK) {
@@ -52,7 +46,7 @@ public final class VersionedTouch {
 				int pointerId = event.getPointerId(pointerIndex);
 				float x = normalize(event.getX(pointerIndex), XS, xImg);
 				float y = normalize(event.getY(pointerIndex), YS, yImg);
-				sendMessage(service, actionTag, pointerId, x, y);
+				sendMessage(actionTag, pointerId, x, y);
 				break;
 			case MotionEvent.ACTION_DOWN:
 				actionTag = DOWN;
@@ -63,7 +57,7 @@ public final class VersionedTouch {
 				for (int i = 0; i < event.getPointerCount(); i++) {
 					x = normalize(event.getX(i), XS, xImg);
 					y = normalize(event.getY(i), YS, yImg);
-					sendMessage(service, actionTag, event.getPointerId(i), x, y);
+					sendMessage(actionTag, event.getPointerId(i), x, y);
 				}
 				break;
 			}
@@ -73,11 +67,7 @@ public final class VersionedTouch {
 
 	private static class TouchCupcake {
 
-		static {
-			Log.i("Pd Version", "loading touch support for Cupcake");
-		}
-
-		public static boolean evaluateTouch(IPdService service, MotionEvent event, int xImg, int yImg) throws RemoteException {
+		public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) throws RemoteException {
 			String actionTag;
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
@@ -92,7 +82,7 @@ public final class VersionedTouch {
 			}
 			float x = normalize(event.getX(), XS, xImg);
 			float y = normalize(event.getY(), YS, yImg);
-			sendMessage(service, actionTag, 0, x, y);
+			sendMessage(actionTag, 0, x, y);
 			return true;
 		}
 	}
@@ -104,8 +94,7 @@ public final class VersionedTouch {
 		return t;
 	}
 	
-	private static void sendMessage(IPdService service, String actionTag,
-			int pointerId, float x, float y) throws RemoteException {
-		PdUtils.sendMessage(service, TOUCH_SYMBOL, actionTag, pointerId + 1, x, y);
+	private static void sendMessage(String actionTag, int pointerId, float x, float y) {
+		PdBase.sendMessage(TOUCH_SYMBOL, actionTag, pointerId + 1, x, y);
 	}
 }

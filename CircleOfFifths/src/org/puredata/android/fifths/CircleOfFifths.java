@@ -48,7 +48,11 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		PdAudio.startAudio(this, 44100, 0, 2, 1, true);
+		try {
+			PdAudio.startAudio(this, 44100, 0, 2, 1, true);
+		} catch (IOException e) {
+			Log.e(PD_CIRCLE, e.toString());
+		}
 	}
 	
 	@Override

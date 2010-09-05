@@ -2,9 +2,10 @@ package foo.bar;
 
 import java.io.IOException;
 
-import org.puredata.android.service.IPdClient;
-import org.puredata.android.service.IPdService;
-import org.puredata.android.service.PdUtils;
+import org.puredata.android.service.PdService;
+import org.puredata.core.PdBase;
+import org.puredata.core.PdReceiver;
+import org.puredata.core.utils.PdUtils;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -15,8 +16,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
-import android.util.Log;
 import android.widget.Toast;
 
 
@@ -24,9 +23,20 @@ public class PdClient extends Activity {
 
 	private static final String PD_CLIENT = "Pd Client";
 	private final Handler handler = new Handler();
-	private IPdService pdServiceProxy = null;
-	private boolean hasAudio = false;
+	private PdService pdServiceProxy = null;
 	private String patch;  // the path to the patch is defined in res/values/strings.xml
+
+	private final PdReceiver rec = new PdReceiver() {
+		@Override public void receiveSymbol(String source, String symbol) {}
+		@Override public void receiveMessage(String source, String symbol, Object... args) {}
+		@Override public void receiveList(String source, Object... args) {}
+		@Override public void receiveFloat(String source, float x) {}
+		@Override public void receiveBang(String source) {}
+		
+		@Override public void print(String s) {
+			post(s);
+		}
+	};
 
 	private void post(final String msg) {
 		handler.post(new Runnable() {
@@ -37,29 +47,6 @@ public class PdClient extends Activity {
 		});
 	}
 
-	private final IPdClient.Stub statusWatcher = new IPdClient.Stub() {
-		@Override
-		public void requestUnbind() throws RemoteException {
-			post("Pure Data was stopped externally; exiting now");
-			finish();
-		}
-
-		@Override
-		public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
-			if (sampleRate > 0) {
-				post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
-						", buffer size: " + bufferSizeMillis + "ms");
-			} else {
-				post("Audio stopped");
-			}
-		}
-
-		@Override
-		public void print(String s) throws RemoteException {
-			Log.i(PD_CLIENT, s);
-		}
-	};
-
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
 		@Override
 		public synchronized void onServiceDisconnected(ComponentName name) {
@@ -69,7 +56,7 @@ public class PdClient extends Activity {
 
 		@Override
 		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
-			pdServiceProxy = IPdService.Stub.asInterface(service);
+			pdServiceProxy = ((PdService.PdBinder) service).getService();
 			initPd();
 		}
 	};
@@ -78,7 +65,7 @@ public class PdClient extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initGui();
-		bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
+		bindService(new Intent(this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
 	}
 
 	// this callback makes sure that we handle orientation changes without audio glitches
@@ -102,17 +89,9 @@ public class PdClient extends Activity {
 		Resources res = getResources();
 		String path = res.getString(R.string.path_to_patch);
 		try {
-			pdServiceProxy.addClient(statusWatcher);
-			patch = PdUtils.openPatch(pdServiceProxy, path);
-			int err = pdServiceProxy.requestAudio(-1, 1, 2, -1); // negative values default to PdService preferences
-			hasAudio = (err == 0);
-			if (!hasAudio) {
-				post("unable to start audio; exiting now");
-				finish();
-			}
-		} catch (RemoteException e) {
-			Log.e(PD_CLIENT, e.toString());
-			disconnected();
+			PdBase.setReceiver(rec);
+			patch = PdUtils.openPatch(path);
+			pdServiceProxy.startAudio(-1, 1, 2, -1); // negative values default to PdService preferences
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
 			finish();
@@ -133,14 +112,9 @@ public class PdClient extends Activity {
 	private void cleanup() {
 		synchronized (serviceConnection) {  // on the remote chance that service gets disconnected while we're here
 			if (pdServiceProxy == null) return;
-			try {
-				// make sure to release all resources
-				pdServiceProxy.removeClient(statusWatcher);
-				PdUtils.closePatch(pdServiceProxy, patch);
-				if (hasAudio) pdServiceProxy.releaseAudio();  // only release audio if you actually have it...
-			} catch (RemoteException e) {
-				Log.e(PD_CLIENT, e.toString());
-			}
+			// make sure to release all resources
+			PdBase.release();
+			PdUtils.closePatch(patch);
 		}
 		try {
 			unbindService(serviceConnection);

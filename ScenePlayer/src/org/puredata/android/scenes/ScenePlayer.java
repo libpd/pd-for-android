@@ -12,17 +12,18 @@ package org.puredata.android.scenes;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.puredata.android.service.IPdClient;
-import org.puredata.android.service.IPdListener;
-import org.puredata.android.service.IPdService;
-import org.puredata.android.service.PdUtils;
+import org.puredata.android.service.PdService;
+import org.puredata.android.service.R;
+import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
+import org.puredata.core.utils.PdDispatcher;
+import org.puredata.core.utils.PdListener;
+import org.puredata.core.utils.PdUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -61,15 +62,14 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
-	private final Handler handler = new Handler();
+	private Handler handler;
 	private SceneView sceneView;
 	private TextView logs;
 	private ToggleButton play;
 	private ToggleButton record;
 	private Button info;
 	private File sceneFolder;
-	private IPdService pdServiceProxy = null;
-	private boolean hasAudio = false;
+	private PdService pdServiceProxy = null;
 	private String patch;
 	private final File libDir = new File("/sdcard/pd/.scenes");
 	private final File recDir = new File("/sdcard/pd");
@@ -84,58 +84,34 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		});
 	}
 
-	private final IPdClient.Stub statusWatcher = new IPdClient.Stub() {
-		@Override
-		public void requestUnbind() throws RemoteException {
-			post("Pure Data was stopped externally; exiting now");
-			finish();
-		}
-
-		@Override
-		public void audioChanged(int sampleRate, int nIn, int nOut, float bufferSizeMillis) throws RemoteException {
-			if (sampleRate > 0) {
-				post("Audio parameters: sample rate: " + sampleRate + ", input channels: " + nIn + ", output channels: " + nOut + 
-						", buffer size: " + bufferSizeMillis + "ms");
-			} else {
-				post("Audio stopped");
-			}
-		}
-
-		@Override
-		public void print(String s) throws RemoteException {
-			post(s);
-		}
-	};
-
-	private final IPdListener.Stub overlayListener = new IPdListener.Stub() {
+	private final PdListener overlayListener = new PdListener() {
 
 		private final Map<String, Overlay> overlays = new HashMap<String, Overlay>();
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public synchronized void receiveList(List args) throws RemoteException {
-			String key = (String) args.get(0);
-			String cmd = (String) args.get(1);
+		public synchronized void receiveList(Object... args) {
+			String key = (String) args[0];
+			String cmd = (String) args[1];
 			if (overlays.containsKey(key)) {
 				Overlay overlay = overlays.get(key);
 				if (cmd.equals("visible")) {
-					boolean flag = ((Float) args.get(2)).floatValue() > 0.5f;
+					boolean flag = ((Float) args[2]).floatValue() > 0.5f;
 					overlay.setVisible(flag);
 				} else if (cmd.equals("move")) {
-					float x = ((Float) args.get(2)).floatValue();
-					float y = ((Float) args.get(3)).floatValue();
+					float x = ((Float) args[2]).floatValue();
+					float y = ((Float) args[3]).floatValue();
 					overlay.setPosition(x, y);
 				} else {
 					if (!(overlay instanceof TextOverlay)) return;
 					TextOverlay textOverlay = (TextOverlay) overlay;
 					if (cmd.equals("text")) {
-						textOverlay.setText((String) args.get(2));
+						textOverlay.setText((String) args[2]);
 					} else if (cmd.equals("size")) {
-						textOverlay.setSize(((Float) args.get(2)).floatValue());
+						textOverlay.setSize(((Float) args[2]).floatValue());
 					}
 				}
 			} else {
-				String arg = (String) args.get(2);
+				String arg = (String) args[2];
 				Overlay overlay;
 				if (cmd.equals("load")) {
 					overlay = new ImageOverlay(new File(sceneFolder, arg).getAbsolutePath());
@@ -148,11 +124,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		}
 
 		// the remaining methods will never be called
-		@SuppressWarnings("unchecked")
-		@Override public void receiveMessage(String symbol, List args) throws RemoteException {}
-		@Override public void receiveSymbol(String symbol) throws RemoteException {}
-		@Override public void receiveFloat(float x) throws RemoteException {}
-		@Override public void receiveBang() throws RemoteException {}
+		@Override public void receiveMessage(String symbol, Object... args) {}
+		@Override public void receiveSymbol(String symbol)  {}
+		@Override public void receiveFloat(float x) {}
+		@Override public void receiveBang() {}
 	};
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -164,7 +139,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 		@Override
 		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
-			pdServiceProxy = IPdService.Stub.asInterface(service);
+			pdServiceProxy = ((PdService.PdBinder)service).getService();
 			initPd();
 		}
 	};
@@ -172,6 +147,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		handler = new Handler();
 		Intent intent = getIntent();
 		String path = intent.getStringExtra(SCENE);
 		if (path != null) {
@@ -184,7 +160,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			} catch (IOException e) {
 				Log.e(TAG, e.toString());
 			}
-			bindService(new Intent(PdUtils.LAUNCH_ACTION), serviceConnection, BIND_AUTO_CREATE);
+			bindService(new Intent(this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
 			SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
 			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 		} else {
@@ -203,15 +179,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		synchronized (serviceConnection) {
-			if (pdServiceProxy != null) {
-				try {
-					PdUtils.sendList(pdServiceProxy, ACCELERATE, event.values[0], event.values[1], event.values[2]);
-				} catch (RemoteException e) {
-					Log.e(TAG, e.toString());
-				}
-			}
-		}
+		PdBase.sendList(ACCELERATE, event.values[0], event.values[1], event.values[2]);
 	}
 
 	@Override
@@ -226,7 +194,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			synchronized (serviceConnection) {
 				if (pdServiceProxy != null) {
 					try {
-						flag = VersionedTouch.evaluateTouch(pdServiceProxy, event, sceneView.getWidth(), sceneView.getHeight());
+						flag = VersionedTouch.evaluateTouch(event, sceneView.getWidth(), sceneView.getHeight());
 					} catch (RemoteException e) {
 						Log.e(TAG, e.toString());
 					}
@@ -261,17 +229,27 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void initPd() {
 		try {
-			pdServiceProxy.addClient(statusWatcher);
-			pdServiceProxy.installExternals(IoUtils.hasArmeabiV7a() ? "content://org.puredata.android.scenes/res/raw/externals_v7a.zip" :
-																		"content://org.puredata.android.scenes/res/raw/externals.zip");
-			pdServiceProxy.addToSearchPath(libDir.getAbsolutePath());
-			pdServiceProxy.subscribe(RJ_IMAGE_ANDROID, overlayListener);
-			pdServiceProxy.subscribe(RJ_TEXT_ANDROID, overlayListener);
-			patch = PdUtils.openPatch(pdServiceProxy, new File(sceneFolder, "_main.pd"));
+			PdDispatcher dispatcher = new PdDispatcher() {
+				@Override
+				public void print(String s) {
+					post(s);
+				}
+			};
+			Resources res = getResources();
+			File dir = getFilesDir();
+			try {
+				IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), dir, false);
+				IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.externals_v7a : R.raw.externals), dir, false);
+			} catch (IOException e) {
+				Log.e(TAG, "unable to unpack abstractions/extras: " + e.toString());
+			}
+			PdBase.addToSearchPath(dir.getAbsolutePath());
+			PdBase.addToSearchPath(libDir.getAbsolutePath());
+			PdBase.setReceiver(dispatcher);
+			dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
+			dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
+			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
 			startAudio();
-		} catch (RemoteException e) {
-			Log.e(TAG, e.toString());
-			disconnected();
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
 			finish();
@@ -292,20 +270,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private void cleanup() {
 		synchronized (serviceConnection) {  // on the remote chance that service gets disconnected while we're here
 			if (pdServiceProxy == null) return;
-			try {
-				// make sure to release all resources
-				stopRecording();
-				pdServiceProxy.removeClient(statusWatcher);
-				pdServiceProxy.unsubscribe(RJ_IMAGE_ANDROID, overlayListener);
-				pdServiceProxy.unsubscribe(RJ_TEXT_ANDROID, overlayListener);
-				PdUtils.closePatch(pdServiceProxy, patch);
-				if (hasAudio) {
-					hasAudio = false;
-					pdServiceProxy.releaseAudio();  // only release audio if you actually have it...
-				}
-			} catch (RemoteException e) {
-				Log.e(TAG, e.toString());
-			}
+			// make sure to release all resources
+			stopRecording();
+			PdUtils.closePatch(patch);
+			PdBase.release();
 		}
 		try {
 			unbindService(serviceConnection);
@@ -319,60 +287,54 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	public void onClick(View v) {
 		synchronized (serviceConnection) {
 			if (pdServiceProxy == null) return;
-			try {
-				if (v.equals(play)) {
-					if (play.isChecked()) {
+			if (v.equals(play)) {
+				if (play.isChecked()) {
+					try {
 						startAudio();
-					} else {
-						stopAudio();
+					} catch (IOException e) {
+						post(e.toString());
 					}
-				} else if (v.equals(record)) {
-					if (record.isChecked()) {
-						startRecording();
-					} else {
-						stopRecording();
-					}
-				} else if (v.equals(info)) {
-					showInfo();
+				} else {
+					stopAudio();
 				}
-			} catch (RemoteException e) {
-				Log.e(TAG, e.toString());
+			} else if (v.equals(record)) {
+				if (record.isChecked()) {
+					startRecording();
+				} else {
+					stopRecording();
+				}
+			} else if (v.equals(info)) {
+				showInfo();
 			}
 		}
 	}
 
-	private void startRecording() throws RemoteException {
+	private void startRecording() {
 		String name = sceneFolder.getName();
 		String filename = new File(recDir, name.substring(0, name.length()-3) + "-" + System.currentTimeMillis() + ".wav").getAbsolutePath();
-		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "scene", filename);
+		PdBase.sendMessage(TRANSPORT, "scene", filename);
 		post("recording to " + filename);
-		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 1);
+		PdBase.sendMessage(TRANSPORT, "record", 1);
 	}
 
-	private void stopRecording() throws RemoteException {
-		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "record", 0);
+	private void stopRecording() {
+		PdBase.sendMessage(TRANSPORT, "record", 0);
 		post("finished recording");
 	}
 
-	private void startAudio() throws RemoteException {
-		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", 1);
-		int err = pdServiceProxy.requestAudio(22050, 1, 2, -1); // negative values default to PdService preferences
-		hasAudio = (err == 0);
-		if (!hasAudio) {
-			post("unable to start audio; exiting now");
-			finish();
-		}
+	private void startAudio() throws IOException {
+		PdBase.sendMessage(TRANSPORT, "play", 1);
+		pdServiceProxy.startAudio(22050, 1, 2, -1); // negative values default to PdService preferences
 	}
-	
-	private void stopAudio() throws RemoteException {
-		PdUtils.sendMessage(pdServiceProxy, TRANSPORT, "play", 0);
+
+	private void stopAudio() {
+		PdBase.sendMessage(TRANSPORT, "play", 0);
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		hasAudio = false;
-		pdServiceProxy.releaseAudio();
+		pdServiceProxy.stopAudio();
 	}
 
 	private void showInfo() {

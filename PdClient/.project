@@ -32,9 +32,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>PdCommon</name>
+			<name>PdCore</name>
 			<type>2</type>
-			<locationURI>_android_PdCommon/src</locationURI>
+			<locationURI>_android_PdCore/src</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
