@@ -55,7 +55,6 @@ import android.widget.TextView.OnEditorActionListener;
 public class PdTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String PD_INSTALL = "Pd Install";
-	private static final int PREFS_ACTIVITY_ID = 1;
 	private final Handler handler = new Handler();
 
 	private CheckBox left, right, mic;
@@ -63,7 +62,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	private Button prefs;
 	private TextView logs;
 
-	private PdService proxy = null;
+	private PdService pdService = null;
 	private String patch = null;
 
 	private void toast(final String msg) {
@@ -123,15 +122,14 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	private final ServiceConnection connection = new ServiceConnection() {
 		@Override
-		public synchronized void onServiceDisconnected(ComponentName name) {
-			proxy = null;
-			disconnected();
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			pdService = ((PdService.PdBinder)service).getService();
+			initPd();
 		}
 
 		@Override
-		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
-			proxy = ((PdService.PdBinder)service).getService();
-			initPd();
+		public void onServiceDisconnected(ComponentName name) {
+			// this method will never be called
 		}
 	};
 
@@ -206,12 +204,10 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	}
 
 	private void startAudio() {
-		synchronized (connection) {
-			try {
-				proxy.startAudio(-1, -1, -1, -1); // negative values stand for defaults/preferences
-			} catch (IOException e) {
-				toast(e.toString());
-			}
+		try {
+			pdService.startAudio(-1, -1, -1, -1); // negative values will be replaced with defaults/preferences
+		} catch (IOException e) {
+			toast(e.toString());
 		}
 	}
 
@@ -222,20 +218,14 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			unbindService(connection);
 		} catch (IllegalArgumentException e) {
 			// already unbound
-			proxy = null;
+			pdService = null;
 		}
 	}
 
 	@Override
 	public void finish() {
-		finishActivity(PREFS_ACTIVITY_ID);  // finish preferences activity, if any
 		cleanup();
 		super.finish();
-	}
-
-	private void disconnected() {
-		toast("lost connection to Pd Service; finishing now");
-		finish();
 	}
 
 	@Override
@@ -265,7 +255,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	@Override
 	public void onClick(View v) {
 		synchronized (connection) {
-			if (proxy == null) return;
+			if (pdService == null) return;
 			switch (v.getId()) {
 			case R.id.left_box:
 				PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
@@ -277,8 +267,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 				PdBase.sendFloat("mic", mic.isChecked() ? 1 : 0);
 				break;
 			case R.id.pref_button:
-				startActivityForResult(new Intent(this, PdPreferences.class), PREFS_ACTIVITY_ID);
-				// we don't really want a result from PdPreferences, but we do want to be able to finish it with finishActivity(PREFS_ACTIVITY_ID)
+				startActivity(new Intent(this, PdPreferences.class));
 				break;
 			default:
 				break;

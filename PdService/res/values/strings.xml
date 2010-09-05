@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Pure Data</string>
+	<string name="app_name">Pure Data Test</string>
 	<string name="left_label">Sine wave in left channel</string>
 	<string name="right_label">Sine wave in right channel</string>
 	<string name="mic_label">Patch mic to both channels</string>
