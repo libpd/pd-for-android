@@ -23,16 +23,16 @@ public class PdClient extends Activity {
 
 	private static final String PD_CLIENT = "Pd Client";
 	private final Handler handler = new Handler();
-	private PdService pdServiceProxy = null;
-	private String patch;  // the path to the patch is defined in res/values/strings.xml
+	private PdService pdService = null;
+	private String patch;  // the path to the patch receiver is defined in res/values/strings.xml
 
-	private final PdReceiver rec = new PdReceiver() {
+	private final PdReceiver receiver = new PdReceiver() {
 		@Override public void receiveSymbol(String source, String symbol) {}
 		@Override public void receiveMessage(String source, String symbol, Object... args) {}
 		@Override public void receiveList(String source, Object... args) {}
 		@Override public void receiveFloat(String source, float x) {}
 		@Override public void receiveBang(String source) {}
-		
+
 		@Override public void print(String s) {
 			post(s);
 		}
@@ -49,15 +49,14 @@ public class PdClient extends Activity {
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
 		@Override
-		public synchronized void onServiceDisconnected(ComponentName name) {
-			pdServiceProxy = null;
-			disconnected();
-		}
-
-		@Override
-		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
-			pdServiceProxy = ((PdService.PdBinder) service).getService();
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			pdService = ((PdService.PdBinder) service).getService();
 			initPd();
+		}
+		
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			// this method will never be called
 		}
 	};
 
@@ -88,10 +87,10 @@ public class PdClient extends Activity {
 	private void initPd() {
 		Resources res = getResources();
 		String path = res.getString(R.string.path_to_patch);
+		PdBase.setReceiver(receiver);
 		try {
-			PdBase.setReceiver(rec);
 			patch = PdUtils.openPatch(path);
-			pdServiceProxy.startAudio(-1, 1, 2, -1); // negative values default to PdService preferences
+			pdService.startAudio(-1, 1, 2, -1); // negative values are replaced by defaults/preferences
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
 			finish();
@@ -104,23 +103,16 @@ public class PdClient extends Activity {
 		super.finish();
 	}
 
-	private void disconnected() {
-		post("lost connection to Pd Service; exiting now");
-		finish();
-	}
-
 	private void cleanup() {
-		synchronized (serviceConnection) {  // on the remote chance that service gets disconnected while we're here
-			if (pdServiceProxy == null) return;
-			// make sure to release all resources
-			PdBase.release();
-			PdUtils.closePatch(patch);
-		}
+		// make sure to release all resources
+		if (pdService != null) pdService.stopAudio();
+		PdUtils.closePatch(patch);
+		PdBase.release();
 		try {
 			unbindService(serviceConnection);
 		} catch (IllegalArgumentException e) {
 			// already unbound
-			pdServiceProxy = null;
+			pdService = null;
 		}
 	}
 }

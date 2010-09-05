@@ -1,24 +1,13 @@
 This repository contains a number of sample applications built on top of Pd
-for Android:  PdClient is a minimal client that uses Pd as a remote service;
-ScenePlayer is an elaborate example of a client that uses Pd as a remote
-service, and CircleOfFifths is a stand-alone application that uses Pd directly
-and does not require PdService to be installed.
+for Android:  PdClient is a minimal client; ScenePlayer is an elaborate client
+service, and CircleOfFifths is a stand-alone application that uses Pd
+directly, without going through a service.
 
 Some general hints regarding quirks of the Android SDK and Eclipse:
 
- * Although I am a big fan of the command line and not at all fond of Eclipse,
-   I currently find myself unable to support ant builds of
-   pd-for-android-samples because the ant tasks of the Android SDK can't
-   handle aidl files in library projects.  This doesn't make much sense
-   because sharing aidl files between applications seems like the best
-   possible use of library projects.  Anyway, the Eclipse plugin can handle
-   aidl files, and so I reluctantly recommend Eclipse for working on the Java
-   bits of pd-for-android.
-
- * If you still want to use ant, you need to copy the contents of
-   pd-for-android/PdCommon/src to all projects that depend on PdCommon.  After
-   that, you can create an ant build file with
-   "android update project --path <project_dir>".
+ * If you want to use ant, you need to say
+     android update project --path .
+   in each project directory.
 
  * I experimented with builders for native components in Eclipse, and the
    results have been disappointing.  So, the recommended way to build the

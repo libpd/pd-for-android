@@ -12,7 +12,6 @@ package org.puredata.android.scenes;
 import org.puredata.core.PdBase;
 
 import android.os.Build;
-import android.os.RemoteException;
 import android.view.MotionEvent;
 
 
@@ -28,13 +27,13 @@ public final class VersionedTouch {
 		// do nothing
 	}
 	
-	public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) throws RemoteException {
+	public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) {
 		return (hasEclair) ? TouchEclair.evaluateTouch(event, xImg, yImg) : TouchCupcake.evaluateTouch(event, xImg, yImg);
 	}
 
 	private static class TouchEclair {
 
-		public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) throws RemoteException {
+		public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) {
 			int action = event.getAction();
 			String actionTag = null;
 			switch (action & MotionEvent.ACTION_MASK) {
@@ -67,7 +66,7 @@ public final class VersionedTouch {
 
 	private static class TouchCupcake {
 
-		public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) throws RemoteException {
+		public static boolean evaluateTouch(MotionEvent event, int xImg, int yImg) {
 			String actionTag;
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:

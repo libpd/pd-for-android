@@ -4,7 +4,7 @@
   
   
 <string name="playing">Playing</string>
-<string name="paused">Paused</string>
+<string name="paused">Play</string>
 <string name="startrec">Record</string>
 <string name="stoprec">Recording</string>
 <string name="info">Info</string>

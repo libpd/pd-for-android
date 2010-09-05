@@ -18,9 +18,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.puredata.android.service.PdService;
-import org.puredata.android.service.R;
 import org.puredata.core.PdBase;
-import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
 import org.puredata.core.utils.PdUtils;
@@ -33,7 +31,6 @@ import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -42,7 +39,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -62,16 +58,15 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
-	private Handler handler;
+	private final Handler handler = new Handler();
 	private SceneView sceneView;
 	private TextView logs;
 	private ToggleButton play;
 	private ToggleButton record;
 	private Button info;
 	private File sceneFolder;
-	private PdService pdServiceProxy = null;
+	private PdService pdService = null;
 	private String patch;
-	private final File libDir = new File("/sdcard/pd/.scenes");
 	private final File recDir = new File("/sdcard/pd");
 	private final Map<String, String> infoEntries = new HashMap<String, String>();
 
@@ -132,37 +127,29 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
 		@Override
-		public synchronized void onServiceDisconnected(ComponentName name) {
-			pdServiceProxy = null;
-			disconnected();
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			pdService = ((PdService.PdBinder)service).getService();
+			initPd();
 		}
 
 		@Override
-		public synchronized void onServiceConnected(ComponentName name, IBinder service) {
-			pdServiceProxy = ((PdService.PdBinder)service).getService();
-			initPd();
+		public void onServiceDisconnected(ComponentName name) {
+			// this method will never be called
 		}
 	};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		handler = new Handler();
 		Intent intent = getIntent();
 		String path = intent.getStringExtra(SCENE);
 		if (path != null) {
+			SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 			sceneFolder = new File(path);
 			fixScene();
 			initGui();
-			try {
-				Resources res = getResources();
-				IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir);
-			} catch (IOException e) {
-				Log.e(TAG, e.toString());
-			}
 			bindService(new Intent(this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
-			SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 		} else {
 			Log.e(TAG, "launch intent without scene path");
 			finish();
@@ -189,19 +176,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		boolean flag = false;
-		if (v == sceneView) {
-			synchronized (serviceConnection) {
-				if (pdServiceProxy != null) {
-					try {
-						flag = VersionedTouch.evaluateTouch(event, sceneView.getWidth(), sceneView.getHeight());
-					} catch (RemoteException e) {
-						Log.e(TAG, e.toString());
-					}
-				}
-			}
-		}
-		return flag;
+		return (v == sceneView) && VersionedTouch.evaluateTouch(event, sceneView.getWidth(), sceneView.getHeight());
 	}
 
 	@Override
@@ -235,16 +210,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					post(s);
 				}
 			};
-			Resources res = getResources();
-			File dir = getFilesDir();
-			try {
-				IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), dir, false);
-				IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.externals_v7a : R.raw.externals), dir, false);
-			} catch (IOException e) {
-				Log.e(TAG, "unable to unpack abstractions/extras: " + e.toString());
-			}
-			PdBase.addToSearchPath(dir.getAbsolutePath());
-			PdBase.addToSearchPath(libDir.getAbsolutePath());
 			PdBase.setReceiver(dispatcher);
 			dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
 			dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
@@ -262,50 +227,41 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		super.finish();
 	}
 
-	private void disconnected() {
-		post("lost connection to Pd Service; exiting now");
-		finish();
-	}
-
 	private void cleanup() {
-		synchronized (serviceConnection) {  // on the remote chance that service gets disconnected while we're here
-			if (pdServiceProxy == null) return;
-			// make sure to release all resources
-			stopRecording();
-			PdUtils.closePatch(patch);
-			PdBase.release();
-		}
+		// make sure to release all resources
+		stopRecording();
+		stopAudio();
+		PdUtils.closePatch(patch);
+		PdBase.release();
 		try {
 			unbindService(serviceConnection);
 		} catch (IllegalArgumentException e) {
 			// already unbound
-			pdServiceProxy = null;
+			pdService = null;
 		}
 	}
 
 	@Override
 	public void onClick(View v) {
-		synchronized (serviceConnection) {
-			if (pdServiceProxy == null) return;
-			if (v.equals(play)) {
-				if (play.isChecked()) {
-					try {
-						startAudio();
-					} catch (IOException e) {
-						post(e.toString());
-					}
-				} else {
-					stopAudio();
+		if (pdService == null) return;
+		if (v.equals(play)) {
+			if (play.isChecked()) {
+				try {
+					startAudio();
+				} catch (IOException e) {
+					post(e.toString());
 				}
-			} else if (v.equals(record)) {
-				if (record.isChecked()) {
-					startRecording();
-				} else {
-					stopRecording();
-				}
-			} else if (v.equals(info)) {
-				showInfo();
+			} else {
+				stopAudio();
 			}
+		} else if (v.equals(record)) {
+			if (record.isChecked()) {
+				startRecording();
+			} else {
+				stopRecording();
+			}
+		} else if (v.equals(info)) {
+			showInfo();
 		}
 	}
 
@@ -313,8 +269,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		String name = sceneFolder.getName();
 		String filename = new File(recDir, name.substring(0, name.length()-3) + "-" + System.currentTimeMillis() + ".wav").getAbsolutePath();
 		PdBase.sendMessage(TRANSPORT, "scene", filename);
-		post("recording to " + filename);
 		PdBase.sendMessage(TRANSPORT, "record", 1);
+		post("recording to " + filename);
 	}
 
 	private void stopRecording() {
@@ -324,7 +280,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void startAudio() throws IOException {
 		PdBase.sendMessage(TRANSPORT, "play", 1);
-		pdServiceProxy.startAudio(22050, 1, 2, -1); // negative values default to PdService preferences
+		pdService.startAudio(22050, 1, 2, -1); // negative values default to PdService preferences
 	}
 
 	private void stopAudio() {
@@ -334,7 +290,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		pdServiceProxy.stopAudio();
+		pdService.stopAudio();
 	}
 
 	private void showInfo() {

@@ -18,10 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -39,16 +41,22 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		unpackResources();
 		initGui();
 	}
 
-	private void unpackAtsuke() {
+	private void unpackResources() {
+		Resources res = getResources();
+		File libDir = getFilesDir();
 		try {
-			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd/scene"));
+			IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir, false);
+			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.externals_v7a : R.raw.externals), libDir, false);
+			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd"), false);
 			// many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
 		} catch (IOException e) {
 			Log.e("Scene Player", e.toString());
 		}
+		PdBase.addToSearchPath(libDir.getAbsolutePath());
 	}
 
 	@Override
@@ -66,7 +74,6 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		new Thread() {
 			@Override
 			public void run() {
-				unpackAtsuke();
 				List<String> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
 				for (String dir: list) {
 					scenes.put(new File(dir).getName(), dir);
