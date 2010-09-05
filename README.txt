@@ -1,16 +1,8 @@
 Some general hints regarding quirks of the Android SDK and Eclipse:
 
- * Although I am a big fan of the command line and not at all fond of Eclipse,
-   I currently find myself unable to support ant builds of pd-for-android
-   because the ant tasks of the Android SDK can't handle aidl files in library
-   projects.  This doesn't make much sense because sharing aidl files between
-   applications seems like the best possible use of library projects.  Anyway,
-   the Eclipse plugin can handle aidl files, and so I reluctantly recommend
-   Eclipse for working on the Java bits of pd-for-android.
-
- * If you still want to use ant, you need to copy the contents of PdCommon/src
-   to all projects that depend on PdCommon.  After that, you can create an ant
-   build file with "android update project --path <project_dir>".
+ * If you want to use ant to build Pd, you first need to say
+       android update project --path .
+   in each project folder.
 
  * I experimented with builders for native components in Eclipse, and the
    results have been disappointing.  So, the recommended way to build the
