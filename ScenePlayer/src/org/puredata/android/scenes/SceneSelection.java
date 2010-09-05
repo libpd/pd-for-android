@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.puredata.android.ioutils.IoUtils;
+import org.puredata.core.utils.IoUtils;
 
 import android.app.Activity;
 import android.content.Intent;

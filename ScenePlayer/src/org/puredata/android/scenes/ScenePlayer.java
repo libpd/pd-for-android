@@ -18,11 +18,11 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.puredata.android.ioutils.IoUtils;
 import org.puredata.android.service.IPdClient;
 import org.puredata.android.service.IPdListener;
 import org.puredata.android.service.IPdService;
 import org.puredata.android.service.PdUtils;
+import org.puredata.core.utils.IoUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
