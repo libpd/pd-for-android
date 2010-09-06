@@ -90,7 +90,9 @@ public class PdClient extends Activity {
 		PdBase.setReceiver(receiver);
 		try {
 			patch = PdUtils.openPatch(path);
-			pdService.startAudio(-1, 1, 2, -1, new Intent(this, PdClient.class)); // negative values are replaced by defaults/preferences
+			String name = res.getString(R.string.app_name);
+			pdService.startAudio(-1, 1, 2, -1,   // negative values are replaced by defaults/preferences
+					new Intent(this, PdClient.class), android.R.drawable.ic_media_play, name, "Return to " + name + ".");
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
 			finish();
