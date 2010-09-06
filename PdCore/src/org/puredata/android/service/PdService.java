@@ -19,11 +19,16 @@ import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -37,7 +42,9 @@ public class PdService extends Service {
 		}
 	}
 	private final PdBinder binder = new PdBinder();
-	
+	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= 5;
+	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
+
 	private static final String PD_SERVICE = "PD Service";
 	private volatile int sampleRate = 0;
 	private volatile int inputChannels = 0;
@@ -60,7 +67,13 @@ public class PdService extends Service {
 		return sampleRate;
 	}
 
+	public synchronized void startAudio(int srate, int nic, int noc, float millis, Intent intent) throws IOException {
+		startAudio(srate, nic, noc, millis);
+		fgManager.startForeground(intent);
+	}
+
 	public synchronized void startAudio(int srate, int nic, int noc, float millis) throws IOException {
+		fgManager.stopForeground();
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (srate < 0) {
@@ -89,6 +102,7 @@ public class PdService extends Service {
 
 	public synchronized void stopAudio() {
 		PdAudio.stopAudio();
+		fgManager.stopForeground();
 		sampleRate = 0;
 		inputChannels = 0;
 		outputChannels = 0;
@@ -123,5 +137,62 @@ public class PdService extends Service {
 		super.onDestroy();
 		stopAudio();
 		PdBase.release();
+	}
+
+	private interface ForegroundManager {
+		void startForeground(Intent intent);
+		void stopForeground();
+	}
+
+	private class ForegroundCupcake implements ForegroundManager {
+		protected static final int NOTIFICATION_ID = 1;
+		private boolean hasForeground = false;
+
+		protected Notification makeNotification(Intent intent) {
+			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+			Notification notification = new Notification(R.drawable.icon, "Pure Data", System.currentTimeMillis());
+			notification.setLatestEventInfo(PdService.this, "Pure Data", "Tap to return to Pd client.", pi);
+			notification.flags |= Notification.FLAG_ONGOING_EVENT;
+			return notification;
+		}
+
+		@Override
+		public void startForeground(Intent intent) {
+			stopForeground();
+			versionedStart(intent);
+			hasForeground = true;
+		}
+		
+		protected void versionedStart(Intent intent) {
+			setForeground(true);
+			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			nm.notify(NOTIFICATION_ID, makeNotification(intent));
+		}
+
+		@Override
+		public void stopForeground() {
+			if (hasForeground) {
+				versionedStop();
+				hasForeground = false;
+			}
+		}
+		
+		protected void versionedStop() {
+			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			nm.cancel(NOTIFICATION_ID);
+			setForeground(false);
+		}
+	}
+
+	private class ForegroundEclair extends ForegroundCupcake {
+		@Override
+		protected void versionedStart(Intent intent) {
+			PdService.this.startForeground(NOTIFICATION_ID, makeNotification(intent));
+		}
+
+		@Override
+		protected void versionedStop() {
+			PdService.this.stopForeground(true);
+		}
 	}
 }
