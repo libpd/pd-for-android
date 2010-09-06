@@ -230,7 +230,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		// make sure to release all resources
 		stopRecording();
 		stopAudio();
-		if (patch != null) PdUtils.closePatch(patch);
+		if (patch != null) {
+			PdUtils.closePatch(patch);
+			patch = null;
+		}
 		PdBase.release();
 		try {
 			unbindService(serviceConnection);
@@ -278,7 +281,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void startAudio() throws IOException {
-		pdService.startAudio(22050, 1, 2, -1); // negative values default to PdService preferences
+		pdService.startAudio(22050, 1, 2, -1, new Intent(this, ScenePlayer.class)); // negative values default to PdService preferences
 		if (patch == null) patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
 		PdBase.sendMessage(TRANSPORT, "play", 1);
 	}
