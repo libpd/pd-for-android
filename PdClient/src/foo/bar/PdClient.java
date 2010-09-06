@@ -90,7 +90,7 @@ public class PdClient extends Activity {
 		PdBase.setReceiver(receiver);
 		try {
 			patch = PdUtils.openPatch(path);
-			pdService.startAudio(-1, 1, 2, -1); // negative values are replaced by defaults/preferences
+			pdService.startAudio(-1, 1, 2, -1, new Intent(this, PdClient.class)); // negative values are replaced by defaults/preferences
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
 			finish();
