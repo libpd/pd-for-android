@@ -205,7 +205,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	private void startAudio() {
 		try {
-			pdService.startAudio(-1, -1, -1, -1); // negative values will be replaced with defaults/preferences
+			pdService.startAudio(-1, -1, -1, -1, new Intent(this, PdTest.class)); // negative values will be replaced with defaults/preferences
 		} catch (IOException e) {
 			toast(e.toString());
 		}
