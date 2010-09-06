@@ -67,9 +67,10 @@ public class PdService extends Service {
 		return sampleRate;
 	}
 
-	public synchronized void startAudio(int srate, int nic, int noc, float millis, Intent intent) throws IOException {
+	public synchronized void startAudio(int srate, int nic, int noc, float millis,
+			Intent intent, int icon, String title, String description) throws IOException {
 		startAudio(srate, nic, noc, millis);
-		fgManager.startForeground(intent);
+		fgManager.startForeground(intent, icon, title, description);
 	}
 
 	public synchronized void startAudio(int srate, int nic, int noc, float millis) throws IOException {
@@ -140,7 +141,7 @@ public class PdService extends Service {
 	}
 
 	private interface ForegroundManager {
-		void startForeground(Intent intent);
+		void startForeground(Intent intent, int icon, String title, String description);
 		void stopForeground();
 	}
 
@@ -148,25 +149,25 @@ public class PdService extends Service {
 		protected static final int NOTIFICATION_ID = 1;
 		private boolean hasForeground = false;
 
-		protected Notification makeNotification(Intent intent) {
+		protected Notification makeNotification(Intent intent, int icon, String title, String description) {
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-			Notification notification = new Notification(R.drawable.icon, "Pure Data", System.currentTimeMillis());
-			notification.setLatestEventInfo(PdService.this, "Pure Data", "Tap to return to Pd client.", pi);
+			Notification notification = new Notification(icon, title, System.currentTimeMillis());
+			notification.setLatestEventInfo(PdService.this, title, description, pi);
 			notification.flags |= Notification.FLAG_ONGOING_EVENT;
 			return notification;
 		}
 
 		@Override
-		public void startForeground(Intent intent) {
+		public void startForeground(Intent intent, int icon, String title, String description) {
 			stopForeground();
-			versionedStart(intent);
+			versionedStart(intent, icon, title, description);
 			hasForeground = true;
 		}
 		
-		protected void versionedStart(Intent intent) {
+		protected void versionedStart(Intent intent, int icon, String title, String description) {
 			setForeground(true);
 			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-			nm.notify(NOTIFICATION_ID, makeNotification(intent));
+			nm.notify(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
 		}
 
 		@Override
@@ -186,8 +187,8 @@ public class PdService extends Service {
 
 	private class ForegroundEclair extends ForegroundCupcake {
 		@Override
-		protected void versionedStart(Intent intent) {
-			PdService.this.startForeground(NOTIFICATION_ID, makeNotification(intent));
+		protected void versionedStart(Intent intent, int icon, String title, String description) {
+			PdService.this.startForeground(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
 		}
 
 		@Override
