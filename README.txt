@@ -1,7 +1,7 @@
 This repository contains a number of sample applications built on top of Pd
-for Android:  PdClient is a minimal client; ScenePlayer is an elaborate client
-service, and CircleOfFifths is a stand-alone application that uses Pd
-directly, without going through a service.
+for Android:  PdClient is a minimal client; ScenePlayer is an elaborate
+client, and CircleOfFifths is a stand-alone activity that uses Pd directly,
+without going through a service.
 
 Some general hints regarding quirks of the Android SDK and Eclipse:
 
@@ -30,7 +30,7 @@ Some general hints regarding quirks of the Android SDK and Eclipse:
    Eclipse aware of the gen folder is to delete the gen folder.  (Seriously.)
 
 Anyway, all this sounds worse than it is.  Once the demons of the initial
-import into Eclipse have been exorcized (above), it's usually smooth sailing.
+import into Eclipse have been exorcized, it's usually smooth sailing.
 Have fun!
      Peter Brinkmann
 
