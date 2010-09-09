@@ -34,7 +34,7 @@ public abstract class Overlay implements Runnable {
 		invalidate();
 	}
 	
-	private void invalidate() {
+	protected void invalidate() {
 		container.getHandler().post(this);
 	}
 	

@@ -69,6 +69,12 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private String patch = null;
 	private final File recDir = new File("/sdcard/pd");
 	private final Map<String, String> infoEntries = new HashMap<String, String>();
+	private final PdDispatcher dispatcher = new PdDispatcher() {
+		@Override
+		public void print(String s) {
+			post(s);
+		}
+	};
 
 	private void post(final String msg) {
 		handler.post(new Runnable() {
@@ -97,12 +103,27 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					float y = ((Float) args[3]).floatValue();
 					overlay.setPosition(x, y);
 				} else {
-					if (!(overlay instanceof TextOverlay)) return;
-					TextOverlay textOverlay = (TextOverlay) overlay;
-					if (cmd.equals("text")) {
-						textOverlay.setText((String) args[2]);
-					} else if (cmd.equals("size")) {
-						textOverlay.setSize(((Float) args[2]).floatValue());
+					if (overlay instanceof TextOverlay) {
+						TextOverlay textOverlay = (TextOverlay) overlay;
+						if (cmd.equals("text")) {
+							textOverlay.setText((String) args[2]);
+						} else if (cmd.equals("size")) {
+							textOverlay.setSize(((Float) args[2]).floatValue());
+						}
+					} else {
+						ImageOverlay imgOverlay = (ImageOverlay) overlay;
+						float val = ((Float) args[2]).floatValue();
+						if (cmd.equals("ref")) {
+							boolean flag = val > 0.5f;
+							imgOverlay.setCentered(flag);
+						} else if (cmd.equals("scale")) {
+							float sy = ((Float) args[3]).floatValue();
+							imgOverlay.setScale(val, sy);
+						} else if (cmd.equals("rotate")) {
+							imgOverlay.setAngle(val);
+						} else if (cmd.equals("alpha")) {
+							imgOverlay.setAlpha(val);
+						}
 					}
 				}
 			} else {
@@ -204,12 +225,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void initPd() {
 		try {
-			PdDispatcher dispatcher = new PdDispatcher() {
-				@Override
-				public void print(String s) {
-					post(s);
-				}
-			};
 			PdBase.setReceiver(dispatcher);
 			dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
 			dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
@@ -234,6 +249,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			PdUtils.closePatch(patch);
 			patch = null;
 		}
+		dispatcher.release();
 		PdBase.release();
 		try {
 			unbindService(serviceConnection);
