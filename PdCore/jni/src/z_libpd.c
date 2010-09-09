@@ -16,7 +16,6 @@
 #define MAXMSGLENGTH 32
 
 void pd_init();
-int sys_startgui(const char *guipath);  // do we really need this?
 
 t_libpd_printhook libpd_printhook = NULL;
 t_libpd_banghook libpd_banghook = NULL;
@@ -36,8 +35,8 @@ static void *get_object(const char *s) {
 void libpd_init() {
   // are all these settings necessary?
   sys_printhook = (t_printhook) libpd_printhook;
-  sys_externalschedlib = 0;
   sys_schedblocksize = DEFDACBLKSIZE;
+  sys_externalschedlib = 0;
   sys_printtostderr = 0;
   sys_usestdpath = 0; // don't use pd_extrapath, only sys_searchpath
   sys_debuglevel = 0;
@@ -51,7 +50,6 @@ void libpd_init() {
   pd_init();
   libpdreceive_setup();
   sys_set_audio_api(API_DUMMY);
-  sys_startgui(NULL);
   sys_searchpath = NULL;
 }
 
