@@ -33,8 +33,10 @@ static void *get_object(const char *s) {
 
 /* this is called instead of sys_main() to start things */
 void libpd_init() {
-  // are all these settings necessary?
   sys_printhook = (t_printhook) libpd_printhook;
+  sys_soundin = NULL;
+  sys_soundout = NULL;
+  // are all these settings necessary?
   sys_schedblocksize = DEFDACBLKSIZE;
   sys_externalschedlib = 0;
   sys_printtostderr = 0;
