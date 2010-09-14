@@ -16,7 +16,7 @@ control messages between Pure Data and client code.  libpd supports bang,
 float, and symbol messages, as well as lists and typed messages.  (In other
 words, pointer messages are the only messages that are not supported.)  Client
 code sends messages to symbols in Pure Data, i.e., messages sent to Pd are
-akin to those from message boxes of the form [; foo args(.  Client code
+akin to those from message boxes of the form [;foo args(.  Client code
 can subscribe to messages sent to symbols in Pd, i.e., adding a subscription
 is akin to adding a receiver object [r foo] in Pd.
 
@@ -106,14 +106,15 @@ int libpd_symbol(const char *destination, const char *symbol)
   Sends a symbol to the destination.  The return value is 0 if and only if the
   call succeeded.
 
-
 Compound (i.e., list or typed) messages are composed with a sequence of
 function calls, using the following functions.
 
 int libpd_start_message()
   Initiates the composition of a new list or typed message.  The return value
   is the largest possible number of arguments of a list or typed message that
-  libpd supports (currently 32)
+  libpd supports (currently 32).  Note:  You have to start each list or typed
+  message with libpd_start_message, but you don't have to finish it; it's okay
+  to abandon a message without further cleanup.
 
 void libpd_add_float(float value)
   Adds a float to the current message
@@ -133,7 +134,7 @@ int libpd_finish_list(const char *destination)
   
 int libpd_finish_message(const char *destination, const char *symbol)
   Finishes a typed message and sends it to the destination, with the message
-  name given by the symbol parameter.  For instance, the effect of [;pd dsp 1(
+  name given by the symbol parameter.  For instance, the effect of [ ;pd dsp 1(
   is achieved with
     libpd_start_message();
     libpd_add_float(1);
@@ -145,9 +146,92 @@ int libpd_finish_message(const char *destination, const char *symbol)
 
 5. Receiving messages from Pd
 
-6. Important messages
+In order to receive messages from Pd, client code needs register callback
+functions and subscribe to messages sent to one ore more symbols.
 
-7. Using Pd in a threaded context
+void *libpd_bind(const char *symbol)
+  Subscribe to messages sent to the given symbol.  The call libpd_bind("foo")
+  adds an object to the patch that behaves much like [r foo], with the output
+  being passed on to the various message hooks of libpd.  The return value is
+  an opaque pointer to the new receiver object; save it in a variable if you
+  want to be able to delete this object later.
+
+int libpd_unbind(void *p)
+  Deletes the object referred to by the pointer p.  This is mostly intended
+  for removing receivers created by libpd_bind.
+
+
+Once the client has subscribed to messages sent to one or more symbols, libpd
+will try to call the corresponding message hooks.  A subscription to print
+messages is automatic.  In order to receive print messages from Pd, client
+code must define a function with the right signature and assign its pointer to
+libpd_printhook.  In order to receive bangs, define the right kind of function
+and assign it to libpd_banghook, etc.
+
+
+t_libpd_printhook libpd_printhook
+  Pointer to the function that is called when Pd wants to print; NULL by
+  default.
+typedef (*t_libpd_printhook)(const char *s)
+  Signature for print hooks; the parameter s is the string to be printed.
+  
+t_libpd_banghook libpd_banghook
+  Pointer to the function that is called when Pd wants to send a bang to
+  libpd; NULL by default.  If the client has subscribed to the symbol foo with
+  libpd_bind, then a bang sent with [s foo] will result in the function call
+  libpd_banghoon"foo").
+typedef (*t_libpd_banghook)(const char *source)
+  Signature for bang hooks; the parameter source is the symbol that received
+  the message.
+  
+t_libpd_floathook libpd_floathook
+typede (*t_libpd_floathook)(const char *source, float value)
+
+t_libpd_symbolhook libpd_symbolhook
+typede (*t_libpd_symbolhook)(const char *source, const char *symbol)
+
+t_libpd_listhook libpd_listhook
+typedef (*t_libpd_listhook)(const char *source, int argc, t_atom *argv)
+  Signature for list hooks.  The parameter argc is the length of the list, and
+  the vector argv contains the list elements.  In order to evaluate to list
+  for further processing, you probably want to use a loop like this one:
+    int i;
+    for (i = 0; i < argc; i++) {
+      t_atom a = argv[i];
+      if (a.a_type == A_FLOAT) {
+        float x = a.a_w.w_float;
+        // do something with the float x
+      } else if (a.a_type == A_SYMBOL) {
+        char *s = a.a_w.w_symbol->s_name;
+        // do something with the C string s
+      }
+    }
+
+t_libpd_messagehook libpd_messagehook
+typedef (*t_libpd_messagehook)(const char *source, const char *symbol,
+                int argc, t_atom *argv)
+  Signature for typed message hooks; a message like [;foo bar 1 2 a b( will
+  trigger a function call like libpd_messagehook("foo", "bar", 4, argv).
+
+
+6. Using Pd in a threaded context
+
+libpd is NOT thread-safe.  This was a deliberate design decision because
+thread synchronization depends on the needs of the client code.  As a general
+rule, if libpd is used in a threaded setting, then all functions of libpd must
+be protected by locks.  Moreover, only one thread may assemble a compound
+message at any given time, i.e., the lock must be acquired before the call to
+libpd_start_message and released after the call to libpd_finish_list/message.
+Failure to protect compound messages with locks will lead to obscure crashes.
+
+Note:  While m_pd.h does offer global locking with sys_lock and sys_unlock,
+but I don't see how to safely use them.  They use one non-reentrant global
+lock, and it doesn't seem to be clear who is responsible for it.  In other
+words, sys_lock and sys_unlock seem like a recipe for deadlocks.  I recommend
+using your own private lock.
+
+
+7. Working with libpd
 
 8. Creating patches for use with libpd
 

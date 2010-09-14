@@ -20,9 +20,6 @@ int libpd_process_raw(float *, float *);
 int libpd_process_short(short *, short *);
 int libpd_process_float(float *, float *);
 int libpd_process_double(double *, double *);
-int libpd_exists(const char *);
-void *libpd_bind(const char *);
-int libpd_unbind(void *p);
 
 int libpd_bang(const char *);
 int libpd_float(const char *, float);
@@ -32,6 +29,10 @@ void libpd_add_float(float);
 void libpd_add_symbol(const char *);
 int libpd_finish_list(const char *);
 int libpd_finish_message(const char *, const char *);
+
+int libpd_exists(const char *);
+void *libpd_bind(const char *);
+int libpd_unbind(void *p);
 
 typedef (*t_libpd_printhook)(const char *);
 typedef (*t_libpd_banghook)(const char *);
