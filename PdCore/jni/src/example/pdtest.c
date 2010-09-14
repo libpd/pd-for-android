@@ -12,12 +12,12 @@ int main(int argc, char **argv) {
   }
 
   // init pd
-  float inbuf[64], outbuf[128];  // one input channel, two output channels
-                                 // block size 64
   int srate = 44100;
   libpd_printhook = (t_libpd_printhook) pdprint;
   libpd_init();
   libpd_init_audio(1, 2, srate, 1);
+  float inbuf[64], outbuf[128];  // one input channel, two output channels
+                                 // block size 64, one tick per buffer
 
   // compute audio    [; pd dsp 1(
   libpd_start_message();

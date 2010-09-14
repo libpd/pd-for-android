@@ -1,0 +1,98 @@
+Embedding Pure Data as a DSP library
+
+
+1. Introduction
+
+Fundamentally, the heart and soul of a DSP library is a rendering callback
+that takes input samples and computes output samples.  Samples go in, magic
+happens, samples come out.  That's signal processing in its purest form.
+Unfortunately, this functionality is hard to find in Pure Data.  Bits and
+pieces of it are spread across and mixed with various chunks of audio driver
+code.  The main function of libpd is to liberate raw audio rendering from
+audio drivers.
+
+The second function of libpd is to allow for straightforward exchange of
+control messages between Pure Data and client code.  libpd supports bang,
+float, and symbol messages, as well as lists and typed messages.  (In other
+words, pointer messages are the only messages that are not supported.)  Client
+code sends messages to symbols in Pure Data, i.e., messages sent to Pd are
+akin to those from message boxes of the form [; foo args(.  Client code
+can subscribe to messages sent to symbols in Pd, i.e., adding a subscription
+is akin to adding a receiver object [r foo] in Pd.
+
+
+2. Initializing Pd
+
+void libpd_init()
+  Initialize libpd.
+
+void libpd_clear_search_path()
+  Clears the Pd search path, i.e., the path where Pd looks for abstractions
+  and externals; clearing the search path is usually unnecessary because
+  libpd_init() already clears the search path.
+
+void libpd_add_to_search_path(const char *s)
+  Add s to the Pd search path.
+
+libpd only looks at the search path; the extra path is not used.
+
+
+3. Rendering samples with Pd
+
+int libpd_blocksize()
+  Returns the block size of Pd (always 64).  Pd computes audio in ticks of 64
+  samples per channel at a time.
+
+int libpd_init_audio(int nInputs, int nOutputs,
+                      int sampleRate, int ticksPerBuffer)
+  Initialize audio rendering for the given number of input/output channels and
+  sample rate.  In order to reduce the overhead of functions calls, libpd
+  offers the option of processing more than one Pd tick per audio rendering
+  call.  For minimal latency, choose one tick per buffer.  If you run into
+  performance issues, try a larger number.  The return value is 0 if and only
+  if the initialization of Pd succeeded.
+
+int libpd_process_float(float *inBuf, float *outBuf)
+  Reads on buffer of input samples from inBuf, processes them with Pd, and
+  writes one buffer of output samples to outBuf.  The size of each buffer must
+  be the product of the number of channels, the number of ticks per buffer,
+  and the number of samples per tick.  (The number of samples per tick is the
+  value returned by libpd_blocksize(), i.e., 64.)  Samples will be striped
+  across buffers, i.e., if there are two input channels, then inBuf[0] is the
+  first sample for the left channel, inBuf[1] is the first sample for the
+  right channel, inBuf[2] is the second sample for the left channel, etc.
+  The return value is 0 if and only if the call succeeded.
+
+int libpd_process_double(double *inBuf, double *outBuf)
+  Like libpd_process_float, but with double precision.
+
+int libpd_process_short(short *inBuf, short *outBuf)
+  Like libpd_process_float, but with short samples.  Float samples from Pd are
+  converted to shorts by multiplying by 32767 and casting to short.  For
+  efficiency reasons, this method does not clip the input.  If the float
+  samples from Pd are outside the interval [-1, 1], then the converted short
+  samples will be garbage.  If you expect samples outside of [-1, 1], you need
+  to clip them yourself in your Pd patch.
+
+int libpd_process_raw(float *inBuf, float *outBuf);
+  Processes one Pd tick (regardless of the number of ticks per buffer supplied
+  to libpd_init_audio) and copies the contents of the buffers directly to/from
+  Pd, without striping.  In other words, the channels will be stacked rather
+  than interlaced in inBuf and outBuf.
+
+Note that libpd does not provide any timing functionality of its own.  It only
+keeps track of time in terms of the number of Pd ticks that have been
+processed.  Calling the process function at the right times is the
+responsibility of the client.
+
+
+4. Sending messages to Pd
+
+5. Receiving messages from Pd
+
+6. Important messages
+
+7. Using Pd in a threaded context
+
+8. Creating patches for use with libpd
+
