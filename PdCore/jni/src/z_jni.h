@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     org_puredata_core_PdBase
+ * Method:    initialize
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_initialize
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_puredata_core_PdBase
  * Method:    clearSearchPath
  * Signature: ()V
  */
@@ -109,14 +117,6 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_sendSymbol
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_blockSize
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_puredata_core_PdBase
- * Method:    initialize
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_initialize
   (JNIEnv *, jclass);
 
 /*

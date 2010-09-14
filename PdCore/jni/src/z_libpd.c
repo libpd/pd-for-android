@@ -143,14 +143,15 @@ void libpd_add_symbol(const char *s) {
 }
 
 int libpd_finish_list(const char *recv) {
-  t_pd *dest = gensym(recv)->s_thing;
+  t_pd *dest = get_object(recv);
   if (dest == NULL) return -1;
   pd_list(dest, &s_list, argc, argv);
   return 0;
 }
 
 int libpd_finish_message(const char *recv, const char *msg) {
-  t_pd *dest = gensym(recv)->s_thing;
+  t_pd *dest = get_object(recv);
+  if (dest == NULL) return -1;
   if (dest == NULL) return -1;
   t_symbol *sym = gensym(msg);
   pd_typedmess(dest, sym, argc, argv);

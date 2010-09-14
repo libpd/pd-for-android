@@ -88,6 +88,61 @@ responsibility of the client.
 
 4. Sending messages to Pd
 
+Simple messages (bang, float, symbol) are sent to Pd with a single function
+call.
+
+int libpd_bang(const char *destination)
+  Sends a bang to the destination, i.e., libpd_bang("foo") acts like
+    [bang(
+     |
+    [s foo]
+  The return value is 0 if and only if the call succeeded.
+
+int libpd_float(const char *destination, float value)
+  Sends a float to the destination.  The return value is 0 if and only if the
+  call succeeded.
+  
+int libpd_symbol(const char *destination, const char *symbol)
+  Sends a symbol to the destination.  The return value is 0 if and only if the
+  call succeeded.
+
+
+Compound (i.e., list or typed) messages are composed with a sequence of
+function calls, using the following functions.
+
+int libpd_start_message()
+  Initiates the composition of a new list or typed message.  The return value
+  is the largest possible number of arguments of a list or typed message that
+  libpd supports (currently 32)
+
+void libpd_add_float(float value)
+  Adds a float to the current message
+
+void libpd_add_symbol(const char *symbol)
+  Adds a symbol to the current message
+
+int libpd_finish_list(const char *destination)
+  Finishes a list message and sends it to the destination.  For instance, the
+  behavior of [;foo 1 2 a( is achieved with
+    libpd_start_message();
+    libpd_add_float(1);
+    libpd_add_float(2);
+    libpd_add_symbol("a");
+    libpd_finish_list("foo");
+  The return value is 0 if and only if the call succeeded.
+  
+int libpd_finish_message(const char *destination, const char *symbol)
+  Finishes a typed message and sends it to the destination, with the message
+  name given by the symbol parameter.  For instance, the effect of [;pd dsp 1(
+  is achieved with
+    libpd_start_message();
+    libpd_add_float(1);
+    libpd_finish_message("pd", "dsp");
+  The return value is 0 if and only if the call succeeded.  Note that libpd
+  will let you send a typed message with as many as 32 parameters, but Pd
+  itself will currently only handle typed messages with up to four parameters.
+
+
 5. Receiving messages from Pd
 
 6. Important messages
