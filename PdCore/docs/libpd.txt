@@ -231,7 +231,44 @@ words, sys_lock and sys_unlock seem like a recipe for deadlocks.  I recommend
 using your own private lock.
 
 
-7. Working with libpd
+7. Using externals
 
-8. Creating patches for use with libpd
+When dynamically loaded libraries are available, libpd will automatically load
+externals as needed, as long as the binaries are on the search path.  When
+dynamic loading is not available, clients can have externals compiled into
+them and initialize them by calling the setup function after calling the
+libpd_init function.
+
+
+8. Working with libpd
+
+The Pd Java library illustrates how to work with libpd.  The JNI file z_jni.c
+translates between C types and Java types.  The Java class PdBase.java imports
+the functions of z_jni.c into Java and adds some higher-level functionality,
+such as thread synchronization, compound messages with a single method call,
+and bookkeeping for subscriptions to messages from Pd.  The interface
+PdReceiver.java provides the basic functionality for receiving messages from
+Pd.
+
+In addition to the core functionality, it may be desirable to build some
+utilities.  For instance, the core Java library only accepts one receiver for
+Pd messages at a time.  The utility class PdDispatcher.class implements the
+PdReceiver interface and manages a collection of handlers (instances of
+PdListener.java) for messages sent to individual messages.
+
+PdUtils.java is another utility class that provides some common messages:
+* [;pd dsp 1( enables audio processing in Pd.  [;pd dsp 0( disables audio
+  processing.
+* [;pd open foo.pd /path/to/patch( opens a patch.
+* [;pd menuclose pd-foo.pd( closes a patch.
+
+
+9. Creating patches for use with libpd
+
+Patches for use with libpd do not use any objects that are specific to libpd;
+the custom message receiver objects for libpd are added implicitly and do not
+explicitly occur in the patch.  Input and output of samples occur via adc~ and
+dac~, as usual.  In order to test a patch for use with libpd, you can simply
+use a second patch that communicates with the patch through the same control
+messages (via send and receive objects) that libpd will use.
 
