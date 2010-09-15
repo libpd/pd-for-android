@@ -14,7 +14,6 @@ import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.widget.Toast;
 
@@ -22,7 +21,6 @@ import android.widget.Toast;
 public class PdClient extends Activity {
 
 	private static final String PD_CLIENT = "Pd Client";
-	private final Handler handler = new Handler();
 	private PdService pdService = null;
 	private String patch;  // the path to the patch receiver is defined in res/values/strings.xml
 
@@ -39,7 +37,7 @@ public class PdClient extends Activity {
 	};
 
 	private void post(final String msg) {
-		handler.post(new Runnable() {
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				Toast.makeText(getApplicationContext(), PD_CLIENT + ": " + msg, Toast.LENGTH_SHORT).show();

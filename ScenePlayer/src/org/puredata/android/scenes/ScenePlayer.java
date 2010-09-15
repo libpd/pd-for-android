@@ -37,7 +37,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -58,7 +57,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
-	private final Handler handler = new Handler();
 	private SceneView sceneView;
 	private TextView logs;
 	private ToggleButton play;
@@ -77,7 +75,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	};
 
 	private void post(final String msg) {
-		handler.post(new Runnable() {
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				logs.append(msg + ((msg.endsWith("\n")) ? "" : "\n"));
