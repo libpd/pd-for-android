@@ -22,6 +22,7 @@ import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -71,6 +72,11 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 	private void initGui() {
 		setContentView(R.layout.choose);
 		sceneView = (ListView) findViewById(R.id.scene_selection);
+		final ProgressDialog progress = new ProgressDialog(this);
+		progress.setMessage("Loading scenes.  Please wait...");
+		progress.setCancelable(false);
+		progress.setIndeterminate(true);
+		progress.show();
 		new Thread() {
 			@Override
 			public void run() {
@@ -89,6 +95,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 					@Override
 					public void run() {
 						sceneView.setAdapter(adapter);
+						progress.dismiss();
 					}
 				});
 			};
