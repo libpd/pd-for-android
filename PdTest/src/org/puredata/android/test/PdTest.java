@@ -34,7 +34,6 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.method.ScrollingMovementMethod;
@@ -54,8 +53,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class PdTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-	private static final String PD_INSTALL = "Pd Install";
-	private final Handler handler = new Handler();
+	private static final String PD_TEST = "Pd Test";
 
 	private CheckBox left, right, mic;
 	private EditText msg;
@@ -66,16 +64,16 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	private String patch = null;
 
 	private void toast(final String msg) {
-		handler.post(new Runnable() {
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), PD_INSTALL + ": " + msg, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), PD_TEST + ": " + msg, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
 
 	private void post(final String s) {
-		handler.post(new Runnable() {
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				logs.append(s + ((s.endsWith("\n")) ? "" : "\n"));
@@ -196,7 +194,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			patch = PdUtils.openPatch(patchFile);
 			startAudio();
 		} catch (IOException e) {
-			Log.e(PD_INSTALL, e.toString());
+			Log.e(PD_TEST, e.toString());
 			finish();
 		} finally {
 			if (patchFile != null) patchFile.delete();
