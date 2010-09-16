@@ -5,7 +5,9 @@
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  * 
- * wrapper for AudioTrack plus the main audio rendering thread
+ * main audio rendering thread; manages {@link AudioTrack} and {@link AudioRecord} objects, hides
+ * the complexity of working with raw PCM audio; client code only needs to implement a JACK-style
+ * audio processing callback (jackaudio.org)
  * 
  */
 
@@ -16,6 +18,7 @@ import org.puredata.android.service.R;
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.os.Process;
@@ -33,6 +36,14 @@ public abstract class AudioWrapper {
 	final int bufSizeShorts;
 	private Thread audioThread = null;
 
+	/**
+	 * Constructor; initializes {@link AudioTrack} and {@link AudioRecord} objects
+	 * 
+	 * @param sampleRate
+	 * @param inChannels  number of input channels
+	 * @param outChannels number of output channels
+	 * @param bufferSizePerChannel  number of samples per buffer per channel
+	 */
 	public AudioWrapper(int sampleRate, int inChannels, int outChannels, int bufferSizePerChannel) {
 		int channelConfig = VersionedAudioFormat.getOutFormat(outChannels);
 		rec = (inChannels == 0) ? null : new AudioRecordWrapper(sampleRate, inChannels, bufferSizePerChannel);
@@ -46,8 +57,24 @@ public abstract class AudioWrapper {
 		track = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfig, ENCODING, trackSizeBytes, AudioTrack.MODE_STREAM);
 	}
 
+	/**
+	 * Main audio rendering callback, reads input samples and writes output samples; inspired by the process callback of JACK
+	 * 
+	 * Channels are striped across buffers, i.e., if there are two output channels, then outBuffer[0] will be the first sample
+	 * for the left channel, outBuffer[1] will be the first sample for the right channel, outBuffer[2] will be the second sample
+	 * for the left channel, etc.
+	 * 
+	 * @param inBuffer   array of input samples to be processed, e.g., from the microphone
+	 * @param outBuffer  array of output samples, e.g., to be sent to the speakers
+	 * @return
+	 */
 	protected abstract int process(short inBuffer[], short outBuffer[]);
 
+	/**
+	 * Start the audio rendering thread as well as {@link AudioTrack} and {@link AudioRecord} objects
+	 * 
+	 * @param context
+	 */
 	public synchronized void start(Context context) {
 		avoidClickHack(context);
 		if (rec != null) rec.start();
@@ -79,6 +106,9 @@ public abstract class AudioWrapper {
 		audioThread.start();
 	}
 
+	/**
+	 * Stop the audio thread as well as {@link AudioTrack} and {@link AudioRecord} objects
+	 */
 	public synchronized void stop() {
 		if (rec != null) rec.stop();
 		if (audioThread == null) return;
@@ -92,13 +122,20 @@ public abstract class AudioWrapper {
 		track.stop();
 	}
 
+	/**
+	 * Release resources held by {@link AudioTrack} and {@link AudioRecord} objects;
+	 * stops the audio thread if it is still running
+	 */
 	public synchronized void release() {
 		stop();
 		track.release();
 		if (rec != null) rec.release();
 	}
 
-	public boolean isRunning() {
+	/**
+	 * @return true if and only if the audio thread is currently running
+	 */
+	public synchronized boolean isRunning() {
 		return audioThread != null && audioThread.getState() != Thread.State.TERMINATED;
 	}
 

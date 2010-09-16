@@ -28,11 +28,32 @@ public class AudioParameters {
 		init();
 	}
 
+	/**
+	 * @return a reasonable sample rate that the device supports, 0 if audio output is unavailable
+	 */
 	public static int suggestSampleRate() { return sampleRate; }
+	
+	/**
+	 * @return the largest number of input channels that the device supports
+	 */
 	public static int suggestInputChannels() { return inputChannels; }
+	
+	/**
+	 * @return the largest number of output channels that the device supports
+	 */
 	public static int suggestOutputChannels() { return outputChannels; }
+	
+	/**
+	 * @return suggested buffer size in milliseconds; suggests 100ms, i.e., a fairly conservative choice
+	 */
 	public static float suggestBufferSizeMillis() { return bufsizeMillis; }
 
+	/**
+	 * @param srate sample rate
+	 * @param nin   number of input channels
+	 * @param nout  number of output channels
+	 * @return true if and only if the device supports the given set of parameters
+	 */
 	public static boolean checkParameters(int srate, int nin, int nout) {
 		return inOkay(srate, nin) && outOkay(srate, nout);
 	}

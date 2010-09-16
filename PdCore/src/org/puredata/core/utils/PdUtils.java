@@ -20,7 +20,7 @@ import org.puredata.core.PdBase;
 public class PdUtils {
 	
 	/**
-	 * same as "compute audio" checkbox in pd gui
+	 * Same as "compute audio" checkbox in pd gui, like [;pd dsp 0/1(
 	 * 
 	 * @param flag
 	 */
@@ -29,7 +29,7 @@ public class PdUtils {
 	}
 	
 	/**
-	 * reads a patch from a file
+	 * Read a patch from a file
 	 * 
 	 * @param patch file
 	 * @return pd symbol representing patch
@@ -53,7 +53,7 @@ public class PdUtils {
 	}
 	
 	/**
-	 * reads a patch from a file
+	 * Read a patch from a file
 	 * 
 	 * @param path to file
 	 * @return pd symbol representing patch
@@ -64,7 +64,7 @@ public class PdUtils {
 	}
 	
 	/**
-	 * closes a patch
+	 * Close a patch
 	 * 
 	 * @param patch name of patch, as returned by openPatch
 	 */

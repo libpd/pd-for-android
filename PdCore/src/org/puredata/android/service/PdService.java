@@ -5,7 +5,7 @@
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  *
- * remote service running pd in the background
+ * Pure Data service
  * 
  */
 
@@ -51,22 +51,44 @@ public class PdService extends Service {
 	private volatile int outputChannels = 0;
 	private volatile float bufferSizeMillis = 0.0f;
 
+	/**
+	 * @return the current audio buffer size in milliseconds (approximate value;
+	 * the exact value is a multiple of the Pure Data tick size (64 samples))
+	 */
 	public float getBufferSizeMillis() {
 		return bufferSizeMillis;
 	}
 
+	/**
+	 * @return number of input channels
+	 */
 	public int getInputChannels() {
 		return inputChannels;
 	}
 
+	/**
+	 * @return number of output channels
+	 */
 	public int getOutputChannels() {
 		return outputChannels;
 	}
 
+	/**
+	 * @return current sample rate
+	 */
 	public int getSampleRate() {
 		return sampleRate;
 	}
 
+	/**
+	 * Initialize Pure Data and audio thread
+	 * 
+	 * @param srate   sample rate
+	 * @param nic     number of input channels
+	 * @param noc     number of output channels
+	 * @param millis  audio buffer size in milliseconds
+	 * @throws IOException  if the audio parameters are not supported by the device
+	 */
 	public synchronized void initAudio(int srate, int nic, int noc, float millis) throws IOException {
 		fgManager.stopForeground();
 		Resources res = getResources();
@@ -95,15 +117,29 @@ public class PdService extends Service {
 		bufferSizeMillis = millis;
 	}
 
+	/**
+	 * Start the audio thread without foreground privileges
+	 */
 	public synchronized void startAudio() {
 		PdAudio.startAudio(this);
 	}
 
+	/**
+	 * Start the audio thread with foreground privileges
+	 * 
+	 * @param intent       intent to be triggered when the user selects the notification of the service
+	 * @param icon         icon representing the notification
+	 * @param title        title of the notification
+	 * @param description  description of the notification
+	 */
 	public synchronized void startAudio(Intent intent, int icon, String title, String description) {
 		fgManager.startForeground(intent, icon, title, description);
 		PdAudio.startAudio(this);
 	}
 
+	/**
+	 * Stop the audio thread
+	 */
 	public synchronized void stopAudio() {
 		PdAudio.stopAudio();
 		fgManager.stopForeground();
@@ -113,6 +149,9 @@ public class PdService extends Service {
 		bufferSizeMillis = 0.0f;
 	}
 
+	/**
+	 * @return true if and only if the audio thread is running
+	 */
 	public synchronized boolean isRunning() {
 		return PdAudio.isRunning();
 	}
@@ -143,6 +182,8 @@ public class PdService extends Service {
 		PdBase.release();
 	}
 
+	// Hack to support multiple versions of the Android API, based on an idea
+	// from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 	private interface ForegroundManager {
 		void startForeground(Intent intent, int icon, String title, String description);
 		void stopForeground();

@@ -5,8 +5,9 @@
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  * 
- * wrapper for AudioRecord; the purpose of the weird queuing mechanism is to work around the
- * AudioRecord.read blocking problem on Droid X, without messing things up on other devices
+ * wrapper for {@link AudioRecord}, auxiliary class for {@link AudioWrapper}; the purpose of the bizarre
+ * queuing mechanism is to work around the AudioRecord.read blocking problem on Droid X, without messing
+ * things up on other devices
  * 
  */
 

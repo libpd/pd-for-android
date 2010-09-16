@@ -6,8 +6,8 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  *
  * Implementation of {@link PdReceiver} that dispatches messages from pd to instances of {@link PdListener}
- * based on the pd symbol they originate from.  Instances of this class automatically handle subscriptions
- * to pd symbols.
+ * based on the Pd symbol they originate from.  Instances of this class automatically handle subscriptions
+ * to Pd symbols.
  * 
  */
 
@@ -26,6 +26,12 @@ public abstract class PdDispatcher implements PdReceiver {
 
 	private final Map<String, Set<PdListener>> listeners = new HashMap<String, Set<PdListener>>();
 
+	/**
+	 * Subscribe to Pd messages sent to the given symbol and register a listener to this symbol
+	 * 
+	 * @param symbol    receiver symbol in Pd
+	 * @param listener
+	 */
 	public synchronized void addListener(String symbol, PdListener listener) {
 		int err = PdBase.subscribe(symbol);
 		if (err != 0) {
@@ -39,6 +45,13 @@ public abstract class PdDispatcher implements PdReceiver {
 		selected.add(listener);
 	}
 	
+	/**
+	 * Remove a listener associated with a symbol; unsubscribe from Pd messages to symbol
+	 * if no listeners are left
+	 * 
+	 * @param symbol    receiver symbol in Pd
+	 * @param listener
+	 */
 	public synchronized void removeListener(String symbol, PdListener listener) {
 		Set<PdListener> selected = listeners.get(symbol);
 		if (selected == null) return;
@@ -49,6 +62,9 @@ public abstract class PdDispatcher implements PdReceiver {
 		}
 	}
 	
+	/**
+	 * Unsubscribe from Pd messages and release all resources
+	 */
 	public synchronized void release() {
 		for (String symbol: listeners.keySet()) {
 			PdBase.unsubscribe(symbol);
@@ -62,6 +78,9 @@ public abstract class PdDispatcher implements PdReceiver {
 		release();
 	}
 	
+	/**
+	 * Handle print messages from Pd
+	 */
 	@Override
 	public abstract void print(String s);
 

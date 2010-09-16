@@ -21,21 +21,19 @@ public interface PdListener {
 	public void receiveSymbol(String symbol);
 	
 	/**
-	 * 
-	 * @param source
 	 * @param args  elements may be of type Integer, Float, or String
 	 */
 	public void receiveList(Object... args);
 	
 	/**
-	 * 
-	 * @param source
 	 * @param symbol
 	 * @param args  elements may be of type Integer, Float, or String
 	 */
 	public void receiveMessage(String symbol, Object... args);
 	
-	
+	/**
+	 * PdListener adapter for subclasses that only need to handle a subset of Pd messages
+	 */
 	public class Adapter implements PdListener {
 		@Override
 		public void receiveBang() {}

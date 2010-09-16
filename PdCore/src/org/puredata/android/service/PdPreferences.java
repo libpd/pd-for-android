@@ -5,7 +5,7 @@
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  *
- * simple test case for {@link PdService}
+ * simple preference activity for {@link PdService}
  * 
  */
 
@@ -34,6 +34,11 @@ public class PdPreferences extends PreferenceActivity {
 		super.onDestroy();
 	}
 	
+	/**
+	 * If no preferences are available, initialize preferences with defaults suggested by {@link AudioParameters}
+	 * 
+	 * @param context  current application context
+	 */
 	public static void initPreferences(Context context) {
 		Resources res = context.getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

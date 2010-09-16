@@ -1,3 +1,12 @@
+/**
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ * 
+ * For information on usage and redistribution, and for a DISCLAIMER OF ALL
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ * 
+ */
+
 package org.puredata.core.utils;
 
 import java.io.BufferedInputStream;
@@ -26,15 +35,16 @@ public class IoUtils {
 	}
 	
 	/**
-	 * hackish check for armeabi-v7a
-	 * @return true iff armeabi-v7a is available
+	 * Hackish check for armeabi-v7a
+	 * 
+	 * @return true if and only if armeabi-v7a is available
 	 */
 	public static boolean hasArmeabiV7a() {
 		return v7aFlag;
 	}
 	
 	/**
-	 * extracts a resource into a real file
+	 * Extract a resource into a real file
 	 * 
 	 * @param in typically given as getResources().openRawResource(R.raw.something)
 	 * @param name of the resulting file
@@ -55,7 +65,8 @@ public class IoUtils {
 	}
 	
 	/**
-	 * extracts a zip resource into real files and directories, not overwriting existing files
+	 * Extract a zip resource into real files and directories, not overwriting existing files
+	 * 
 	 * @param in typically given as getResources().openRawResource(R.raw.something)
 	 * @param directory target directory
 	 * @return list of files that were unpacked, not including files that existed before
@@ -67,7 +78,8 @@ public class IoUtils {
 
 	
 	/**
-	 * extracts a zip resource into real files and directories
+	 * Extract a zip resource into real files and directories
+	 * 
 	 * @param in typically given as getResources().openRawResource(R.raw.something)
 	 * @param directory target directory
 	 * @param overwrite indicates whether to overwrite existing files
@@ -103,7 +115,8 @@ public class IoUtils {
 	}
 
 	/**
-	 * finds all files matching a given pattern in the given directory and below
+	 * Find all files matching a given pattern in the given directory and below
+	 * 
 	 * @param dir
 	 * @param pattern
 	 * @return

@@ -5,6 +5,8 @@
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  * 
+ * manages an instance of {@link AudioWrapper} that uses Pure Data for audio processing
+ * 
  */
 
 package org.puredata.android.io;
@@ -22,6 +24,17 @@ public class PdAudio {
 	
 	private static AudioWrapper audioWrapper = null;
 
+	/**
+	 * initialize Pure Data as well as {@link AudioWrapper} instance
+	 * 
+	 * @param sampleRate
+	 * @param inChannels      number of input channels
+	 * @param outChannels     number of output channels
+	 * @param ticksPerBuffer  number of Pure Data ticks (i.e., blocks of 64 samples) per buffer; choose 1 for minimal latency,
+	 *                            or more if performance is a concern
+	 * @param restart         flag indicating whether the audio thread should be stopped if it is currently running
+	 * @throws IOException    if the audio parameters are not supported by the device
+	 */
 	public synchronized static void initAudio(int sampleRate, int inChannels, int outChannels, int ticksPerBuffer, boolean restart)
 			throws IOException {
 		if (isRunning() && !restart) return;
@@ -40,6 +53,11 @@ public class PdAudio {
 		};
 	}
 	
+	/**
+	 * Start audio wrapper
+	 * 
+	 * @param context  current application context
+	 */
 	public synchronized static void startAudio(Context context) {
 		if (audioWrapper == null) {
 			throw new IllegalStateException("audio not initialized");
@@ -48,12 +66,18 @@ public class PdAudio {
 		audioWrapper.start(context);
 	}
 
+	/**
+	 * Stop audio wrapper
+	 */
 	public synchronized static void stopAudio() {
 		if (!isRunning()) return;
 		audioWrapper.release();
 		audioWrapper = null;
 	}
 	
+	/**
+	 * @return true if and only if the audio wrapper is running
+	 */
 	public synchronized static boolean isRunning() {
 		return audioWrapper != null && audioWrapper.isRunning();
 	}
