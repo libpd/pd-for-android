@@ -297,9 +297,16 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void startAudio() throws IOException {
 		String name = getResources().getString(R.string.app_name);
-		pdService.startAudio(22050, 1, 2, -1,   // negative values default to PdService preferences
-				new Intent(this, ScenePlayer.class), android.R.drawable.ic_media_play, name, "Return to " + name + ".");
-		if (patch == null) patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
+		pdService.initAudio(22050, 1, 2, -1);   // negative values default to PdService preferences
+		if (patch == null) {
+			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+		}
+		pdService.startAudio(new Intent(this, ScenePlayer.class), android.R.drawable.ic_media_play, name, "Return to " + name + ".");
 		PdBase.sendMessage(TRANSPORT, "play", 1);
 	}
 
