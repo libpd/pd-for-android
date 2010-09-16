@@ -21,16 +21,15 @@ import android.content.Context;
 public class PdAudio {
 	
 	private static AudioWrapper audioWrapper = null;
-	
-	public synchronized static void startAudio(Context context, int sampleRate, int inChannels, int outChannels,
-			int ticksPerBuffer, boolean restart) throws IOException {
+
+	public synchronized static void initAudio(int sampleRate, int inChannels, int outChannels, int ticksPerBuffer, boolean restart)
+			throws IOException {
 		if (isRunning() && !restart) return;
 		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
 			throw new IOException("bad audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
 		}
 		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate, ticksPerBuffer);
-		PdUtils.computeAudio(true);
 		int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
 			@Override
@@ -39,6 +38,13 @@ public class PdAudio {
 				return PdBase.process(inBuffer, outBuffer);
 			}
 		};
+	}
+	
+	public synchronized static void startAudio(Context context) {
+		if (audioWrapper == null) {
+			throw new IllegalStateException("audio not initialized");
+		}
+		PdUtils.computeAudio(true);
 		audioWrapper.start(context);
 	}
 

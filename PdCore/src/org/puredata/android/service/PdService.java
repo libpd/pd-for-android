@@ -67,13 +67,7 @@ public class PdService extends Service {
 		return sampleRate;
 	}
 
-	public synchronized void startAudio(int srate, int nic, int noc, float millis,
-			Intent intent, int icon, String title, String description) throws IOException {
-		startAudio(srate, nic, noc, millis);
-		fgManager.startForeground(intent, icon, title, description);
-	}
-
-	public synchronized void startAudio(int srate, int nic, int noc, float millis) throws IOException {
+	public synchronized void initAudio(int srate, int nic, int noc, float millis) throws IOException {
 		fgManager.stopForeground();
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -94,11 +88,20 @@ public class PdService extends Service {
 			millis = (s == null) ? AudioParameters.suggestBufferSizeMillis() : Float.parseFloat(s);
 		}
 		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize()) + 1;
-		PdAudio.startAudio(this, srate, nic, noc, tpb, true);
+		PdAudio.initAudio(srate, nic, noc, tpb, true);
 		sampleRate = srate;
 		inputChannels = nic;
 		outputChannels = noc;
 		bufferSizeMillis = millis;
+	}
+
+	public synchronized void startAudio() {
+		PdAudio.startAudio(this);
+	}
+
+	public synchronized void startAudio(Intent intent, int icon, String title, String description) {
+		fgManager.startForeground(intent, icon, title, description);
+		PdAudio.startAudio(this);
 	}
 
 	public synchronized void stopAudio() {
