@@ -332,7 +332,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		if (patch == null) {
 			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// do nothing
 			}
