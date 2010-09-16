@@ -85,7 +85,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		});
 	}
 
-	private final PdListener overlayListener = new PdListener() {
+	private final PdListener overlayListener = new PdListener.Adapter() {
 
 		private final Map<String, Overlay> overlays = new HashMap<String, Overlay>();
 
@@ -138,12 +138,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				overlays.put(key, overlay);
 			}
 		}
-
-		// the remaining methods will never be called
-		@Override public void receiveMessage(String symbol, Object... args) {}
-		@Override public void receiveSymbol(String symbol)  {}
-		@Override public void receiveFloat(float x) {}
-		@Override public void receiveBang() {}
 	};
 
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
