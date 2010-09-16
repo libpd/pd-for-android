@@ -28,6 +28,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -57,6 +58,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
+	private volatile ProgressDialog progress = null;
 	private SceneView sceneView;
 	private TextView logs;
 	private ToggleButton play;
@@ -166,9 +168,19 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
 			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
 			sceneFolder = new File(path);
-			fixScene();
 			initGui();
-			bindService(new Intent(this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
+			progress = new ProgressDialog(this);
+			progress.setCancelable(false);
+			progress.setIndeterminate(true);
+			progress.setMessage("Loading scene...");
+			progress.show();
+			new Thread() {
+				@Override
+				public void run() {
+					fixScene();
+					bindService(new Intent(ScenePlayer.this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
+				}
+			}.start();
 		} else {
 			Log.e(TAG, "launch intent without scene path");
 			finish();
@@ -197,6 +209,12 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		return (v == sceneView) && VersionedTouch.evaluateTouch(event, sceneView.getWidth(), sceneView.getHeight());
+	}
+
+	@Override
+	protected void onPause() {
+		dismissProgressDialog();
+		super.onPause();
 	}
 
 	@Override
@@ -231,6 +249,19 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
 			finish();
+		}
+		dismissProgressDialog();
+	}
+
+	private void dismissProgressDialog() {
+		if (progress != null) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					progress.dismiss();
+					progress = null;
+				}
+			});
 		}
 	}
 
