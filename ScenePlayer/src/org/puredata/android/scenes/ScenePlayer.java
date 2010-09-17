@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.BitmapFactory;
@@ -40,6 +41,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -51,7 +54,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 
-public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener {
+public class ScenePlayer extends Activity implements SensorEventListener,  OnTouchListener, OnClickListener {
 
 	public static final String SCENE = "SCENE";
 	private static final String TAG = "Pd Scene Player";
@@ -160,26 +163,54 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		Intent intent = getIntent();
 		String path = intent.getStringExtra(SCENE);
 		if (path != null) {
-			SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-			sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
-			sceneFolder = new File(path);
-			initGui();
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
 			progress.setIndeterminate(true);
 			progress.setMessage("Loading scene...");
 			progress.show();
-			new Thread() {
-				@Override
-				public void run() {
-					fixScene();
-					bindService(new Intent(ScenePlayer.this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
-				}
-			}.start();
+			sceneFolder = new File(path);
+			initGui();
+			initSystemServices();
+			initPdService();
 		} else {
 			Log.e(TAG, "launch intent without scene path");
 			finish();
 		}
+	}
+
+	private void initPdService() {
+		new Thread() {
+			@Override
+			public void run() {
+				fixScene();
+				bindService(new Intent(ScenePlayer.this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
+			}
+		}.start();
+	}
+
+	private void initSystemServices() {
+		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
+		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		telephonyManager.listen(new PhoneStateListener() {
+			@Override
+			public void onCallStateChanged(int state, String incomingNumber) {
+				if (pdService == null) return;
+				if (state == TelephonyManager.CALL_STATE_IDLE) {
+					if (play.isChecked() && !pdService.isRunning()) {
+						try {
+							startAudio();
+						} catch (IOException e) {
+							post(e.toString());
+						}
+					}
+				} else {
+					if (pdService.isRunning()) {
+						stopAudio();
+					}
+				}
+			}
+		}, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 
 	private void fixScene() {
