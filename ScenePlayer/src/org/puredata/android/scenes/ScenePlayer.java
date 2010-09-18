@@ -45,7 +45,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -69,7 +68,6 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	private static final String MICVOLUME = "#micvolume";
 	private volatile ProgressDialog progress = null;
 	private SceneView sceneView;
-	private TextView logs;
 	private ToggleButton play;
 	private ToggleButton record;
 	private Button info;
@@ -87,12 +85,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	};
 
 	private void post(final String msg) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				logs.append(msg + ((msg.endsWith("\n")) ? "" : "\n"));
-			}
-		});
+		Log.i(TAG, msg);
 	}
 
 	private final PdListener overlayListener = new PdListener.Adapter() {
@@ -270,8 +263,6 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 		info.setOnClickListener(this);
 		micVolume = (SeekBar) findViewById(R.id.mic_volume);
 		micVolume.setOnSeekBarChangeListener(this);
-		logs = (TextView) findViewById(R.id.scene_logs);
-		logs.setMovementMethod(new ScrollingMovementMethod());
 	}
 
 	private void initPd() {
@@ -362,7 +353,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 
 	private void startAudio() throws IOException {
 		String name = getResources().getString(R.string.app_name);
-		pdService.initAudio(-1, 1, 2, -1);   // negative values default to PdService preferences
+		pdService.initAudio(22050, 1, 2, -1);   // negative values default to PdService preferences
 		if (patch == null) {
 			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
 			try {
