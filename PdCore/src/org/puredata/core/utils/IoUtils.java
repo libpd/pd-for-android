@@ -121,14 +121,14 @@ public class IoUtils {
 	 * @param pattern
 	 * @return
 	 */
-	public static List<String> find(File dir, String pattern) {
-		final List<String> hits = new ArrayList<String>();
+	public static List<File> find(File dir, String pattern) {
+		final List<File> hits = new ArrayList<File>();
 		final Pattern p = Pattern.compile(pattern);
 		traverseTree(dir, new FileProcessor() {
 			@Override
 			public void processFile(File file) {
 				if (p.matcher(file.getName()).matches()) {
-					hits.add(file.getAbsolutePath());
+					hits.add(file);
 				}
 			}
 		});
