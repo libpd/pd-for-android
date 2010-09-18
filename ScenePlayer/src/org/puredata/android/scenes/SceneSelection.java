@@ -42,7 +42,6 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		unpackResources();
 		initGui();
 	}
 
@@ -80,6 +79,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		new Thread() {
 			@Override
 			public void run() {
+				unpackResources();
 				List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
 				for (File dir: list) {
 					scenes.put(dir.getName(), dir.getAbsolutePath());
