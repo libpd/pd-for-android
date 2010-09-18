@@ -50,9 +50,9 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		Resources res = getResources();
 		File libDir = getFilesDir();
 		try {
-			IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir, false);
-			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.externals_v7a : R.raw.externals), libDir, false);
-			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd"), false);
+			IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir, true);
+			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.externals_v7a : R.raw.externals), libDir, true);
+			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd"), true);
 			// many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
 		} catch (IOException e) {
 			Log.e("Scene Player", e.toString());
@@ -80,9 +80,9 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		new Thread() {
 			@Override
 			public void run() {
-				List<String> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
-				for (String dir: list) {
-					scenes.put(new File(dir).getName(), dir);
+				List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
+				for (File dir: list) {
+					scenes.put(dir.getName(), dir.getAbsolutePath());
 				}
 				ArrayList<String> keyList = new ArrayList<String>(scenes.keySet());
 				Collections.sort(keyList, new Comparator<String>() {

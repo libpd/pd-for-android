@@ -12,12 +12,14 @@ package org.puredata.android.scenes;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
+import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
 import org.puredata.core.utils.PdUtils;
@@ -50,11 +52,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 
-public class ScenePlayer extends Activity implements SensorEventListener,  OnTouchListener, OnClickListener {
+public class ScenePlayer extends Activity implements SensorEventListener,  OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
 	public static final String SCENE = "SCENE";
 	private static final String TAG = "Pd Scene Player";
@@ -62,12 +66,14 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
+	private static final String MICVOLUME = "#micvolume";
 	private volatile ProgressDialog progress = null;
 	private SceneView sceneView;
 	private TextView logs;
 	private ToggleButton play;
 	private ToggleButton record;
 	private Button info;
+	private SeekBar micVolume;
 	private File sceneFolder;
 	private PdService pdService = null;
 	private String patch = null;
@@ -215,9 +221,9 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 
 	private void fixScene() {
 		// weird little hack to avoid having our rj_image.pd and such masked by files in the scene
-		for (String s: new String[] {"rj_image", "rj_text", "soundinput", "soundoutput"}) {
-			new File(sceneFolder, s + ".pd").delete();
-			new File(sceneFolder, "rj/" + s + ".pd").delete();
+		for (String s: new String[] {"rj_image.pd", "rj_text.pd", "soundinput.pd", "soundoutput.pd"}) {
+			List<File> list = IoUtils.find(sceneFolder, s);
+			for (File file: list) file.delete();
 		}
 	}
 
@@ -262,6 +268,8 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 		record.setOnClickListener(this);
 		info = (Button) findViewById(R.id.scene_info);
 		info.setOnClickListener(this);
+		micVolume = (SeekBar) findViewById(R.id.mic_volume);
+		micVolume.setOnSeekBarChangeListener(this);
 		logs = (TextView) findViewById(R.id.scene_logs);
 		logs.setMovementMethod(new ScrollingMovementMethod());
 	}
@@ -354,7 +362,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 
 	private void startAudio() throws IOException {
 		String name = getResources().getString(R.string.app_name);
-		pdService.initAudio(22050, 1, 2, -1);   // negative values default to PdService preferences
+		pdService.initAudio(-1, 1, 2, -1);   // negative values default to PdService preferences
 		if (patch == null) {
 			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
 			try {
@@ -410,5 +418,22 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 			Log.e(TAG, e.toString());
 			sceneInfo.clear();
 		}
+	}
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		float q = progress * 0.01f;
+		float volume = q * q * q * q;
+		PdBase.sendFloat(MICVOLUME, volume);
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// don't care
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// don't care
 	}
 }

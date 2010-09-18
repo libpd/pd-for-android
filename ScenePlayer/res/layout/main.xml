@@ -22,6 +22,8 @@
 	<Button android:id="@+id/scene_info" android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/info" />
+	<SeekBar android:id="@+id/mic_volume" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:max="100" android:progress="100" />
 	<TextView android:id="@+id/scene_logs" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:gravity="bottom"
 		android:scrollbars="vertical" />
