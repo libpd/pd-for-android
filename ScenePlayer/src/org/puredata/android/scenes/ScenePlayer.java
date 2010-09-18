@@ -414,7 +414,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 		float q = progress * 0.01f;
-		float volume = q * q * q * q;
+		float volume = q * q * q * q;  // fourth power of mic volume slider value; somewhere between linear and exponential
 		PdBase.sendFloat(MICVOLUME, volume);
 	}
 
