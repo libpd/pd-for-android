@@ -62,6 +62,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 
 	public static final String SCENE = "SCENE";
 	public static final String RECDIR = "RECDIR";
+	public static final String RECSEP = "___";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -349,7 +350,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 			return;
 		}
 		String name = sceneFolder.getName();
-		String filename = new File(recDir, name.substring(0, name.length()-3) + "-" + System.currentTimeMillis() + ".wav").getAbsolutePath();
+		String filename = new File(recDir, name.substring(0, name.length()-3) + RECSEP + System.currentTimeMillis() + ".wav").getAbsolutePath();
 		PdBase.sendMessage(TRANSPORT, "scene", filename);
 		PdBase.sendMessage(TRANSPORT, "record", 1);
 		post("recording to " + filename);
