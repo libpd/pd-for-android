@@ -15,7 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
@@ -23,11 +24,9 @@ import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
 import org.puredata.core.utils.PdUtils;
-import org.w3c.dom.CharacterData;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -37,6 +36,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -51,6 +51,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -383,30 +384,60 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 			ad.setTitle("Oops");
 			ad.setMessage("Info not available...");
 		} else {
-			ad.setTitle("" + sceneInfo.get("name") + "\n" + sceneInfo.get("author"));
-			ad.setMessage("" + sceneInfo.get("description") + "\n\nCategory: " + sceneInfo.get("category"));
+			View header = View.inflate(this, R.layout.two_line_dialog_title, null);
+			((TextView) header.findViewById(android.R.id.text1)).setText(sceneInfo.get("name"));
+			((TextView) header.findViewById(android.R.id.text2)).setText(sceneInfo.get("author"));
+			File pic = new File(sceneFolder, "thumb.jpg");
+			if (!pic.exists()) pic = new File(sceneFolder, "image.jpg");
+			if (pic.exists()) {
+				ImageView sceneThumbnail = (ImageView) header.findViewById(android.R.id.selectedIcon);
+				sceneThumbnail.setImageDrawable(Drawable.createFromPath(pic.getAbsolutePath()));
+			}
+			ad.setCustomTitle(header);
+			ad.setMessage(sceneInfo.get("description"));
 		}
 		ad.setNeutralButton(android.R.string.ok, null);
 		ad.setCancelable(true);
 		ad.show();
 	}
-
+	
 	private void readInfo() {
 		if (!sceneInfo.isEmpty()) return;
 		try {
-			Document dbf = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(sceneFolder, "Info.plist"));
-			Element infoEntries = (Element) dbf.getElementsByTagName("dict").item(1);
-			if (infoEntries == null) throw new SAXException("Not enough dict nodes in Info.plist");
-			NodeList keys = infoEntries.getElementsByTagName("key");
-			NodeList values = infoEntries.getElementsByTagName("string");
-			if (keys.getLength() != values.getLength()) throw new SAXException("Mismatched number of keys and values");
-			for (int i = 0; i < keys.getLength(); i++) {
-				String key = ((CharacterData) keys.item(i).getLastChild()).getData();
-				String value = ((CharacterData) values.item(i).getLastChild()).getData();
-				sceneInfo.put(key, value);
-			}
+			SAXParserFactory spf = SAXParserFactory.newInstance();
+			SAXParser sp = spf.newSAXParser();
+			sp.parse(new File(sceneFolder, "Info.plist"), new DefaultHandler() {
+				private String key = "", val = "";
+				private boolean expectKey;
+				@Override
+				public void startElement(String uri, String localName,
+						String qName, Attributes attributes) throws SAXException {
+					expectKey = localName.equalsIgnoreCase("key");
+					if (expectKey) {
+						key = val = "";
+					}
+				}
+
+				@Override
+				public void characters(char[] ch, int start, int length) throws SAXException {
+					String s = new String(ch, start, length);
+					if (expectKey) {
+						key += s;
+					} else {
+						val += s;
+					}
+				}
+
+				@Override
+				public void endElement(String uri, String localName, String qName) throws SAXException {
+					key = key.trim();
+					val = val.trim();
+					if (key.length() > 0) {
+						sceneInfo.put(key, val);
+					}
+				}
+			});
 		} catch (Exception e) {
-			Log.e(TAG, e.toString());
 			sceneInfo.clear();
 		}
 	}
