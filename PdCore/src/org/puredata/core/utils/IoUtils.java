@@ -141,10 +141,10 @@ public class IoUtils {
 
 	private static void traverseTree(File file, FileProcessor fp) {
 		fp.processFile(file);
-		if (file.isDirectory()) {
-			String[] children = file.list();
-			for (int i = 0; i < children.length; i++) {
-				traverseTree(new File(file, children[i]), fp);
+		File[] children = file.listFiles();
+		if (children != null) {
+			for (File child: children) {
+				traverseTree(child, fp);
 			}
 		}
 	}
