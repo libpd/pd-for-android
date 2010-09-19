@@ -65,6 +65,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		String name = item.getText().toString();
 		Intent intent = new Intent(this, ScenePlayer.class);
 		intent.putExtra(ScenePlayer.SCENE, scenes.get(name));
+		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
 		startActivity(intent);
 	}
 	

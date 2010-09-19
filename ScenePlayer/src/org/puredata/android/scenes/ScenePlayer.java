@@ -61,6 +61,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 public class ScenePlayer extends Activity implements SensorEventListener,  OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
 	public static final String SCENE = "SCENE";
+	public static final String RECDIR = "RECDIR";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -74,9 +75,9 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	private Button info;
 	private SeekBar micVolume;
 	private File sceneFolder;
+	private File recDir = null;
 	private PdService pdService = null;
 	private String patch = null;
-	private final File recDir = new File("/sdcard/pd");
 	private final Map<String, String> sceneInfo = new HashMap<String, String>();
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
@@ -161,14 +162,17 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		String path = intent.getStringExtra(SCENE);
-		if (path != null) {
+		String scenePath = intent.getStringExtra(SCENE);
+		String recDirName = intent.getStringExtra(RECDIR);
+		if (scenePath != null && recDirName != null) {
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
 			progress.setIndeterminate(true);
 			progress.setMessage("Loading scene...");
 			progress.show();
-			sceneFolder = new File(path);
+			sceneFolder = new File(scenePath);
+			recDir = new File(recDirName);
+			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs())) recDir = null;
 			initGui();
 			initSystemServices();
 			initPdService();
@@ -340,6 +344,10 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	}
 
 	private void startRecording() {
+		if (recDir == null) {
+			record.setChecked(false);
+			return;
+		}
 		String name = sceneFolder.getName();
 		String filename = new File(recDir, name.substring(0, name.length()-3) + "-" + System.currentTimeMillis() + ".wav").getAbsolutePath();
 		PdBase.sendMessage(TRANSPORT, "scene", filename);
@@ -348,6 +356,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	}
 
 	private void stopRecording() {
+		if (recDir == null) return;
 		PdBase.sendMessage(TRANSPORT, "record", 0);
 		post("finished recording");
 	}
