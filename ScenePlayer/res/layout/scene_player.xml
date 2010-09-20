@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
-	<LinearLayout android:layout_alignParentTop="true" android:id="@+id/sceneplayer_header"
-		android:orientation="vertical" android:layout_width="fill_parent"
-		android:layout_height="65dip" android:padding="0dip"
-		android:background="@drawable/white_gradient_top">
+	<LinearLayout android:layout_alignParentTop="true"
+		android:id="@+id/sceneplayer_header" android:orientation="vertical"
+		android:layout_width="fill_parent" android:layout_height="65dip"
+		android:padding="0dip" android:background="@drawable/white_gradient_top">
 		<TextView android:id="@+id/sceneplayer_title"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:textColor="#000" android:gravity="center"
@@ -17,14 +17,12 @@
 			android:paddingBottom="5dip" android:ellipsize="end"
 			android:singleLine="true" />
 	</LinearLayout>
-	<org.puredata.android.scenes.SceneView
-		android:layout_below="@id/sceneplayer_header" android:id="@+id/sceneplayer_pic"
-		android:adjustViewBounds="true" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
-	<LinearLayout android:id="@+id/scene_play_control"
-		android:layout_below="@id/sceneplayer_pic"
+	<SeekBar android:layout_alignParentBottom="true" android:id="@+id/mic_volume"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:padding="0dip"
+		android:padding="12dip" android:max="100" android:progress="100" />
+	<LinearLayout android:id="@+id/scene_play_control"
+		android:layout_above="@id/mic_volume" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:padding="0dip"
 		android:background="@drawable/white_gradient_bottom" android:gravity="center"
 		android:orientation="horizontal">
 		<ToggleButton android:layout_weight="1"
@@ -32,16 +30,16 @@
 			android:layout_height="wrap_content" android:textOn="@string/playing"
 			android:textOff="@string/paused" android:checked="true" />
 		<ToggleButton android:layout_weight="1"
-			android:id="@+id/sceneplayer_record"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:textOn="@string/stoprec" android:textOff="@string/startrec" />
-		<Button android:layout_weight="1"
-			android:id="@+id/sceneplayer_info"
+			android:id="@+id/sceneplayer_record" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:textOn="@string/stoprec"
+			android:textOff="@string/startrec" />
+		<Button android:layout_weight="1" android:id="@+id/sceneplayer_info"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:text="@string/info" />
 	</LinearLayout>
-	<SeekBar android:layout_alignParentBottom="true"
-		android:id="@+id/mic_volume" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:padding="20dip"
-		android:max="100" android:progress="100" />
+	<org.puredata.android.scenes.SceneView
+		android:id="@+id/sceneplayer_pic" android:layout_width="wrap_content"
+		android:layout_height="fill_parent" android:layout_below="@id/sceneplayer_header"
+		android:layout_above="@id/scene_play_control" android:gravity="center"
+		android:background="#000" android:scaleType="center" />
 </RelativeLayout>

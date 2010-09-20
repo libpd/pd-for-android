@@ -258,7 +258,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 
 	private void initGui() {
 		readInfo();
-		setContentView(R.layout.main);
+		setContentView(R.layout.scene_player);
 		TextView tv = (TextView) findViewById(R.id.sceneplayer_title);
 		tv.setText(sceneInfo.get(TITLE));
 		tv = (TextView) findViewById(R.id.sceneplayer_artist);

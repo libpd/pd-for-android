@@ -70,7 +70,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 	}
 	
 	private void initGui() {
-		setContentView(R.layout.choose);
+		setContentView(R.layout.scene_selection);
 		sceneView = (ListView) findViewById(R.id.scene_selection);
 		final ProgressDialog progress = new ProgressDialog(this);
 		progress.setMessage("Loading scenes.  Please wait...");
