@@ -63,6 +63,8 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	public static final String SCENE = "SCENE";
 	public static final String RECDIR = "RECDIR";
 	public static final String RECSEP = "___";
+	private static final String TITLE = "name";
+	private static final String AUTHOR = "author";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -255,17 +257,20 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	}
 
 	private void initGui() {
+		readInfo();
 		setContentView(R.layout.main);
-		TextView tv = (TextView) findViewById(R.id.scene_title);
-		tv.setText(sceneFolder.getName());
-		sceneView = (SceneView) findViewById(R.id.scene_pic);
+		TextView tv = (TextView) findViewById(R.id.sceneplayer_title);
+		tv.setText(sceneInfo.get(TITLE));
+		tv = (TextView) findViewById(R.id.sceneplayer_artist);
+		tv.setText(sceneInfo.get(AUTHOR));
+		sceneView = (SceneView) findViewById(R.id.sceneplayer_pic);
 		sceneView.setOnTouchListener(this);
 		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
-		play = (ToggleButton) findViewById(R.id.scene_pause);
+		play = (ToggleButton) findViewById(R.id.sceneplayer_pause);
 		play.setOnClickListener(this);
-		record = (ToggleButton) findViewById(R.id.scene_record);
+		record = (ToggleButton) findViewById(R.id.sceneplayer_record);
 		record.setOnClickListener(this);
-		info = (Button) findViewById(R.id.scene_info);
+		info = (Button) findViewById(R.id.sceneplayer_info);
 		info.setOnClickListener(this);
 		micVolume = (SeekBar) findViewById(R.id.mic_volume);
 		micVolume.setOnSeekBarChangeListener(this);
@@ -388,15 +393,14 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	}
 
 	private void showInfo() {
-		readInfo();
 		AlertDialog.Builder ad = new AlertDialog.Builder(this);
 		if (sceneInfo.isEmpty()) {
 			ad.setTitle("Oops");
 			ad.setMessage("Info not available...");
 		} else {
 			View header = View.inflate(this, R.layout.two_line_dialog_title, null);
-			((TextView) header.findViewById(android.R.id.text1)).setText(sceneInfo.get("name"));
-			((TextView) header.findViewById(android.R.id.text2)).setText(sceneInfo.get("author"));
+			((TextView) header.findViewById(android.R.id.text1)).setText(sceneInfo.get(TITLE));
+			((TextView) header.findViewById(android.R.id.text2)).setText(sceneInfo.get(AUTHOR));
 			File pic = new File(sceneFolder, "thumb.jpg");
 			if (!pic.exists()) pic = new File(sceneFolder, "image.jpg");
 			if (pic.exists()) {
@@ -412,7 +416,6 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	}
 	
 	private void readInfo() {
-		if (!sceneInfo.isEmpty()) return;
 		try {
 			SAXParserFactory spf = SAXParserFactory.newInstance();
 			SAXParser sp = spf.newSAXParser();
