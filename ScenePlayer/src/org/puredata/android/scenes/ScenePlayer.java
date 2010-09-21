@@ -51,6 +51,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -75,7 +76,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	private SceneView sceneView;
 	private ToggleButton play;
 	private ToggleButton record;
-	private Button info;
+	private ImageButton info;
 	private SeekBar micVolume;
 	private File sceneFolder;
 	private File recDir = null;
@@ -270,7 +271,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 		play.setOnClickListener(this);
 		record = (ToggleButton) findViewById(R.id.sceneplayer_record);
 		record.setOnClickListener(this);
-		info = (Button) findViewById(R.id.sceneplayer_info);
+		info = (ImageButton) findViewById(R.id.sceneplayer_info);
 		info.setOnClickListener(this);
 		micVolume = (SeekBar) findViewById(R.id.mic_volume);
 		micVolume.setOnSeekBarChangeListener(this);

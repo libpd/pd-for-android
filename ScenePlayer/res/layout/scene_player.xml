@@ -27,23 +27,24 @@
 		android:orientation="horizontal">
 		<ToggleButton android:layout_weight="1"
 			android:id="@+id/sceneplayer_pause" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:textOn="@string/playing"
-			android:textOff="@string/paused" android:checked="true" />
+			android:layout_height="wrap_content" android:button="@drawable/play_button"
+			android:checked="true" android:textOn="" android:textOff=""
+			android:gravity="center" android:background="@drawable/all_transparent" />
 		<ToggleButton android:layout_weight="1"
 			android:id="@+id/sceneplayer_record" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:textOn="@string/stoprec"
-			android:textOff="@string/startrec" />
-		<Button android:layout_weight="1" android:id="@+id/sceneplayer_info"
+			android:layout_height="wrap_content" android:button="@drawable/record_button"
+			android:checked="false" android:textOn="" android:textOff=""
+			android:background="@drawable/all_transparent" />
+		<ImageButton android:layout_weight="1" android:id="@+id/sceneplayer_info"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:text="@string/info" />
+			android:src="@drawable/transport_list" android:background="@drawable/all_transparent" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent" android:layout_height="wrap_content">
 		<ImageView android:id="@+id/mic_icon" android:src="@android:drawable/ic_btn_speak_now"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
-			android:paddingLeft="12dip" android:paddingTop="12dip" android:paddingBottom="12dip"
-			/>
+			android:layout_alignParentBottom="true" android:paddingLeft="12dip"
+			android:paddingTop="12dip" android:paddingBottom="12dip" />
 		<SeekBar android:layout_toRightOf="@id/mic_icon"
 			android:layout_alignParentBottom="true" android:id="@+id/mic_volume"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
