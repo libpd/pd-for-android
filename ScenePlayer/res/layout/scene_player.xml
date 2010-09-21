@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent">
-	<LinearLayout android:layout_alignParentTop="true"
-		android:id="@+id/sceneplayer_header" android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<LinearLayout android:orientation="vertical"
 		android:layout_width="fill_parent" android:layout_height="65dip"
 		android:padding="0dip" android:background="@drawable/white_gradient_top">
 		<TextView android:id="@+id/sceneplayer_title"
@@ -17,15 +17,11 @@
 			android:paddingBottom="5dip" android:ellipsize="end"
 			android:singleLine="true" />
 	</LinearLayout>
-	<ImageView android:id="@+id/mic_icon" android:src="@android:drawable/ic_btn_speak_now"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true" android:paddingLeft="12dip" android:paddingBottom="12dip" />
-	<SeekBar android:layout_toRightOf="@id/mic_icon"
-		android:layout_alignParentBottom="true" android:id="@+id/mic_volume"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:padding="12dip" android:max="100" android:progress="100" />
-	<LinearLayout android:id="@+id/sceneplayer_control"
-		android:layout_above="@id/mic_volume" android:layout_width="fill_parent"
+	<org.puredata.android.scenes.SceneView
+		android:id="@+id/sceneplayer_pic" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:gravity="center"
+		android:background="#000" android:adjustViewBounds="true" />
+	<LinearLayout android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:padding="0dip"
 		android:background="@drawable/white_gradient_bottom" android:gravity="center"
 		android:orientation="horizontal">
@@ -41,9 +37,16 @@
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:text="@string/info" />
 	</LinearLayout>
-	<org.puredata.android.scenes.SceneView
-		android:id="@+id/sceneplayer_pic" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:layout_below="@id/sceneplayer_header"
-		android:layout_above="@id/sceneplayer_control" android:gravity="center"
-		android:background="#000" android:adjustViewBounds="true" />
-</RelativeLayout>
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<ImageView android:id="@+id/mic_icon" android:src="@android:drawable/ic_btn_speak_now"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:paddingLeft="12dip" android:paddingTop="12dip" android:paddingBottom="12dip"
+			/>
+		<SeekBar android:layout_toRightOf="@id/mic_icon"
+			android:layout_alignParentBottom="true" android:id="@+id/mic_volume"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:padding="12dip" android:max="100" android:progress="100" />
+	</LinearLayout>
+</LinearLayout>
