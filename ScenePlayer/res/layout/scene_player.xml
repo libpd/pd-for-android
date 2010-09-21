@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
+	android:layout_height="fill_parent" android:gravity="center_vertical">
 	<LinearLayout android:orientation="vertical"
 		android:layout_width="fill_parent" android:layout_height="65dip"
 		android:padding="0dip" android:background="@drawable/white_gradient_top">
@@ -27,13 +27,13 @@
 		android:orientation="horizontal">
 		<ToggleButton android:layout_weight="1"
 			android:id="@+id/sceneplayer_pause" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:button="@drawable/play_button"
-			android:checked="true" android:textOn="" android:textOff=""
-			android:gravity="center" android:background="@drawable/all_transparent" />
+			android:layout_height="wrap_content" android:checked="true"
+			android:drawableTop="@drawable/play_button" android:lines="0"
+			android:background="@drawable/all_transparent" />
 		<ToggleButton android:layout_weight="1"
 			android:id="@+id/sceneplayer_record" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:button="@drawable/record_button"
-			android:checked="false" android:textOn="" android:textOff=""
+			android:layout_height="wrap_content" android:checked="false"
+			android:drawableTop="@drawable/record_button" android:lines="0"
 			android:background="@drawable/all_transparent" />
 		<ImageButton android:layout_weight="1" android:id="@+id/sceneplayer_info"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
