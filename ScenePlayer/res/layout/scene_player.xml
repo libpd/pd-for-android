@@ -36,7 +36,7 @@
 			android:background="@drawable/all_transparent" />
 		<ImageButton android:layout_weight="1" android:id="@+id/sceneplayer_info"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:src="@drawable/transport_list" android:background="@drawable/all_transparent" />
+			android:src="@drawable/info_button" android:background="@drawable/all_transparent" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
 		android:layout_width="fill_parent" android:layout_height="wrap_content">
