@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
-	android:layout_height="fill_parent" android:gravity="center_vertical">
+	android:layout_height="fill_parent" android:gravity="center">
 	<LinearLayout android:orientation="vertical"
 		android:layout_width="fill_parent" android:layout_height="65dip"
 		android:padding="0dip" android:background="@drawable/white_gradient_top">
@@ -19,11 +19,10 @@
 	</LinearLayout>
 	<org.puredata.android.scenes.SceneView
 		android:id="@+id/sceneplayer_pic" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:gravity="center"
-		android:background="#000" />
-	<LinearLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:background="#000" />
+	<LinearLayout android:layout_width="fill_parent" android:gravity="center"
 		android:layout_height="wrap_content" android:padding="0dip"
-		android:background="@drawable/white_gradient_bottom" android:gravity="center"
+		android:background="@drawable/white_gradient_bottom"
 		android:orientation="horizontal">
 		<ToggleButton android:layout_weight="1"
 			android:id="@+id/sceneplayer_pause" android:layout_width="wrap_content"
