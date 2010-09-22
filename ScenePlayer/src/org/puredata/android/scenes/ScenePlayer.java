@@ -62,6 +62,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 
 	public static final String SCENE = "SCENE";
 	public static final String RECDIR = "RECDIR";
+	public static final String RECTAG = "RECTAG"; // key for recording tag, e.g., for geolocation
 	public static final String RECSEP = "___";
 	private static final String TITLE = "name";
 	private static final String AUTHOR = "author";
@@ -81,6 +82,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	private File recDir = null;
 	private PdService pdService = null;
 	private String patch = null;
+	private String recTag = null;
 	private final Map<String, String> sceneInfo = new HashMap<String, String>();
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
@@ -167,6 +169,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 		Intent intent = getIntent();
 		String scenePath = intent.getStringExtra(SCENE);
 		String recDirName = intent.getStringExtra(RECDIR);
+		recTag = intent.getStringExtra(RECTAG);
 		if (scenePath != null && recDirName != null) {
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
@@ -354,11 +357,13 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 			record.setChecked(false);
 			return;
 		}
-		String name = sceneFolder.getName();
-		String filename = new File(recDir, name.substring(0, name.length()-3) + RECSEP + System.currentTimeMillis() + ".wav").getAbsolutePath();
-		PdBase.sendMessage(TRANSPORT, "scene", filename);
+		String fileName = sceneFolder.getName();
+		fileName = fileName.substring(0, fileName.length()-3) + RECSEP + System.currentTimeMillis();
+		if (recTag != null) fileName += RECSEP + recTag;
+		String path = new File(recDir, fileName + ".wav").getAbsolutePath();
+		PdBase.sendMessage(TRANSPORT, "scene", path);
 		PdBase.sendMessage(TRANSPORT, "record", 1);
-		post("recording to " + filename);
+		post("recording to " + path);
 	}
 
 	private void stopRecording() {
