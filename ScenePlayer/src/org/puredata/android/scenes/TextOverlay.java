@@ -36,8 +36,8 @@ public class TextOverlay extends Overlay {
 	protected void drawImpl(Canvas canvas) {
 		int cw = container.getWidth();
 		int ch = container.getHeight();
-		int xm = (int) (x * cw / XS);
-		int ym = (int) (y * ch / YS);
+		int xm = (int) (x * cw / SceneView.SIZE);
+		int ym = (int) (y * ch / SceneView.SIZE);
 		Rect bounds = new Rect();
 		paint.getTextBounds(text, 0, text.length(), bounds);
 		int xd = (bounds.right + bounds.left) / 2;  // the sign looks wrong, but it turns out to be correct

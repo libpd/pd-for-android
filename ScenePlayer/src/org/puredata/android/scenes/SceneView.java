@@ -19,6 +19,8 @@ import android.widget.ImageView;
 
 public class SceneView extends ImageView {
 
+	public final static int SIZE = 320;
+	
 	public SceneView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
@@ -40,5 +42,19 @@ public class SceneView extends ImageView {
 		for (Overlay overlay: overlays) {
 			overlay.draw(canvas);
 		}
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int xDim = getDim(widthMeasureSpec);
+		int yDim = getDim(heightMeasureSpec);
+		int dim = Math.min(xDim, yDim);
+		setMeasuredDimension(dim, dim);
+	}
+
+	private int getDim(int widthMeasureSpec) {
+		int mode = MeasureSpec.getMode(widthMeasureSpec);
+		int size = MeasureSpec.getSize(widthMeasureSpec);
+		return (mode == MeasureSpec.UNSPECIFIED) ? SIZE : size;
 	}
 }

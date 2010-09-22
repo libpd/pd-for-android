@@ -55,13 +55,13 @@ public class ImageOverlay extends Overlay {
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		int cw = container.getWidth();
 		int ch = container.getHeight();
-		int xm = (int) (x * cw / XS);
-		int ym = (int) (y * ch / YS);
+		int xm = (int) (x * cw / SceneView.SIZE);
+		int ym = (int) (y * ch / SceneView.SIZE);
 		canvas.translate(xm, ym);
 		canvas.rotate(angle);
 		canvas.scale(scaleX, scaleY);
-		int xd = image.getWidth() * cw / XS / 2;
-		int yd = image.getHeight() * ch / YS / 2;
+		int xd = image.getWidth() * cw / SceneView.SIZE / 2;
+		int yd = image.getHeight() * ch / SceneView.SIZE / 2;
 		Rect rect = centered ? new Rect(-xd, -yd, xd, yd)
 							 : new Rect(0, 0, 2 * xd, 2 * yd);
 		canvas.drawBitmap(image, null, rect, paint);

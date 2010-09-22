@@ -10,16 +10,15 @@
 package org.puredata.android.scenes;
 
 import android.graphics.Canvas;
-import android.view.View;
+import android.widget.ImageView;
 
 public abstract class Overlay implements Runnable {
 	
-	protected final int XS = 320, YS = 320; // magic constants dictated by RjDj
-	protected volatile View container;
+	protected volatile ImageView container;
 	protected volatile float x = 0, y = 0;
 	private volatile boolean visible = true;
 	
-	public void setContainer(View container) {
+	public void setContainer(ImageView container) {
 		this.container = container;
 	}
 	
