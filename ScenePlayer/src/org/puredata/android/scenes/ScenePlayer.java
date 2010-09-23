@@ -380,7 +380,6 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	}
 
 	private void startAudio() throws IOException {
-		String name = getResources().getString(R.string.app_name);
 		pdService.initAudio(22050, 1, 2, -1);   // negative values default to PdService preferences
 		if (patch == null) {
 			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
@@ -390,7 +389,9 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 				// do nothing
 			}
 		}
-		pdService.startAudio(new Intent(this, ScenePlayer.class), android.R.drawable.ic_media_play, name, "Return to " + name + ".");
+		String name = sceneInfo.get(TITLE);
+		String author = sceneInfo.get(AUTHOR);
+		pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon, name + " by " + author, "Return to " + name + ".");
 		PdBase.sendMessage(TRANSPORT, "play", 1);
 	}
 
