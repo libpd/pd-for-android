@@ -56,4 +56,15 @@ public interface PdReceiver {
 	 */
 	public void receiveMessage(String source, String symbol, Object... args);
 	
+	/**
+	 * Adapter for PdReceiver implementations that only need to handle a subset of Pd messages
+	 */
+	public static class Adapter implements PdReceiver {
+		@Override public void print(String s) {}
+		@Override public void receiveBang(String source) {}
+		@Override public void receiveFloat(String source, float x) {}
+		@Override public void receiveList(String source, Object... args) {}
+		@Override public void receiveMessage(String source, String symbol, Object... args) {}
+		@Override public void receiveSymbol(String source, String symbol) {}
+	}
 }

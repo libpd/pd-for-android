@@ -32,18 +32,13 @@ public interface PdListener {
 	public void receiveMessage(String symbol, Object... args);
 	
 	/**
-	 * PdListener adapter for subclasses that only need to handle a subset of Pd messages
+	 * Adapter for PdListener implementations that only need to handle a subset of Pd messages
 	 */
 	public class Adapter implements PdListener {
-		@Override
-		public void receiveBang() {}
-		@Override
-		public void receiveFloat(float x) {}
-		@Override
-		public void receiveSymbol(String symbol) {}
-		@Override
-		public void receiveList(Object... args) {}
-		@Override
-		public void receiveMessage(String symbol, Object... args) {}
+		@Override public void receiveBang() {}
+		@Override public void receiveFloat(float x) {}
+		@Override public void receiveSymbol(String symbol) {}
+		@Override public void receiveList(Object... args) {}
+		@Override public void receiveMessage(String symbol, Object... args) {}
 	}
 }
