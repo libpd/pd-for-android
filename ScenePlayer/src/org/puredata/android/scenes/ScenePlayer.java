@@ -389,9 +389,8 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 				// do nothing
 			}
 		}
-		String name = sceneInfo.get(TITLE);
-		String author = sceneInfo.get(AUTHOR);
-		pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon, name + " by " + author, "Return to " + name + ".");
+		pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon,
+				sceneInfo.get(TITLE) + " by " + sceneInfo.get(AUTHOR), "Return to scene.");
 		PdBase.sendMessage(TRANSPORT, "play", 1);
 	}
 
