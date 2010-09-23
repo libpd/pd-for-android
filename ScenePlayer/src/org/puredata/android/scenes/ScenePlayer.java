@@ -233,8 +233,15 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		final float q = 1.0f / SensorManager.GRAVITY_EARTH;
+		final float q = 1.0f / SensorManager.GRAVITY_EARTH;  // convert acceleration units from m/s^2 to g
 		PdBase.sendList(ACCELERATE, event.values[0] * q, -event.values[1] * q, -event.values[2] * q);
+		/**
+		 * Explanation:  Observation of RjDj patches suggests that the z-axis points
+		 * downward on iPhones.  Since I'm pretty sure that the coordinate system is
+		 * supposed to be right-handed and that the x-axis points right, I've concluded
+		 * that the way to convert between Android and iPhone accelerometer values is to
+		 * flip the sign of the y and z coordinates.
+		 */
 	}
 
 	@Override
