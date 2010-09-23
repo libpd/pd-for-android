@@ -234,7 +234,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		final float q = 1.0f / SensorManager.GRAVITY_EARTH;
-		PdBase.sendList(ACCELERATE, -event.values[0] * q, -event.values[1] * q, -event.values[2] * q);
+		PdBase.sendList(ACCELERATE, event.values[0] * q, -event.values[1] * q, -event.values[2] * q);
 	}
 
 	@Override
