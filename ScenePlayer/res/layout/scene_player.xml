@@ -20,9 +20,9 @@
 	<org.puredata.android.scenes.SceneView
 		android:id="@+id/sceneplayer_pic" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:background="#000" />
-	<LinearLayout android:layout_width="fill_parent" android:gravity="center"
-		android:layout_height="wrap_content" android:padding="0dip"
-		android:background="@drawable/white_gradient_bottom"
+	<LinearLayout android:layout_width="fill_parent"
+		android:gravity="center" android:layout_height="wrap_content"
+		android:padding="0dip" android:background="@drawable/white_gradient_bottom"
 		android:orientation="horizontal">
 		<ToggleButton android:layout_weight="1"
 			android:id="@+id/sceneplayer_pause" android:layout_width="wrap_content"
@@ -44,9 +44,8 @@
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_alignParentBottom="true" android:paddingLeft="12dip"
 			android:paddingTop="12dip" android:paddingBottom="12dip" />
-		<SeekBar android:layout_toRightOf="@id/mic_icon"
-			android:layout_alignParentBottom="true" android:id="@+id/mic_volume"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:padding="12dip" android:max="100" android:progress="100" />
+		<SeekBar android:id="@+id/mic_volume" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:padding="12dip"
+			android:max="100" android:progress="100" />
 	</LinearLayout>
 </LinearLayout>
