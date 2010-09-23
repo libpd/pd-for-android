@@ -35,7 +35,7 @@ int libpd_finish_message(const char *, const char *);
 
 int libpd_exists(const char *);
 void *libpd_bind(const char *);
-int libpd_unbind(void *p);
+void libpd_unbind(void *p);
 
 typedef (*t_libpd_printhook)(const char *);
 typedef (*t_libpd_banghook)(const char *);

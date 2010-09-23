@@ -165,9 +165,8 @@ void *libpd_bind(const char *sym) {
   return libpdreceive_new(gensym(sym));
 }
 
-int libpd_unbind(void *p) {
+void libpd_unbind(void *p) {
   pd_free((t_pd *)p);
-  return 0;
 }
 
 int libpd_symbol(const char *recv, const char *sym) {

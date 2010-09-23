@@ -346,10 +346,10 @@ JNIEXPORT jlong JNICALL Java_org_puredata_core_PdBase_bindSymbol
   // using long integer in case we're on a 64bit CPU
 }
 
-JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_unbindSymbol
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_unbindSymbol
 (JNIEnv *env, jclass cls, jlong ptr) {
   CACHE_ENV
-  return libpd_unbind((void *)ptr);
+  libpd_unbind((void *)ptr);
   // even naughtier, using a pointer from Java
   // using long integer in case we're on a 64bit CPU
 }

@@ -157,15 +157,12 @@ public final class PdBase {
 	 * unsubscribes from pd messages sent to the given symbol
 	 * 
 	 * @param symbol
-	 * @return error code, 0 on success
 	 */
-	public synchronized static int unsubscribe(String symbol) {
+	public synchronized static void unsubscribe(String symbol) {
 		Long ptr = bindings.get(symbol);
-		if (ptr == null) {
-			return 0;
-		}
+		if (ptr == null) return;
 		bindings.remove(symbol);
-		return unbindSymbol(ptr);
+		unbindSymbol(ptr);
 	}
 
 	/**
@@ -250,5 +247,5 @@ public final class PdBase {
 	private native static int finishList(String receive);
 	private native static int finishMessage(String receive, String message);
 	private native static long bindSymbol(String s);
-	private native static int unbindSymbol(long p);
+	private native static void unbindSymbol(long p);
 }
