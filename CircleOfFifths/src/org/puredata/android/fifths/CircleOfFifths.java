@@ -12,6 +12,7 @@ package org.puredata.android.fifths;
 import java.io.File;
 import java.io.IOException;
 
+import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
@@ -27,15 +28,26 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 
 public class CircleOfFifths extends Activity implements OnClickListener {
 
 	private static final String PD_CIRCLE = "Pd Circle Of Fifths";
 	private static final String TOP = "top";
+	private static final int SAMPLE_RATE = 44100;
 	private String patch;
 	private RadioGroup options;
 	private int option = 0;
+
+	private void post(final String msg) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), PD_CIRCLE + ": " + msg, Toast.LENGTH_LONG).show();
+			}
+		});
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +59,19 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
+			post("required sample rate not available; exiting");
+			finish();
+			return;
+		}
+		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
+		if (nOut == 0) {
+			post("audio output not available; exiting");
+			finish();
+			return;
+		}
 		try {
-			PdAudio.initAudio(44100, 0, 2, 1, true);
+			PdAudio.initAudio(SAMPLE_RATE, 0, nOut, 1, true);
 			PdAudio.startAudio(this);
 		} catch (IOException e) {
 			Log.e(PD_CIRCLE, e.toString());

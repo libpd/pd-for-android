@@ -2,6 +2,7 @@ package foo.bar;
 
 import java.io.IOException;
 
+import org.puredata.android.io.AudioParameters;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
 import org.puredata.core.PdReceiver;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 public class PdClient extends Activity {
 
 	private static final String PD_CLIENT = "Pd Client";
+	private static final int SAMPLE_RATE = 22050;
 	private PdService pdService = null;
 	private String patch;  // the path to the patch receiver is defined in res/values/strings.xml
 
@@ -40,7 +42,7 @@ public class PdClient extends Activity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), PD_CLIENT + ": " + msg, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), PD_CLIENT + ": " + msg, Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -83,14 +85,29 @@ public class PdClient extends Activity {
 	}
 
 	private void initPd() {
+		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
+			post("required sample rate not available; exiting");
+			finish();
+			return;
+		}
+		int nIn = Math.min(AudioParameters.suggestInputChannels(), 1);
+		if (nIn == 0) {
+			post("warning: audio input not available");
+		}
+		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
+		if (nOut == 0) {
+			post("audio output not available; exiting");
+			finish();
+			return;
+		}
 		Resources res = getResources();
 		String path = res.getString(R.string.path_to_patch);
 		PdBase.setReceiver(receiver);
 		try {
+			pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1);   // negative values default to PdService preferences
 			patch = PdUtils.openPatch(path);
 			String name = res.getString(R.string.app_name);
-			pdService.initAudio(-1, 1, 2, -1);   // negative values are replaced by defaults/preferences
-			pdService.startAudio(new Intent(this, PdClient.class), android.R.drawable.ic_media_play, name, "Return to " + name + ".");
+			pdService.startAudio(new Intent(this, PdClient.class), R.drawable.icon, name, "Return to " + name + ".");
 		} catch (IOException e) {
 			post(e.toString() + "; exiting now");
 			finish();

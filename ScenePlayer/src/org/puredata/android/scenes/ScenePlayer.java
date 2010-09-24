@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.puredata.android.io.AudioParameters;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
@@ -54,6 +55,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
@@ -72,6 +74,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
 	private static final String MICVOLUME = "#micvolume";
+	private static final int SAMPLE_RATE = 22050;
 	private ProgressDialog progress = null;
 	private SceneView sceneView;
 	private ToggleButton play;
@@ -93,6 +96,15 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void post(final String msg) {
 		Log.i(TAG, msg);
+	}
+
+	private void toast(final String msg) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), TAG + ": " + msg, Toast.LENGTH_LONG).show();
+			}
+		});
 	}
 
 	private final PdListener overlayListener = new PdListener.Adapter() {
@@ -378,7 +390,22 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void startAudio() throws IOException {
-		pdService.initAudio(22050, 1, 2, -1);   // negative values default to PdService preferences
+		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
+			toast("required sample rate not available; exiting");
+			finish();
+			return;
+		}
+		int nIn = Math.min(AudioParameters.suggestInputChannels(), 1);
+		if (nIn == 0) {
+			toast("warning: audio input not available");
+		}
+		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
+		if (nOut == 0) {
+			toast("audio output not available; exiting");
+			finish();
+			return;
+		}
+		pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1);   // negative values default to PdService preferences
 		if (patch == null) {
 			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
 			try {
