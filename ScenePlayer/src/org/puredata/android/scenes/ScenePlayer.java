@@ -112,7 +112,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		private final Map<String, Overlay> overlays = new HashMap<String, Overlay>();
 
 		@Override
-		public synchronized void receiveList(Object... args) {
+		public void receiveList(Object... args) {
 			String key = (String) args[0];
 			String cmd = (String) args[1];
 			if (overlays.containsKey(key)) {
@@ -347,7 +347,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	public void onClick(View v) {
-		if (pdService == null) return;
 		if (v.equals(play)) {
 			if (play.isChecked()) {
 				try {
@@ -390,6 +389,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void startAudio() throws IOException {
+		if (pdService == null) return;
 		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
 			toast("required sample rate not available; exiting");
 			finish();
@@ -420,6 +420,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void stopAudio() {
+		if (pdService == null) return;
 		PdBase.sendMessage(TRANSPORT, "play", 0);
 		try {
 			Thread.sleep(50);
