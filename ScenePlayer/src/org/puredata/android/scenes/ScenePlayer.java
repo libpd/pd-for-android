@@ -58,7 +58,7 @@ import android.widget.ToggleButton;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 
-public class ScenePlayer extends Activity implements SensorEventListener,  OnTouchListener, OnClickListener, OnSeekBarChangeListener {
+public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
 	public static final String SCENE = "SCENE";
 	public static final String RECDIR = "RECDIR";
@@ -72,7 +72,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
 	private static final String MICVOLUME = "#micvolume";
-	private volatile ProgressDialog progress = null;
+	private ProgressDialog progress = null;
 	private SceneView sceneView;
 	private ToggleButton play;
 	private ToggleButton record;
@@ -287,28 +287,26 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 	}
 
 	private void initPd() {
-		try {
-			PdBase.setReceiver(dispatcher);
-			dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
-			dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
-			startAudio();
-		} catch (IOException e) {
-			post(e.toString() + "; exiting now");
-			finish();
-		}
-		dismissProgressDialog();
+		// run in a separate thread in order to keep the progress wheel spinning
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					PdBase.setReceiver(dispatcher);
+					dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
+					dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
+					startAudio();
+				} catch (IOException e) {
+					post(e.toString() + "; exiting now");
+					finish();
+				}
+				dismissProgressDialog();
+			}
+		}.start();
 	}
 
 	private void dismissProgressDialog() {
-		if (progress != null) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					progress.dismiss();
-					progress = null;
-				}
-			});
-		}
+		if (progress!= null) progress.dismiss();
 	}
 
 	@Override
@@ -426,7 +424,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,  OnTou
 		ad.setCancelable(true);
 		ad.show();
 	}
-	
+
 	private void readInfo() {
 		try {
 			SAXParserFactory spf = SAXParserFactory.newInstance();
