@@ -75,6 +75,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String ACCELERATE = "#accelerate";
 	private static final String MICVOLUME = "#micvolume";
 	private static final int SAMPLE_RATE = 22050;
+	private final Object lock = new Object();
 	private ProgressDialog progress = null;
 	private SceneView sceneView;
 	private ToggleButton play;
@@ -165,8 +166,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			pdService = ((PdService.PdBinder)service).getService();
-			initPd();
+			synchronized(lock) {
+				pdService = ((PdService.PdBinder)service).getService();
+				initPd();
+			}
 		}
 
 		@Override
@@ -217,18 +220,20 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		telephonyManager.listen(new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
-				if (pdService == null) return;
-				if (state == TelephonyManager.CALL_STATE_IDLE) {
-					if (play.isChecked() && !pdService.isRunning()) {
-						try {
-							startAudio();
-						} catch (IOException e) {
-							post(e.toString());
+				synchronized (lock) {
+					if (pdService == null) return;
+					if (state == TelephonyManager.CALL_STATE_IDLE) {
+						if (play.isChecked() && !pdService.isRunning()) {
+							try {
+								startAudio();
+							} catch (IOException e) {
+								post(e.toString());
+							}
 						}
-					}
-				} else {
-					if (pdService.isRunning()) {
-						stopAudio();
+					} else {
+						if (pdService.isRunning()) {
+							stopAudio();
+						}
 					}
 				}
 			}
@@ -328,20 +333,22 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void cleanup() {
-		// make sure to release all resources
-		stopRecording();
-		stopAudio();
-		if (patch != null) {
-			PdUtils.closePatch(patch);
-			patch = null;
-		}
-		dispatcher.release();
-		PdBase.release();
-		try {
-			unbindService(serviceConnection);
-		} catch (IllegalArgumentException e) {
-			// already unbound
-			pdService = null;
+		synchronized (lock) {
+			// make sure to release all resources
+			stopRecording();
+			stopAudio();
+			if (patch != null) {
+				PdUtils.closePatch(patch);
+				patch = null;
+			}
+			dispatcher.release();
+			PdBase.release();
+			try {
+				unbindService(serviceConnection);
+			} catch (IllegalArgumentException e) {
+				// already unbound
+				pdService = null;
+			}
 		}
 	}
 
@@ -389,45 +396,47 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void startAudio() throws IOException {
-		if (pdService == null) return;
-		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
-			toast("required sample rate not available; exiting");
-			finish();
-			return;
-		}
-		int nIn = Math.min(AudioParameters.suggestInputChannels(), 1);
-		if (nIn == 0) {
-			toast("warning: audio input not available");
-		}
-		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
-		if (nOut == 0) {
-			toast("audio output not available; exiting");
-			finish();
-			return;
-		}
-		pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1);   // negative values default to PdService preferences
-		if (patch == null) {
-			patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// do nothing
+		synchronized (lock) {
+			if (pdService == null) return;
+			if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
+				toast("required sample rate not available; exiting");
+				finish();
+				return;
 			}
+			int nIn = Math.min(AudioParameters.suggestInputChannels(), 1);
+			if (nIn == 0) toast("warning: audio input not available");
+			int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
+			if (nOut == 0) {
+				toast("audio output not available; exiting");
+				finish();
+				return;
+			}
+			pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1);   // negative values default to PdService preferences
+			if (patch == null) {
+				patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					// do nothing
+				}
+			}
+			pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon,
+					sceneInfo.get(TITLE) + " by " + sceneInfo.get(AUTHOR), "Return to scene.");
+			PdBase.sendMessage(TRANSPORT, "play", 1);
 		}
-		pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon,
-				sceneInfo.get(TITLE) + " by " + sceneInfo.get(AUTHOR), "Return to scene.");
-		PdBase.sendMessage(TRANSPORT, "play", 1);
 	}
 
 	private void stopAudio() {
-		if (pdService == null) return;
-		PdBase.sendMessage(TRANSPORT, "play", 0);
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			// do nothing
+		synchronized (lock) {
+			if (pdService == null) return;
+			PdBase.sendMessage(TRANSPORT, "play", 0);
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+			pdService.stopAudio();
 		}
-		pdService.stopAudio();
 	}
 
 	private void showInfo() {
