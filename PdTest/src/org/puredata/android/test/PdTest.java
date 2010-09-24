@@ -254,24 +254,21 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	@Override
 	public void onClick(View v) {
-		synchronized (connection) {
-			if (pdService == null) return;
-			switch (v.getId()) {
-			case R.id.left_box:
-				PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
-				break;
-			case R.id.right_box:
-				PdBase.sendFloat("right", right.isChecked() ? 1 : 0);
-				break;
-			case R.id.mic_box:
-				PdBase.sendFloat("mic", mic.isChecked() ? 1 : 0);
-				break;
-			case R.id.pref_button:
-				startActivity(new Intent(this, PdPreferences.class));
-				break;
-			default:
-				break;
-			}
+		switch (v.getId()) {
+		case R.id.left_box:
+			PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
+			break;
+		case R.id.right_box:
+			PdBase.sendFloat("right", right.isChecked() ? 1 : 0);
+			break;
+		case R.id.mic_box:
+			PdBase.sendFloat("mic", mic.isChecked() ? 1 : 0);
+			break;
+		case R.id.pref_button:
+			startActivity(new Intent(this, PdPreferences.class));
+			break;
+		default:
+			break;
 		}
 	}
 
