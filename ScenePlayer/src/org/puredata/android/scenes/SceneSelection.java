@@ -38,7 +38,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 
 	private ListView sceneView;
 	private final Map<String, String> scenes = new HashMap<String, String>();
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -68,7 +68,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
 		startActivity(intent);
 	}
-	
+
 	private void initGui() {
 		setContentView(R.layout.scene_selection);
 		sceneView = (ListView) findViewById(R.id.scene_selection);
@@ -83,7 +83,9 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 				unpackResources();
 				List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
 				for (File dir: list) {
-					scenes.put(dir.getName(), dir.getAbsolutePath());
+					if (dir.isDirectory()) {
+						scenes.put(dir.getName(), dir.getAbsolutePath());
+					}
 				}
 				ArrayList<String> keyList = new ArrayList<String>(scenes.keySet());
 				Collections.sort(keyList, new Comparator<String>() {
