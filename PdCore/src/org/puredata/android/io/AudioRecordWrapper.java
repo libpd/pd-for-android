@@ -29,9 +29,9 @@ public class AudioRecordWrapper {
 	private final BlockingQueue<short[]> queue = new SynchronousQueue<short[]>();
 	private Thread inputThread = null;
 
-	public AudioRecordWrapper(int sampleRate, int inChannels, int ticksPerBuffer) {
+	public AudioRecordWrapper(int sampleRate, int inChannels, int bufferSizePerChannel) {
 		int channelConfig = VersionedAudioFormat.getInFormat(inChannels);
-		bufSizeShorts = inChannels * ticksPerBuffer;
+		bufSizeShorts = inChannels * bufferSizePerChannel;
 		int bufSizeBytes = 2 * bufSizeShorts;
 		int recSizeBytes = 2 * bufSizeBytes;
 		int minRecSizeBytes = AudioRecord.getMinBufferSize(sampleRate, channelConfig, ENCODING);
