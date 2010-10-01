@@ -60,7 +60,7 @@
 
 
 /** Initialising with a sample rate, ticks per buffer, number of input and output channels
- * One Pd-tick is typically 64 samples per channel. Call [PdBase getBlocksize] to get the actual number.
+ * One Pd-tick is typically 64 samples per channel. Call [PdBase getBlockSize] to get the actual number.
  * [PdBase openAudio] is also called within this method as well as [PdBase computeAudio:YES].
  */
 - (id)initWithSampleRate:(float)newSampleRate andTicksPerBuffer:(int)ticks 
