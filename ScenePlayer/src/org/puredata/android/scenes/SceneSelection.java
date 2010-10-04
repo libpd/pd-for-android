@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.puredata.android.utils.Properties;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
@@ -50,7 +51,7 @@ public class SceneSelection extends Activity implements OnItemClickListener {
 		File libDir = getFilesDir();
 		try {
 			IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir, true);
-			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.externals_v7a : R.raw.externals), libDir, true);
+			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.externals_v7a : R.raw.externals), libDir, true);
 			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd"), true);
 			// many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
 		} catch (IOException e) {
