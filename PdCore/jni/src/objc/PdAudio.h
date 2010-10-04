@@ -46,8 +46,6 @@
   float microphoneVolume;
   float *floatBuffer;
   int floatBufferLength;
-  NSAutoreleasePool *pool; // autoreleasepool for the audio thread
-  int audioLoopCounter;
 }
 
 @property (nonatomic, readonly) AudioUnit audioUnit;
@@ -79,8 +77,6 @@
 - (void)pause;
 
 // private
-/** If not running already, an autoreleasepool for the audiothread is started */
-- (void)startAutoreleasePoolIfNeccessary;
 - (void)initializeAudioSession:(int)ticks;
 - (void)initializeAudioUnit;
 

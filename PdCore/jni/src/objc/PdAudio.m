@@ -54,7 +54,12 @@ OSStatus renderCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlag
   
   PdAudio *controller = (PdAudio *) inRefCon;
   
-  [controller startAutoreleasePoolIfNeccessary];
+  // This NSAutoreleasePool is actually only needed if the callbacks from Pd use
+  // Foundation objects. It is also possible to force the programmer to create their own pool
+  // in their callback functions. For ease of use a pool is created in each invocation of the audio
+  // callback. There is a certain amount of overhead in this, but through experience it has been
+  // shown not to negatively impact performance.
+  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
   
   // Get the remote io audio unit to render its input into the buffers
   // 1 == inBusNumber for mic input
@@ -101,6 +106,8 @@ OSStatus renderCallback(void *inRefCon, AudioUnitRenderActionFlags *ioActionFlag
   }
   //#endif
   
+  [pool drain]; // drain the pool and release any retained objects
+
   return 0; // no errors
 }
 
@@ -159,17 +166,6 @@ void audioSessionInterruptListener(void *inClientData, UInt32 inInterruption) {
   [pool release];
   pool = nil;
   [super dealloc];
-}
-
-/** If not running already, an autoreleasepool for the audiothread is started */
-- (void)startAutoreleasePoolIfNeccessary {
-  if (audioLoopCounter >= 1000) {
-    [pool drain];
-    pool = nil;
-    audioLoopCounter = 0;
-  }
-  if (!pool) pool = [[NSAutoreleasePool alloc] init];
-  audioLoopCounter++;
 }
 
 /** Begin audio/scene playback.*/
