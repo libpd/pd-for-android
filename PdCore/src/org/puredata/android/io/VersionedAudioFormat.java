@@ -9,15 +9,16 @@
 
 package org.puredata.android.io;
 
+import org.puredata.android.utils.Properties;
+
 import android.media.AudioFormat;
-import android.os.Build;
 import android.util.Log;
 
 // Cute little hack to support multiple versions of the Android API, based on an idea
 // from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 public final class VersionedAudioFormat {
 
-	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= 5;
+	private static final boolean hasEclair = Properties.version >= 5;
 	
 	private VersionedAudioFormat() {
 		// do nothing

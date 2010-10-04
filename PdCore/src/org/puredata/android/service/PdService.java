@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
+import org.puredata.android.utils.Properties;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
@@ -168,7 +169,7 @@ public class PdService extends Service {
 		File dir = getFilesDir();
 		try {
 			IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, false);
-			IoUtils.extractZipResource(res.openRawResource(IoUtils.hasArmeabiV7a() ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, false);
+			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, false);
 		} catch (IOException e) {
 			Log.e(PD_SERVICE, "unable to unpack abstractions/extras: " + e.toString());
 		}

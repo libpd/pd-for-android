@@ -21,27 +21,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import android.os.Build;
-
 public class IoUtils {
-
-	private static final boolean v7aFlag = Integer.parseInt(Build.VERSION.SDK) >= 4 && VersionedAbiCheck.hasV7a();
-	
-	// use lazy class loading to hide Build.CPU_ABI from Cupcake
-	private static class VersionedAbiCheck {
-		private static boolean hasV7a() {
-			return "armeabi-v7a".equals(Build.CPU_ABI);
-		}
-	}
-	
-	/**
-	 * Hackish check for armeabi-v7a
-	 * 
-	 * @return true if and only if armeabi-v7a is available
-	 */
-	public static boolean hasArmeabiV7a() {
-		return v7aFlag;
-	}
 	
 	/**
 	 * Extract a resource into a real file
