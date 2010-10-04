@@ -9,9 +9,9 @@
 
 package org.puredata.android.scenes;
 
+import org.puredata.android.utils.Properties;
 import org.puredata.core.PdBase;
 
-import android.os.Build;
 import android.view.MotionEvent;
 
 
@@ -20,7 +20,7 @@ import android.view.MotionEvent;
 public final class VersionedTouch {
 
 	private static final String TOUCH_SYMBOL = "#touch", DOWN = "down", UP = "up", XY = "xy";
-	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= 5;
+	private static final boolean hasEclair = Properties.version >= 5;
 	private static final float XS = 319.0f, YS = 319.0f;
 
 	private VersionedTouch() {
