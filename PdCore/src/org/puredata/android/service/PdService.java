@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -43,7 +42,7 @@ public class PdService extends Service {
 		}
 	}
 	private final PdBinder binder = new PdBinder();
-	private static final boolean hasEclair = Integer.parseInt(Build.VERSION.SDK) >= 5;
+	private static final boolean hasEclair = Properties.version >= 5;
 	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 
 	private static final String PD_SERVICE = "PD Service";
