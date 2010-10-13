@@ -18,7 +18,6 @@ import java.util.Map;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.puredata.android.io.AudioParameters;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
@@ -224,11 +223,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					if (pdService == null) return;
 					if (state == TelephonyManager.CALL_STATE_IDLE) {
 						if (play.isChecked() && !pdService.isRunning()) {
-							try {
-								startAudio();
-							} catch (IOException e) {
-								post(e.toString());
-							}
+							startAudio();
 						}
 					} else {
 						if (pdService.isRunning()) {
@@ -308,15 +303,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		new Thread() {
 			@Override
 			public void run() {
-				try {
-					PdBase.setReceiver(dispatcher);
-					dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
-					dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
-					startAudio();
-				} catch (IOException e) {
-					post(e.toString() + "; exiting now");
-					finish();
-				}
+				PdBase.setReceiver(dispatcher);
+				dispatcher.addListener(RJ_IMAGE_ANDROID, overlayListener);
+				dispatcher.addListener(RJ_TEXT_ANDROID, overlayListener);
+				startAudio();
 				dismissProgressDialog();
 			}
 		}.start();
@@ -356,11 +346,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	public void onClick(View v) {
 		if (v.equals(play)) {
 			if (play.isChecked()) {
-				try {
-					startAudio();
-				} catch (IOException e) {
-					post(e.toString());
-				}
+				startAudio();
 			} else {
 				stopAudio();
 			}
@@ -395,25 +381,43 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		post("finished recording");
 	}
 
-	private void startAudio() throws IOException {
+	private void startAudio() {
 		synchronized (lock) {
 			if (pdService == null) return;
-			if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
-				toast("required sample rate not available; exiting");
-				finish();
-				return;
+			try {
+				pdService.initAudio(SAMPLE_RATE, 2, 2, -1);   // negative values default to PdService preferences
+			} catch (IOException e1) {
+				Log.e(TAG, e1.toString());
+				try {
+					pdService.initAudio(SAMPLE_RATE, 1, 2, -1);
+				} catch (IOException e2) {
+					Log.e(TAG, e2.toString());
+					toast("Warning: No audio input available");
+					try {
+						pdService.initAudio(SAMPLE_RATE, 0, 2, -1);
+					} catch (IOException e3) {
+						Log.e(TAG, e3.toString());
+						try {
+							pdService.initAudio(SAMPLE_RATE, 0, 1, -1);
+							toast("Warning: No stereo output available");
+						} catch (IOException e4) {
+							Log.e(TAG, e4.toString());
+							toast("Unable to initialize audio interface");
+							finish();
+							return;
+						}
+					}
+				}
 			}
-			int nIn = Math.min(AudioParameters.suggestInputChannels(), 1);
-			if (nIn == 0) toast("warning: audio input not available");
-			int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
-			if (nOut == 0) {
-				toast("audio output not available; exiting");
-				finish();
-				return;
-			}
-			pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1);   // negative values default to PdService preferences
 			if (patch == null) {
-				patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
+				try {
+					patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
+				} catch (IOException e) {
+					Log.e(TAG, e.toString());
+					toast("Unable to open patch; exiting");
+					finish();
+					return;
+				}
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
