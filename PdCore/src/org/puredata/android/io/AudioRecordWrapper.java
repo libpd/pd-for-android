@@ -13,6 +13,7 @@
 
 package org.puredata.android.io;
 
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
@@ -29,14 +30,21 @@ public class AudioRecordWrapper {
 	private final BlockingQueue<short[]> queue = new SynchronousQueue<short[]>();
 	private Thread inputThread = null;
 
-	public AudioRecordWrapper(int sampleRate, int inChannels, int bufferSizePerChannel) {
+	public AudioRecordWrapper(int sampleRate, int inChannels, int bufferSizePerChannel) throws IOException {
 		int channelConfig = VersionedAudioFormat.getInFormat(inChannels);
 		bufSizeShorts = inChannels * bufferSizePerChannel;
 		int bufSizeBytes = 2 * bufSizeShorts;
 		int recSizeBytes = 2 * bufSizeBytes;
 		int minRecSizeBytes = AudioRecord.getMinBufferSize(sampleRate, channelConfig, ENCODING);
+		if (minRecSizeBytes <= 0) {
+			throw new IOException("bad AudioRecord parameters; sr: " + sampleRate + ", ch: " + inChannels + ", bufSize: " + bufferSizePerChannel);
+		}
 		while (recSizeBytes < minRecSizeBytes) recSizeBytes += bufSizeBytes;
 		rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig, ENCODING, recSizeBytes);
+		if (rec != null && rec.getState() != AudioRecord.STATE_INITIALIZED) {
+			rec.release();
+			throw new IOException("unable to initialize AudioRecord instance for sr: " + sampleRate + ", ch: " + inChannels + ", bufSize: " + bufferSizePerChannel);
+		}
 	}
 
 	public synchronized void start() {

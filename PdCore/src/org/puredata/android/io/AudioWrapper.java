@@ -13,6 +13,8 @@
 
 package org.puredata.android.io;
 
+import java.io.IOException;
+
 import org.puredata.android.service.R;
 
 import android.content.Context;
@@ -43,8 +45,9 @@ public abstract class AudioWrapper {
 	 * @param inChannels  number of input channels
 	 * @param outChannels number of output channels
 	 * @param bufferSizePerChannel  number of samples per buffer per channel
+	 * @throws IOException if the audio parameters are not supported by the device
 	 */
-	public AudioWrapper(int sampleRate, int inChannels, int outChannels, int bufferSizePerChannel) {
+	public AudioWrapper(int sampleRate, int inChannels, int outChannels, int bufferSizePerChannel) throws IOException {
 		int channelConfig = VersionedAudioFormat.getOutFormat(outChannels);
 		rec = (inChannels == 0) ? null : new AudioRecordWrapper(sampleRate, inChannels, bufferSizePerChannel);
 		inputSizeShorts = inChannels * bufferSizePerChannel;
@@ -53,8 +56,15 @@ public abstract class AudioWrapper {
 		int bufSizeBytes = 2 * bufSizeShorts;
 		int trackSizeBytes = 2 * bufSizeBytes;
 		int minTrackSizeBytes = AudioTrack.getMinBufferSize(sampleRate, channelConfig, ENCODING);
+		if (minTrackSizeBytes <= 0) {
+			throw new IOException("bad AudioTrack parameters; sr: " + sampleRate +", ch: " + outChannels + ", bufSize: " + trackSizeBytes);
+		}
 		while (trackSizeBytes < minTrackSizeBytes) trackSizeBytes += bufSizeBytes;
 		track = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelConfig, ENCODING, trackSizeBytes, AudioTrack.MODE_STREAM);
+		if (track.getState() != AudioTrack.STATE_INITIALIZED) {
+			track.release();
+			throw new IOException("unable to initialize AudioTrack instance for sr: " + sampleRate +", ch: " + outChannels + ", bufSize: " + trackSizeBytes);
+		}
 	}
 
 	/**
