@@ -381,32 +381,26 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		post("finished recording");
 	}
 
+	private boolean initAudio(int nIn, int nOut) {
+		try {
+			pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1);   // negative values default to PdService preferences
+		} catch (IOException e) {
+			Log.e(TAG, e.toString());
+			return false;
+		}
+		return true;
+	}
+
 	private void startAudio() {
 		synchronized (lock) {
 			if (pdService == null) return;
-			try {
-				pdService.initAudio(SAMPLE_RATE, 2, 2, -1);   // negative values default to PdService preferences
-			} catch (IOException e1) {
-				Log.e(TAG, e1.toString());
-				try {
-					pdService.initAudio(SAMPLE_RATE, 1, 2, -1);
-				} catch (IOException e2) {
-					Log.e(TAG, e2.toString());
+			if (!initAudio(2, 2) && !initAudio(1, 2)) {
+				if (!initAudio(0, 2)) {
+					toast("Unable to initialize audio interface");
+					finish();
+					return;
+				} else {
 					toast("Warning: No audio input available");
-					try {
-						pdService.initAudio(SAMPLE_RATE, 0, 2, -1);
-					} catch (IOException e3) {
-						Log.e(TAG, e3.toString());
-						try {
-							pdService.initAudio(SAMPLE_RATE, 0, 1, -1);
-							toast("Warning: No stereo output available");
-						} catch (IOException e4) {
-							Log.e(TAG, e4.toString());
-							toast("Unable to initialize audio interface");
-							finish();
-							return;
-						}
-					}
 				}
 			}
 			if (patch == null) {
