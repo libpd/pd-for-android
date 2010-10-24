@@ -1,11 +1,7 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- * 
- * manages an instance of {@link AudioWrapper} that uses Pure Data for audio processing
  * 
  */
 
@@ -19,7 +15,13 @@ import org.puredata.core.utils.PdUtils;
 
 import android.content.Context;
 
-
+/**
+ * 
+ * PdAudio manages an instance of {@link AudioWrapper} that uses Pure Data for audio processing.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ *
+ */
 public class PdAudio {
 	
 	private static AudioWrapper audioWrapper = null;

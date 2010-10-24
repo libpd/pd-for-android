@@ -1,11 +1,7 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com)
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- *
- * simple preference activity for {@link PdService}
  * 
  */
 
@@ -20,6 +16,14 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+/**
+ * 
+ * PdPreferences is a simple preference activity for choosing audio properties such
+ * as sample rate and the number of audio I/O channels.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ *
+ */
 public class PdPreferences extends PreferenceActivity {
 
 	@Override

@@ -1,13 +1,7 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- * 
- * main audio rendering thread; manages {@link AudioTrack} and {@link AudioRecord} objects, hides
- * the complexity of working with raw PCM audio; client code only needs to implement a JACK-style
- * audio processing callback (jackaudio.org)
  * 
  */
 
@@ -26,7 +20,15 @@ import android.media.MediaPlayer;
 import android.os.Process;
 import android.util.Log;
 
-
+/**
+ *
+ * AudioWrapper wraps {@link AudioTrack} and {@link AudioRecord} objects and manages the main audio rendering
+ * thread.  It hides the complexity of working with raw PCM audio; client code only needs to implement a JACK-style
+ * audio processing callback (jackaudio.org).
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ *
+ */
 public abstract class AudioWrapper {
 
 	private static final String AUDIO_WRAPPER = "AudioWrapper";

@@ -1,12 +1,8 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com)
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  *
- * a class that sniffs out available audio parameters
- * 
  */
 
 package org.puredata.android.io;
@@ -15,7 +11,14 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 
-
+/**
+ * 
+ * AudioParameters sniffs out the number of audio input and output channels as well as
+ * supported sample rates.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ *
+ */
 public class AudioParameters {
 
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;

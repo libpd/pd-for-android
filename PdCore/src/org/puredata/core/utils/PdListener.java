@@ -1,17 +1,19 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- *
- * Interface and adapter class for handling dispatches from {@link PdDispatcher}
  * 
  */
 
 package org.puredata.core.utils;
 
-
+/**
+ *
+ * PdListener provides an interface and adapter class for handling dispatches from {@link PdDispatcher}.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ *
+ */
 public interface PdListener {
 	
 	public void receiveBang();

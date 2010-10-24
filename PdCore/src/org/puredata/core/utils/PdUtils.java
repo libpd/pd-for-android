@@ -1,11 +1,7 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- *
- * Some convenience methods for interacting with pd
  * 
  */
 
@@ -17,6 +13,13 @@ import java.io.IOException;
 
 import org.puredata.core.PdBase;
 
+/**
+ *
+ * PdUtils provides some convenience methods for interacting with Pd.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ *
+ */
 public class PdUtils {
 	
 	/**

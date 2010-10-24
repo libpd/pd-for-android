@@ -1,13 +1,7 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- *
- * Implementation of {@link PdReceiver} that dispatches messages from pd to instances of {@link PdListener}
- * based on the Pd symbol they originate from.  Instances of this class automatically handle subscriptions
- * to Pd symbols.
  * 
  */
 
@@ -21,7 +15,15 @@ import java.util.Set;
 import org.puredata.core.PdBase;
 import org.puredata.core.PdReceiver;
 
-
+/**
+ * 
+ * PdDispatcher is an implementation of {@link PdReceiver} that dispatches messages from Pd to instances of
+ * {@link PdListener} based on the Pd symbol they originate from.  Instances of this class automatically
+ * handle subscriptions to Pd symbols.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ *
+ */
 public abstract class PdDispatcher implements PdReceiver {
 
 	private final Map<String, Set<PdListener>> listeners = new HashMap<String, Set<PdListener>>();

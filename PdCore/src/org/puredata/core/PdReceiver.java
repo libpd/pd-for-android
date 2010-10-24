@@ -1,18 +1,19 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- *
- * Interface for printing and receiving messages from pd to be used with setReceiver in {@link PdBase}
  *
  */
 
 package org.puredata.core;
 
-
-
+/**
+ * 
+ * PdReceiver is an interface for printing and receiving messages from Pd, to be used with setReceiver in {@link PdBase}.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ *
+ */
 public interface PdReceiver {
 	
 	/**

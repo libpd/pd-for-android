@@ -1,7 +1,5 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  * 
@@ -14,8 +12,14 @@ import org.puredata.android.utils.Properties;
 import android.media.AudioFormat;
 import android.util.Log;
 
-// Cute little hack to support multiple versions of the Android API, based on an idea
-// from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
+/**
+ * 
+ * VersionedAudioFormat uses a cute little hack to support audio formats across multiple versions of the Android API,
+ * based on an idea from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+ * 
+ */
 public final class VersionedAudioFormat {
 
 	private static final boolean hasEclair = Properties.version >= 5;

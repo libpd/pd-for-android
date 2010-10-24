@@ -1,11 +1,7 @@
 /**
  * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com)
- * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
- *
- * Pure Data service
  * 
  */
 
@@ -33,7 +29,13 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-
+/**
+ * 
+ * PdService allows applications to run Pure Data as a (local) service, with foreground priority if desired.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ *
+ */
 public class PdService extends Service {
 
 	public class PdBinder extends Binder {

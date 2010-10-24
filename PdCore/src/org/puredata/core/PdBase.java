@@ -1,11 +1,18 @@
-/**
- * 
- * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
+/** 
  * 
  * For information on usage and redistribution, and for a DISCLAIMER OF ALL
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  *
- * Basic Java bindings for pd
+ */
+
+package org.puredata.core;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 
+ * PdBase provides basic Java bindings for pd.
  * 
  * Some random notes:
  *    - This is a low-level library that aims to leave most design decisions to higher-level code.  In particular, it will
@@ -26,15 +33,10 @@
  *    - I'm a little fuzzy on how/when to use sys_lock, sys_unlock, etc., and so I decided to handle all synchronization on
  *      the Java side.  It appears that sys_lock is for top-level locking in scheduling routines only, and so Java-side sync
  *      conveys the same benefits without the risk of deadlocks.
+ *      
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  *
  */
-
-package org.puredata.core;
-
-import java.util.HashMap;
-import java.util.Map;
-
-
 public final class PdBase {
 
 	private final static Map<String, Long> bindings = new HashMap<String, Long>();
