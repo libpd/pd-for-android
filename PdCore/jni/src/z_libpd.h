@@ -37,12 +37,12 @@ int libpd_exists(const char *);
 void *libpd_bind(const char *);
 void libpd_unbind(void *p);
 
-typedef (*t_libpd_printhook)(const char *);
-typedef (*t_libpd_banghook)(const char *);
-typedef (*t_libpd_floathook)(const char *, float);
-typedef (*t_libpd_symbolhook)(const char *, const char *);
-typedef (*t_libpd_listhook)(const char *, int, t_atom *);
-typedef (*t_libpd_messagehook)(const char *, const char *, int, t_atom *);
+typedef void (*t_libpd_printhook)(const char *);
+typedef void (*t_libpd_banghook)(const char *);
+typedef void (*t_libpd_floathook)(const char *, float);
+typedef void (*t_libpd_symbolhook)(const char *, const char *);
+typedef void (*t_libpd_listhook)(const char *, int, t_atom *);
+typedef void (*t_libpd_messagehook)(const char *, const char *, int, t_atom *);
 extern t_libpd_printhook libpd_printhook;
 extern t_libpd_banghook libpd_banghook;
 extern t_libpd_floathook libpd_floathook;
