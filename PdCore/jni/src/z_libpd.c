@@ -68,9 +68,9 @@ void libpd_add_to_search_path(const char *s) {
 }
 
 int libpd_init_audio(int inChans, int outChans, int sampleRate, int tpb) {
-  ticks_per_buffer = tpb;
   int indev[MAXAUDIOINDEV], inch[MAXAUDIOINDEV],
        outdev[MAXAUDIOOUTDEV], outch[MAXAUDIOOUTDEV];
+  ticks_per_buffer = tpb;
   indev[0] = outdev[0] = DEFAULTAUDIODEV;
   inch[0] = inChans;
   outch[0] = outChans;
@@ -155,9 +155,7 @@ int libpd_finish_list(const char *recv) {
 int libpd_finish_message(const char *recv, const char *msg) {
   t_pd *dest = get_object(recv);
   if (dest == NULL) return -1;
-  if (dest == NULL) return -1;
-  t_symbol *sym = gensym(msg);
-  pd_typedmess(dest, sym, argc, argv);
+  pd_typedmess(dest, gensym(msg), argc, argv);
   return 0;
 }
 
