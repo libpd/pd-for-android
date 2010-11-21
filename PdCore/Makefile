@@ -1,7 +1,6 @@
 .PHONY: all
 
 all:
-	cd bin && javah -o ../jni/libpd/libpd_wrapper/z_jni.h org.puredata.core.PdBase
 	ndk-build
 	mv libs/armeabi-v7a/libchoice.so res/raw/choice.pd_linux
 	mv libs/armeabi-v7a/libbonk~.so res/raw/bonk~.pd_linux
