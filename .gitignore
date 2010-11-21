@@ -3,8 +3,8 @@ PdCommon/gen/
 PdCore/bin/
 PdCore/gen/
 PdCore/obj/
-PdCore/jni/src/libpdnative.so
-PdCore/jni/src/libpd.so
+PdCore/jni/libpd/pure-data/src/libpdnative.so
+PdCore/jni/libpd/pure-data/src/libpd.so
 PdCore/jni/src/example/pdtest
 PdTest/bin/
 PdTest/gen/
