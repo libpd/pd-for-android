@@ -32,7 +32,7 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>PdCore</name>
+			<name>PdCore_src</name>
 			<type>2</type>
 			<locationURI>_android_PdCore/src</locationURI>
 		</link>
