@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:gravity="center">
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="fill_parent" android:layout_height="65dip"
+		android:padding="0dip" android:background="@drawable/white_gradient_top">
+		<TextView android:id="@+id/sceneplayer_title"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:textColor="#000" android:gravity="center"
+			android:layout_weight="2" android:textSize="24sp" android:ellipsize="end"
+			android:singleLine="true" />
+		<TextView android:id="@+id/sceneplayer_artist"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:textColor="#555" android:gravity="center"
+			android:layout_weight="1" android:textSize="18sp"
+			android:paddingBottom="5dip" android:ellipsize="end"
+			android:singleLine="true" />
+	</LinearLayout>
+	<org.puredata.android.scenes.SceneView
+		android:id="@+id/sceneplayer_pic" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:background="#000" />
+	<LinearLayout android:layout_width="fill_parent"
+		android:gravity="center" android:layout_height="wrap_content"
+		android:padding="0dip" android:background="@drawable/white_gradient_bottom"
+		android:orientation="horizontal">
+		<ToggleButton android:layout_weight="1"
+			android:id="@+id/sceneplayer_pause" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:checked="true"
+			android:drawableTop="@drawable/play_button" android:lines="0"
+			android:background="@drawable/all_transparent" />
+		<ToggleButton android:layout_weight="1"
+			android:id="@+id/sceneplayer_record" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:checked="false"
+			android:drawableTop="@drawable/record_button" android:lines="0"
+			android:background="@drawable/all_transparent" />
+		<ImageButton android:layout_weight="1" android:id="@+id/sceneplayer_info"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:src="@drawable/info_button" android:background="@drawable/all_transparent" />
+	</LinearLayout>
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<ImageView android:id="@+id/mic_icon" android:src="@drawable/mic_icon"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true" android:paddingLeft="12dip"
+			android:paddingTop="12dip" android:paddingBottom="12dip" />
+		<SeekBar android:id="@+id/mic_volume" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:padding="12dip"
+			android:max="100" android:progress="100" />
+	</LinearLayout>
+</LinearLayout>

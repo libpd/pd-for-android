@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Circle Of Fifths</string>
+	<string name="dom7dim7">Dom7\nDim7</string>
+	<string name="maj7min7">Maj7\nMin7</string>
+	<string name="addedsixth">Added\nSixth</string>
+	<string name="sus4sus2">Sus4\nSus2</string>
+	<string name="help_title">Help</string>
+	<string name="about_title">About</string>
+	<string name="about_msg">Circle of Fifths\nCopyright 2010 Peter
+		Brinkmann\n(pbnewyork@gmail.com)\nhttp://gitorious.org/pdlib</string>
+	<string name="help_msg">Tap a field in order to play the corresponding
+		chord. Change the key signature by dragging the rim of the circle. The
+		top line of a button describes the effect on major
+		chords; the bottom line describes the effect on minor chords.</string>
+</resources>

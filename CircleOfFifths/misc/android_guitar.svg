@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="92.302505"
+   height="123.62"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="android.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.0">
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 70 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="120 : 70 : 1"
+       inkscape:persp3d-origin="60 : 46.666667 : 1"
+       id="perspective2898" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="339.21924"
+       x2="281.79904"
+       y1="-0.89719754"
+       x1="281.79904"
+       id="linearGradient6138"
+       xlink:href="#linearGradient6128"
+       inkscape:collect="always" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="446.93872"
+       x2="265.302"
+       y1="787.70239"
+       x1="259.62427"
+       id="linearGradient6113"
+       xlink:href="#linearGradient6107"
+       inkscape:collect="always" />
+    <linearGradient
+       gradientTransform="translate(-128.72771,-335.40371)"
+       gradientUnits="userSpaceOnUse"
+       y2="553.09052"
+       x2="341.39078"
+       y1="667.22192"
+       x1="341.39078"
+       id="linearGradient6105"
+       xlink:href="#linearGradient6099"
+       inkscape:collect="always" />
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       id="perspective5143" />
+    <inkscape:perspective
+       id="perspective10"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       sodipodi:type="inkscape:persp3d" />
+    <linearGradient
+       id="linearGradient6081">
+      <stop
+         id="stop6083"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1;" />
+      <stop
+         id="stop6085"
+         offset="1"
+         style="stop-color:#780000;stop-opacity:0;" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6099"
+       inkscape:collect="always">
+      <stop
+         id="stop6101"
+         offset="0"
+         style="stop-color:#000000;stop-opacity:1" />
+      <stop
+         id="stop6103"
+         offset="1"
+         style="stop-color:#ff0000;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6107"
+       inkscape:collect="always">
+      <stop
+         id="stop6109"
+         offset="0"
+         style="stop-color:#ff0000;stop-opacity:1;" />
+      <stop
+         id="stop6111"
+         offset="1"
+         style="stop-color:#ffff00;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient6128">
+      <stop
+         id="stop6130"
+         offset="0"
+         style="stop-color:#00006a;stop-opacity:1" />
+      <stop
+         id="stop6132"
+         offset="1"
+         style="stop-color:#000000;stop-opacity:1" />
+    </linearGradient>
+    <inkscape:perspective
+       id="perspective3872"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.6551724"
+     inkscape:cx="58.468908"
+     inkscape:cy="66.960409"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="1024"
+     inkscape:window-height="688"
+     inkscape:window-x="347"
+     inkscape:window-y="24"
+     showgrid="false"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-12.114934,-8.2085986)">
+    <path
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       d="m 57.7761,16.79873 c -18.53143,0 -33.56249,12.50618 -33.5625,27.94217 0,1.0483 0.0524,2.09294 0.1875,3.1114 l 66.75,0 c 0.13512,-1.01846 0.1875,-2.0631 0.1875,-3.1114 0,-15.43599 -15.03107,-27.94215 -33.5625,-27.94217 z"
+       id="path2170"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <path
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       d="m 23.9636,49.98623 0,50.25828 c 0,4.09881 4.42778,7.39799 9.92573,7.39797 l 47.3405,0 c 5.49794,0 9.92572,-3.29916 9.92573,-7.39797 l 0,-50.25828 -67.19196,0 z"
+       id="rect3158"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <rect
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       id="rect3162"
+       width="15.357142"
+       height="37.857143"
+       x="37.758003"
+       y="93.971458"
+       rx="9.7377472"
+       ry="7.6109033"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <rect
+       ry="7.6109033"
+       rx="9.7377472"
+       y="93.971458"
+       x="62.768166"
+       height="37.857143"
+       width="15.357142"
+       id="rect3164"
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <rect
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       id="rect3191"
+       width="14.824305"
+       height="2.6225123"
+       x="26.366156"
+       y="-29.958633"
+       rx="1.4815128"
+       ry="1.2636521"
+       transform="matrix(0.45339898,0.89130767,-0.84965989,0.52733109,0,0)"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <rect
+       transform="matrix(-0.46304451,0.88633503,0.8558578,0.5172112,0,0)"
+       ry="1.254501"
+       rx="1.4506518"
+       y="73.275368"
+       x="-33.650806"
+       height="2.6035209"
+       width="14.515503"
+       id="rect3193"
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       id="path3196"
+       sodipodi:cx="341.96429"
+       sodipodi:cy="536.11218"
+       sodipodi:rx="3.0357144"
+       sodipodi:ry="3.0357144"
+       d="m 345.00001,536.11218 c 0,1.67658 -1.35914,3.03572 -3.03572,3.03572 -1.67657,0 -3.03571,-1.35914 -3.03571,-3.03572 0,-1.67658 1.35914,-3.03571 3.03571,-3.03571 1.67658,0 3.03572,1.35913 3.03572,3.03571 z"
+       transform="translate(-299.57658,-503.79056)"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <path
+       transform="translate(-268.68372,-503.79056)"
+       d="m 345.00001,536.11218 c 0,1.67658 -1.35914,3.03572 -3.03572,3.03572 -1.67657,0 -3.03571,-1.35914 -3.03571,-3.03572 0,-1.67658 1.35914,-3.03571 3.03571,-3.03571 1.67658,0 3.03572,1.35913 3.03572,3.03571 z"
+       sodipodi:ry="3.0357144"
+       sodipodi:rx="3.0357144"
+       sodipodi:cy="536.11218"
+       sodipodi:cx="341.96429"
+       id="path3198"
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       sodipodi:type="arc"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <path
+       transform="translate(-299.57658,-503.79056)"
+       d="m 345.00001,536.11218 c 0,1.67658 -1.35914,3.03572 -3.03572,3.03572 -1.67657,0 -3.03571,-1.35914 -3.03571,-3.03572 0,-1.67658 1.35914,-3.03571 3.03571,-3.03571 1.67658,0 3.03572,1.35913 3.03572,3.03571 z"
+       sodipodi:ry="3.0357144"
+       sodipodi:rx="3.0357144"
+       sodipodi:cy="536.11218"
+       sodipodi:cx="341.96429"
+       id="path3224"
+       style="opacity:0.97777776;fill:#ffffff;fill-opacity:1;stroke:none"
+       sodipodi:type="arc"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:0.97777776;fill:#ffffff;fill-opacity:1;stroke:none"
+       id="path3226"
+       sodipodi:cx="341.96429"
+       sodipodi:cy="536.11218"
+       sodipodi:rx="3.0357144"
+       sodipodi:ry="3.0357144"
+       d="m 345.00001,536.11218 c 0,1.67658 -1.35914,3.03572 -3.03572,3.03572 -1.67657,0 -3.03571,-1.35914 -3.03571,-3.03572 0,-1.67658 1.35914,-3.03571 3.03571,-3.03571 1.67658,0 3.03572,1.35913 3.03572,3.03571 z"
+       transform="translate(-268.68372,-503.79056)"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <g
+       id="g3855"
+       transform="matrix(0.19109168,0,0,0.19109168,13.696404,32.200044)"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992">
+      <g
+         style="display:inline"
+         transform="translate(-137.95711,-336.3524)"
+         id="layer1-6"
+         inkscape:label="Layer 1" />
+      <g
+         transform="translate(-1.7125282,1.5569265)"
+         style="display:inline"
+         inkscape:label="Layer 2"
+         id="layer2">
+        <path
+           id="path6066"
+           d="m 438.82455,521.46178 c -21.36699,-20.34078 -20.5644,-20.57424 -38.26731,-36.32389 -25.29177,-22.5012 -72.46102,-54.17337 -99.81663,-27.26127 -2.62408,3.56972 -7.47887,11.35392 -10.78842,17.29819 -13.04681,23.43335 -23.04593,28.96197 -71.43176,39.49532 -38.40918,8.36146 -50.27243,13.46285 -63.31306,27.22554 -8.25709,8.71423 -9.13335,10.16318 -11.51178,19.03479 -5.63466,21.01741 -1.64506,43.81746 12.07618,69.01369 8.97458,16.47998 28.03686,41.05512 50.2681,64.80582 15.09196,16.12343 48.76166,46.46119 65.02671,58.59168 35.94843,26.81037 66.52848,37.57361 92.45987,32.54302 27.22825,-5.28217 44.10889,-27.37089 50.89871,-66.6021 9.74356,-56.29784 14.29124,-68.36063 30.06823,-79.75649 4.34221,-3.13642 11.48462,-7.32972 15.87202,-9.31845 6.1288,-2.77807 9.97333,-5.7125 16.59264,-12.66472 8.21094,-8.62392 8.64944,-9.39369 9.33709,-16.39257 0.8108,-8.25204 -1.99018,-19.42491 -7.63718,-30.46408 -9.86901,-16.616 -23.28573,-32.81104 -39.83341,-49.22448 z"
+           style="fill:url(#linearGradient6113);fill-opacity:1;stroke:#ffffff;stroke-width:6.53399992;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+           transform="translate(-136.24458,-337.90933)" />
+      </g>
+      <g
+         transform="translate(-1.7125282,1.5569265)"
+         style="display:inline"
+         inkscape:label="Layer3"
+         id="layer3">
+        <path
+           sodipodi:nodetypes="cccccc"
+           id="path5151"
+           d="m 252.28489,323.43586 c 18.89774,-4.00108 41.40859,-19.64276 45.60043,-42.34794 2.55975,-13.89285 4.50979,-45.35317 -6.25591,-62.7841 17.98797,43.01068 -11.86556,83.02499 -62.01604,62.85194 -11.68902,10.42835 -6.00191,3.14751 -16.3333,15.18481 17.92805,18.40406 21.77216,29.73464 39.00482,27.09529 z"
+           style="fill:url(#linearGradient6105);fill-opacity:1;stroke:#fff9f9;stroke-width:4.23400021;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
+      </g>
+      <g
+         transform="translate(-1.7125282,1.5569265)"
+         style="display:inline"
+         inkscape:label="Layer 4"
+         id="layer4">
+        <path
+           inkscape:transform-center-y="62.640606"
+           inkscape:transform-center-x="48.859673"
+           id="path6068"
+           d="M 384.66582,92.415028 279.30435,212.02444 c 14.95176,24.65854 7.7264,84.14477 -57.75192,53.0877 -3.72679,5.17214 -20.70275,21.30557 -27.60821,31.7401 l 27.57757,27.25354 -11.86177,12.32627 c -7.88479,-6.69053 -14.34479,-16.47944 -24.35053,-20.04548 l -7.24734,-0.26245 c -13.84588,-8.41289 -38.44552,-31.16359 -45.80694,-44.30147 -1.06416,-2.55632 2.88002,-2.69737 -0.76906,-9.69944 l -20.30253,-20.43102 11.5916,-12.70026 28.43461,27.20675 31.8911,-27.91019 c -20.56259,-30.28684 1.67329,-79.75327 56.23904,-55.02875 42.67866,-39.53595 103.12614,-98.274704 113.44471,-106.912185 4.75289,-2.853868 1.624,-9.246586 5.37495,-16.591822 3.43502,-6.726568 1.48837,-7.260285 8.81603,-12.940905 10.66702,-5.198575 18.028,1.009268 26.84001,-22.143332 5.82806,-11.0072305 13.1243,-12.1865517 16.81215,-12.7494358 20.52721,-0.7749643 37.14663,12.5893438 41.78491,30.5403028 0.0801,5.055338 -2.55515,18.169144 -12.38518,20.981682 -7.81937,3.139494 -18.67956,4.731042 -24.47373,23.386576 -4.552,12.32406 -13.21996,15.846065 -16.62758,15.390825 l -14.26042,0.193582 z"
+           style="fill:url(#linearGradient6138);fill-opacity:1;stroke:#ffffff;stroke-width:5.57440376;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline" />
+      </g>
+    </g>
+    <rect
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       id="rect3171"
+       width="15.357142"
+       height="47.142857"
+       x="30.678673"
+       y="-86.641197"
+       rx="9.7377472"
+       ry="7.6920147"
+       transform="matrix(-0.52819943,0.84912035,-0.84912035,-0.52819943,0,0)"
+       inkscape:transform-center-x="34.649351"
+       inkscape:transform-center-y="4.5194805"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <rect
+       ry="7.6920147"
+       rx="6.5742664"
+       y="-17.221855"
+       x="-120.41414"
+       height="28.312473"
+       width="15.357136"
+       id="rect3169"
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       transform="matrix(-0.84018324,-0.54230261,0.54230261,-0.84018324,0,0)"
+       inkscape:transform-center-x="9.1409466"
+       inkscape:transform-center-y="33.608084"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+    <rect
+       ry="7.6920147"
+       rx="6.5742698"
+       y="88.270889"
+       x="-12.975864"
+       height="30.570303"
+       width="15.357142"
+       id="rect3169-9"
+       style="opacity:0.97777776;fill:#97c024;fill-opacity:1;stroke:none"
+       transform="matrix(0.591692,-0.80616411,0.80616411,0.591692,0,0)"
+       inkscape:transform-center-x="32.999695"
+       inkscape:transform-center-y="-11.13914"
+       inkscape:export-filename="/home/peter/Documents/android.png"
+       inkscape:export-xdpi="89.999992"
+       inkscape:export-ydpi="89.999992" />
+  </g>
+</svg>
