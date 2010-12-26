@@ -34,12 +34,12 @@
 		<link>
 			<name>PdCore_jni_libpd_java</name>
 			<type>2</type>
-			<locationURI>_android_PdCore/jni/libpd/java</locationURI>
+			<locationURI>_android_PdCore_8e2503d3/jni/libpd/java</locationURI>
 		</link>
 		<link>
 			<name>PdCore_src</name>
 			<type>2</type>
-			<locationURI>_android_PdCore/src</locationURI>
+			<locationURI>_android_PdCore_8e2503d3/src</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
