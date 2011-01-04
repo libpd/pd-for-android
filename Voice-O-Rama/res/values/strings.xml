@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Voice-O-Rama</string>
+	<string name="left_label">Sine wave in left channel</string>
+	<string name="right_label">Sine wave in right channel</string>
+	<string name="mic_label">Patch mic to both channels</string>
+	<string name="default_msg">Enter message to Pure Data</string>
+	<string name="pref_button_text">Preferences</string>
+	<string name="about_title">About Pure Data</string>
+	<string name="about_msg">Pure Data is a real-time graphical programming
+		environment for audio, video, and graphical processing, originally
+		developed by Miller Puckette and company at IRCAM. Android port by
+		Peter Brinkmann, Peter Kirn, Hans-Christoph Steiner, and others.
+	</string>
+</resources>
