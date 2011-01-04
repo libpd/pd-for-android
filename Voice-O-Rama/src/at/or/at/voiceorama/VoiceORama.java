@@ -14,14 +14,10 @@ package at.or.at.voiceorama;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
 
 import org.puredata.android.service.PdPreferences;
 import org.puredata.android.service.PdService;
-import at.or.at.voiceorama.R;
 import org.puredata.core.PdBase;
 import org.puredata.core.PdReceiver;
 import org.puredata.core.utils.IoUtils;
@@ -39,26 +35,22 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
+import android.view.Window;
+import android.view.View.OnTouchListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.TextView.OnEditorActionListener;
 
-public class VoiceORama extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
+import at.or.at.voiceorama.VersionedTouch;
+
+public class VoiceORama extends Activity implements OnTouchListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String VOICE_O_RAMA = "Voice-O-Rama";
 
-	private CheckBox left, right, mic;
-	private EditText msg;
-	private Button prefs;
 	private TextView logs;
 
 	private PdService pdService = null;
@@ -138,7 +130,8 @@ public class VoiceORama extends Activity implements OnClickListener, OnEditorAct
 		PdPreferences.initPreferences(getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		initGui();
-		bindService(new Intent(this, PdService.class), connection, BIND_AUTO_CREATE);		
+		bindService(new Intent(this, PdService.class), connection, BIND_AUTO_CREATE);
+		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 	};
 
 	@Override
@@ -155,32 +148,15 @@ public class VoiceORama extends Activity implements OnClickListener, OnEditorAct
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		boolean bl = left.isChecked();
-		boolean br = right.isChecked();
-		boolean bm = mic.isChecked();
-		CharSequence msgc = msg.getText();
 		CharSequence logsc = logs.getText();
 		initGui();
-		left.setChecked(bl);
-		right.setChecked(br);
-		mic.setChecked(bm);
-		msg.setText(msgc);
 		logs.setText(logsc);
 	}
 
 	private void initGui() {
 		setContentView(R.layout.main);
-		left = (CheckBox) findViewById(R.id.left_box);
-		left.setOnClickListener(this);
-		right = (CheckBox) findViewById(R.id.right_box);
-		right.setOnClickListener(this);
-		mic = (CheckBox) findViewById(R.id.mic_box);
-		mic.setOnClickListener(this);
-		msg = (EditText) findViewById(R.id.msg_box);
-		msg.setOnEditorActionListener(this);
-		prefs = (Button) findViewById(R.id.pref_button);
-		prefs.setOnClickListener(this);
 		logs = (TextView) findViewById(R.id.log_box);
+		logs.setOnTouchListener(this);
 		logs.setMovementMethod(new ScrollingMovementMethod());
 	}
 
@@ -253,76 +229,9 @@ public class VoiceORama extends Activity implements OnClickListener, OnEditorAct
 		return true;
 	}
 
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.left_box:
-			PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
-			break;
-		case R.id.right_box:
-			PdBase.sendFloat("right", right.isChecked() ? 1 : 0);
-			break;
-		case R.id.mic_box:
-			PdBase.sendFloat("mic", mic.isChecked() ? 1 : 0);
-			break;
-		case R.id.pref_button:
-			startActivity(new Intent(this, PdPreferences.class));
-			break;
-		default:
-			break;
-		}
-	}
 
 	@Override
-	public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-		evaluateMessage(msg.getText().toString());
-		return true;
-	}
-
-	private void evaluateMessage(String s) {
-		String dest = "test", symbol = null;
-		boolean isAny = s.length() > 0 && s.charAt(0) == ';';
-		Scanner sc = new Scanner(isAny ? s.substring(1) : s);
-		if (isAny) {
-			if (sc.hasNext()) dest = sc.next();
-			else {
-				toast("Message not sent (empty recipient)");
-				return;
-			}
-			if (sc.hasNext()) symbol = sc.next();
-			else {
-				toast("Message not sent (empty symbol)");
-			}
-		}
-		List<Object> list = new ArrayList<Object>();
-		while (sc.hasNext()) {
-			if (sc.hasNextInt()) {
-				list.add(new Float(sc.nextInt()));
-			} else if (sc.hasNextFloat()) {
-				list.add(sc.nextFloat());
-			} else {
-				list.add(sc.next());
-			}
-		}
-		if (isAny) {
-			PdBase.sendMessage(dest, symbol, list.toArray());
-		} else {
-			switch (list.size()) {
-			case 0:
-				PdBase.sendBang(dest);
-				break;
-			case 1:
-				Object x = list.get(0);
-				if (x instanceof String) {
-					PdBase.sendSymbol(dest, (String) x);
-				} else {
-					PdBase.sendFloat(dest, (Float) x);
-				}
-				break;
-			default:
-				PdBase.sendList(dest, list.toArray());
-				break;
-			}
-		}
+	public boolean onTouch(View v, MotionEvent event) {
+		return (v == logs) && VersionedTouch.evaluateTouch(event, logs.getWidth(), logs.getHeight());
 	}
 }
