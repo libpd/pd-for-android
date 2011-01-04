@@ -3,6 +3,7 @@
 	<name>PdTest</name>
 	<comment></comment>
 	<projects>
+		<project>PdCore</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
