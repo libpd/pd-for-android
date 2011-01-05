@@ -17,6 +17,8 @@ ScenePlayer/bin/
 ScenePlayer/gen/
 ScenePlayer/libs/
 ScenePlayer/obj/
+Voice-O-Rama/bin/
+Voice-O-Rama/gen/
 TAGS
 local.properties
 *.o
