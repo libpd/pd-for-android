@@ -22,80 +22,78 @@ import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
 /**
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
-public class BluetoothMidiBridge implements BluetoothMidiReceiver {
-	
+public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceiver {
+
 	private final static String TAG = "BluetoothMidiBridge";
-	
+
 	public static void establishMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) {
 		BluetoothMidiBridge bridge = new BluetoothMidiBridge(service, observer);
-		PdBase.setMidiReceiver(bridge.receiver);
+		PdBase.setMidiReceiver(bridge);
 		service.setReceiver(bridge);
 	}
 
 	private final BluetoothMidiService service;
 	private final BluetoothSppObserver observer;
-	
-	private final PdMidiReceiver receiver = new PdMidiReceiver() {
-		@Override
-		public void receiveProgramChange(int channel, int value) {
-			try {
-				service.sendProgramChange(channel, value);
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-		
-		@Override
-		public void receivePolyAftertouch(int channel, int pitch, int value) {
-			try {
-				service.sendPolyAftertouch(channel, pitch, value);
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-		
-		@Override
-		public void receivePitchBend(int channel, int value) {
-			try {
-				service.sendPitchbend(channel, value);
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-		
-		@Override
-		public void receiveNoteOn(int channel, int pitch, int velocity) {
-			try {
-				service.sendNoteOn(channel, pitch, velocity);
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-		
-		@Override
-		public void receiveControlChange(int channel, int controller, int value) {
-			try {
-				service.sendControlChange(channel, controller, value);
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-		
-		@Override
-		public void receiveAftertouch(int channel, int value) {
-			try {
-				service.sendAftertouch(channel, value);
-			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
-			}
-		}
-	};
-	
+
 	private BluetoothMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) {
 		this.service = service;
 		this.observer = observer;
 	}
-	
+
+
+	@Override
+	public void receiveProgramChange(int channel, int value) {
+		try {
+			service.sendProgramChange(channel, value);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+
+	@Override
+	public void receivePolyAftertouch(int channel, int pitch, int value) {
+		try {
+			service.sendPolyAftertouch(channel, pitch, value);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+
+	@Override
+	public void receivePitchBend(int channel, int value) {
+		try {
+			service.sendPitchbend(channel, value);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+
+	@Override
+	public void receiveNoteOn(int channel, int pitch, int velocity) {
+		try {
+			service.sendNoteOn(channel, pitch, velocity);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+
+	@Override
+	public void receiveControlChange(int channel, int controller, int value) {
+		try {
+			service.sendControlChange(channel, controller, value);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+
+	@Override
+	public void receiveAftertouch(int channel, int value) {
+		try {
+			service.sendAftertouch(channel, value);
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
 	@Override
 	public void onAftertouch(int channel, int velocity) {
 		PdBase.sendAftertouch(channel, velocity);
