@@ -26,13 +26,14 @@ import org.puredata.core.PdReceiver;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdUtils;
 
+import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -61,6 +62,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	private TextView logs;
 
 	private PdService pdService = null;
+	private BluetoothMidiService midiService = null;
 	private String patch = null;
 
 	private void toast(final String msg) {
@@ -118,11 +120,23 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		}
 	};
 
-	private final ServiceConnection connection = new ServiceConnection() {
+	private final ServiceConnection pdConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			pdService = ((PdService.PdBinder)service).getService();
 			initPd();
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			// this method will never be called
+		}
+	};
+	
+	private final ServiceConnection midiConnection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			midiService = ((BluetoothMidiService.BluetoothMidiBinder)service).getService();
 		}
 
 		@Override
@@ -137,7 +151,8 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		PdPreferences.initPreferences(getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		initGui();
-		bindService(new Intent(this, PdService.class), connection, BIND_AUTO_CREATE);		
+		bindService(new Intent(this, PdService.class), pdConnection, BIND_AUTO_CREATE);
+		bindService(new Intent(this, BluetoothMidiService.class), midiConnection, BIND_AUTO_CREATE);		
 	};
 
 	@Override
@@ -149,22 +164,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		startAudio();
-	}
-
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		boolean bl = left.isChecked();
-		boolean br = right.isChecked();
-		boolean bm = mic.isChecked();
-		CharSequence msgc = msg.getText();
-		CharSequence logsc = logs.getText();
-		initGui();
-		left.setChecked(bl);
-		right.setChecked(br);
-		mic.setChecked(bm);
-		msg.setText(msgc);
-		logs.setText(logsc);
 	}
 
 	private void initGui() {
@@ -215,10 +214,16 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		if (patch != null) PdUtils.closePatch(patch);
 		PdBase.release();
 		try {
-			unbindService(connection);
+			unbindService(pdConnection);
 		} catch (IllegalArgumentException e) {
 			// already unbound
 			pdService = null;
+		}
+		try {
+			unbindService(midiConnection);
+		} catch (IllegalArgumentException e) {
+			// already unbound
+			midiService = null;
 		}
 	}
 

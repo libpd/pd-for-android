@@ -1,3 +1,6 @@
 [submodule "PdCore/jni/libpd"]
 	path = PdCore/jni/libpd
 	url = git@gitorious.org:pdlib/libpd.git
+[submodule "btmidi"]
+	path = btmidi
+	url = git@gitorious.org:pdlib/btmidi.git
