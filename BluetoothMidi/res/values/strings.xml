@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	
+	
+	<string name="select_device">Select a device to connect to</string>
+	<string name="none_paired">No devices have been paired</string>
+	<string name="title_paired_devices">Paired devices</string>
+	
+</resources>
