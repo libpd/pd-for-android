@@ -33,6 +33,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>BluetoothMidi_src</name>
+			<type>2</type>
+			<locationURI>_android_BluetoothMidi_1f8182cf/src</locationURI>
+		</link>
+		<link>
 			<name>PdCore_jni_libpd_java</name>
 			<type>2</type>
 			<locationURI>_android_PdCore_8e2503d3/jni/libpd/java</locationURI>

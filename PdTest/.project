@@ -3,7 +3,6 @@
 	<name>PdTest</name>
 	<comment></comment>
 	<projects>
-		<project>BluetoothMidi</project>
 		<project>PdCore</project>
 	</projects>
 	<buildSpec>
