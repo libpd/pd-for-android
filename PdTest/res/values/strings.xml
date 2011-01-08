@@ -12,4 +12,6 @@
 		developed by Miller Puckette and company at IRCAM. Android port by
 		Peter Brinkmann, Peter Kirn, Hans-Christoph Steiner, and others.
 	</string>
+<string name="midi_button_text">Connect/disconnect MIDI device</string>
+
 </resources>
