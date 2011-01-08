@@ -15,6 +15,7 @@ import org.puredata.core.PdMidiReceiver;
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 
+import com.noisepages.nettoyeur.bluetooth.BluetoothSppObserver;
 import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiReceiver;
 import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
 
@@ -25,14 +26,14 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver {
 	
 	private final static String TAG = "BluetoothMidiBridge";
 	
-	public static void establishMidiBridge(BluetoothMidiService service, ConnectionObserver observer) {
+	public static void establishMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) {
 		BluetoothMidiBridge bridge = new BluetoothMidiBridge(service, observer);
 		PdBase.setMidiReceiver(bridge.receiver);
 		service.setReceiver(bridge);
 	}
 
 	private final BluetoothMidiService service;
-	private final ConnectionObserver observer;
+	private final BluetoothSppObserver observer;
 	
 	private final PdMidiReceiver receiver = new PdMidiReceiver() {
 		@Override
@@ -90,7 +91,7 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver {
 		}
 	};
 	
-	private BluetoothMidiBridge(BluetoothMidiService service, ConnectionObserver observer) {
+	private BluetoothMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) {
 		this.service = service;
 		this.observer = observer;
 	}
