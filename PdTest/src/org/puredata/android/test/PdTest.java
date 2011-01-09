@@ -27,7 +27,7 @@ import org.puredata.core.PdReceiver;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdUtils;
 
-import com.noisepages.nettoyeur.bluetooth.BluetoothSppManager;
+import com.noisepages.nettoyeur.bluetooth.BluetoothSppConnection;
 import com.noisepages.nettoyeur.bluetooth.BluetoothSppObserver;
 import com.noisepages.nettoyeur.bluetooth.DeviceListActivity;
 import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
@@ -306,7 +306,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			break;
 		case R.id.midi_button:
 			if (midiService != null) {
-				if (midiService.getState() == BluetoothSppManager.State.NONE) {
+				if (midiService.getState() == BluetoothSppConnection.State.NONE) {
 					startActivityForResult(new Intent(this, DeviceListActivity.class), CONNECT);
 				} else {
 					midiService.stop();
