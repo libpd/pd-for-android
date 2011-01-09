@@ -20,17 +20,27 @@ import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiReceiver;
 import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
 
 /**
+ * This class establishes a link between libpd and BluetoothMidi.  It only hooks up and registers the
+ * callbacks for handling MIDI and Bluetooth connection events.  Everything else, e.g., starting and
+ * stopping services, remains the responsibility of the client code.
+ *
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
 public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceiver {
 
-	private final static String TAG = "BluetoothMidiBridge";
-
+	/**
+	 * Establishes a connection that sends MIDI events from Bluetooth to libpd and vice versa.
+	 * 
+	 * @param service initialized but unconnected MIDI service
+	 * @param observer callbacks for handling Bluetooth connection events
+	 */
 	public static void establishMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) {
 		BluetoothMidiBridge bridge = new BluetoothMidiBridge(service, observer);
 		PdBase.setMidiReceiver(bridge);
 		service.setReceiver(bridge);
 	}
+	
+	private final static String TAG = "BluetoothMidiBridge";
 
 	private final BluetoothMidiService service;
 	private final BluetoothSppObserver observer;
@@ -39,7 +49,6 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceive
 		this.service = service;
 		this.observer = observer;
 	}
-
 
 	@Override
 	public void receiveProgramChange(int channel, int value) {
