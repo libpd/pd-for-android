@@ -162,7 +162,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			midiService = ((BluetoothMidiService.BluetoothMidiBinder)service).getService();
 			try {
-				midiService.init();
 				BluetoothMidiBridge.establishMidiBridge(midiService, btObserver);
 			} catch (IOException e) {
 				midiService = null;

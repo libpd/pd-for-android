@@ -30,14 +30,16 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceive
 
 	/**
 	 * Establishes a connection that sends MIDI events from Bluetooth to libpd and vice versa.
+	 * It calls the init method of the MIDI service, and so no further initialization is necessary.
 	 * 
 	 * @param service initialized but unconnected MIDI service
 	 * @param observer callbacks for handling Bluetooth connection events
+	 * @throws IOException
 	 */
-	public static void establishMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) {
+	public static void establishMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) throws IOException {
 		BluetoothMidiBridge bridge = new BluetoothMidiBridge(service, observer);
 		PdBase.setMidiReceiver(bridge);
-		service.setReceiver(bridge);
+		service.init(bridge);
 	}
 	
 	private final static String TAG = "BluetoothMidiBridge";
