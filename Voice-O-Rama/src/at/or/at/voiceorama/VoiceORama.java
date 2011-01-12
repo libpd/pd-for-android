@@ -40,27 +40,30 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnTouchListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import at.or.at.voiceorama.VersionedTouch;
-
 public class VoiceORama extends Activity implements OnTouchListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-	private static final String VOICE_O_RAMA = "Voice-O-Rama";
+	private static final String TAG = "Voice-O-Rama";
 
 	private TextView logs;
 
 	private PdService pdService = null;
 	private String patch = null;
 
+	private Toast toast = null;
+	
 	private void toast(final String msg) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), VOICE_O_RAMA + ": " + msg, Toast.LENGTH_SHORT).show();
+				if (toast == null) {
+					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+				}
+				toast.setText(TAG + ": " + msg);
+				toast.show();
 			}
 		});
 	}
@@ -171,7 +174,7 @@ public class VoiceORama extends Activity implements OnTouchListener, SharedPrefe
 			patch = PdUtils.openPatch(patchFile);
 			startAudio();
 		} catch (IOException e) {
-			Log.e(VOICE_O_RAMA, e.toString());
+			Log.e(TAG, e.toString());
 			finish();
 		} finally {
 			if (patchFile != null) patchFile.delete();

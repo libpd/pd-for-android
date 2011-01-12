@@ -33,18 +33,24 @@ import android.widget.Toast;
 
 public class CircleOfFifths extends Activity implements OnClickListener {
 
-	private static final String PD_CIRCLE = "Pd Circle Of Fifths";
+	private static final String TAG = "Pd Circle Of Fifths";
 	private static final String TOP = "top";
 	private static final int SAMPLE_RATE = 44100;
 	private String patch;
 	private RadioGroup options;
 	private int option = 0;
 
-	private void post(final String msg) {
+	private Toast toast = null;
+	
+	private void toast(final String msg) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), PD_CIRCLE + ": " + msg, Toast.LENGTH_LONG).show();
+				if (toast == null) {
+					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+				}
+				toast.setText(TAG + ": " + msg);
+				toast.show();
 			}
 		});
 	}
@@ -60,13 +66,13 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	protected void onResume() {
 		super.onResume();
 		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
-			post("required sample rate not available; exiting");
+			toast("required sample rate not available; exiting");
 			finish();
 			return;
 		}
 		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
 		if (nOut == 0) {
-			post("audio output not available; exiting");
+			toast("audio output not available; exiting");
 			finish();
 			return;
 		}
@@ -74,7 +80,7 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 			PdAudio.initAudio(SAMPLE_RATE, 0, nOut, 1, true);
 			PdAudio.startAudio(this);
 		} catch (IOException e) {
-			Log.e(PD_CIRCLE, e.toString());
+			Log.e(TAG, e.toString());
 		}
 	}
 	
@@ -116,7 +122,7 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 			IoUtils.extractZipResource(getResources().openRawResource(R.raw.patch), dir, true);
 			patch = PdUtils.openPatch(patchFile.getAbsolutePath());
 		} catch (IOException e) {
-			Log.e(PD_CIRCLE, e.toString() + "; exiting now");
+			Log.e(TAG, e.toString() + "; exiting now");
 			finish();
 		}
 	}

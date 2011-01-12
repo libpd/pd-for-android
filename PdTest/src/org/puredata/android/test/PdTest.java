@@ -59,7 +59,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class PdTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-	private static final String PD_TEST = "Pd Test";
+	private static final String TAG = "Pd Test";
 	private static final int CONNECT = 1;
 
 	private CheckBox left, right, mic;
@@ -72,11 +72,17 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	private BluetoothMidiService midiService = null;
 	private String patch = null;
 
+	private Toast toast = null;
+	
 	private void toast(final String msg) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), PD_TEST + ": " + msg, Toast.LENGTH_SHORT).show();
+				if (toast == null) {
+					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+				}
+				toast.setText(TAG + ": " + msg);
+				toast.show();
 			}
 		});
 	}
@@ -224,7 +230,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			patch = PdUtils.openPatch(patchFile);
 			startAudio();
 		} catch (IOException e) {
-			Log.e(PD_TEST, e.toString());
+			Log.e(TAG, e.toString());
 			finish();
 		} finally {
 			if (patchFile != null) patchFile.delete();
