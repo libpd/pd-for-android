@@ -105,6 +105,12 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceive
 			Log.e(TAG, e.getMessage());
 		}
 	}
+
+	@Override
+	public void receiveMidiByte(int port, int value) {
+		// Currently not implemented.
+	}
+	
 	@Override
 	public void onAftertouch(int channel, int velocity) {
 		PdBase.sendAftertouch(channel, velocity);
