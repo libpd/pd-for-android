@@ -108,7 +108,11 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceive
 
 	@Override
 	public void receiveMidiByte(int port, int value) {
-		// Currently not implemented.
+		try {
+			service.sendRawByte(value);  // We ignore the port number.
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		}
 	}
 	
 	@Override
@@ -146,6 +150,17 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceive
 		PdBase.sendProgramChange(channel, program);
 	}
 
+	@Override
+	public void onRawByte(int value) {
+		if (value >= 0xf8) {
+			PdBase.sendSysRealTime(0, value);
+		} else {
+			PdBase.sendMidiByte(0, value);
+			// Note that we send raw bytes straight to [midiout], without attempting to parse
+			// sysex messages.
+		}
+	}
+	
 	@Override
 	public void onConnectionFailed() {
 		observer.onConnectionFailed();
