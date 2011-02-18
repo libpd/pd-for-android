@@ -38,8 +38,8 @@ public class BluetoothMidiBridge implements BluetoothMidiReceiver, PdMidiReceive
 	 */
 	public static void establishMidiBridge(BluetoothMidiService service, BluetoothSppObserver observer) throws IOException {
 		BluetoothMidiBridge bridge = new BluetoothMidiBridge(service, observer);
-		PdBase.setMidiReceiver(bridge);
 		service.init(bridge);
+		PdBase.setMidiReceiver(bridge);
 	}
 	
 	private final static String TAG = "BluetoothMidiBridge";
