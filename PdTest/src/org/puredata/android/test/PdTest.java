@@ -25,12 +25,6 @@ import org.puredata.android.utils.BluetoothMidiBridge;
 import org.puredata.core.PdBase;
 import org.puredata.core.PdReceiver;
 import org.puredata.core.utils.IoUtils;
-import org.puredata.core.utils.PdUtils;
-
-import com.noisepages.nettoyeur.bluetooth.BluetoothSppConnection;
-import com.noisepages.nettoyeur.bluetooth.BluetoothSppObserver;
-import com.noisepages.nettoyeur.bluetooth.DeviceListActivity;
-import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -57,6 +51,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.noisepages.nettoyeur.bluetooth.BluetoothSppConnection;
+import com.noisepages.nettoyeur.bluetooth.BluetoothSppObserver;
+import com.noisepages.nettoyeur.bluetooth.DeviceListActivity;
+import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
+
 public class PdTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String TAG = "Pd Test";
@@ -70,7 +69,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	private PdService pdService = null;
 	private BluetoothMidiService midiService = null;
-	private String patch = null;
 
 	private Toast toast = null;
 	
@@ -227,7 +225,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			PdBase.subscribe("android");
 			InputStream in = res.openRawResource(R.raw.test);
 			patchFile = IoUtils.extractResource(in, "test.pd", getCacheDir());
-			patch = PdUtils.openPatch(patchFile);
+			PdBase.openPatch(patchFile);
 			startAudio();
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
@@ -248,7 +246,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	}
 
 	private void cleanup() {
-		if (patch != null) PdUtils.closePatch(patch);
 		PdBase.release();
 		try {
 			unbindService(pdConnection);

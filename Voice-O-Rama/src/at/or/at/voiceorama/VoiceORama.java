@@ -21,7 +21,6 @@ import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
 import org.puredata.core.PdReceiver;
 import org.puredata.core.utils.IoUtils;
-import org.puredata.core.utils.PdUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -51,7 +50,6 @@ public class VoiceORama extends Activity implements OnTouchListener, SharedPrefe
 	private TextView logs;
 
 	private PdService pdService = null;
-	private String patch = null;
 
 	private Toast toast = null;
 	
@@ -171,7 +169,7 @@ public class VoiceORama extends Activity implements OnTouchListener, SharedPrefe
 			PdBase.subscribe("android");
 			InputStream in = res.openRawResource(R.raw.test);
 			patchFile = IoUtils.extractResource(in, "test.pd", getCacheDir());
-			patch = PdUtils.openPatch(patchFile);
+			PdBase.openPatch(patchFile);
 			startAudio();
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
@@ -192,7 +190,6 @@ public class VoiceORama extends Activity implements OnTouchListener, SharedPrefe
 	}
 
 	private void cleanup() {
-		if (patch != null) PdUtils.closePatch(patch);
 		PdBase.release();
 		try {
 			unbindService(connection);

@@ -23,7 +23,6 @@ import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
-import org.puredata.core.utils.PdUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -84,7 +83,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private File sceneFolder;
 	private File recDir = null;
 	private PdService pdService = null;
-	private String patch = null;
+	private int patch = 0;
 	private String recTag = null;
 	private final Map<String, String> sceneInfo = new HashMap<String, String>();
 	private final PdDispatcher dispatcher = new PdDispatcher() {
@@ -333,9 +332,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			// make sure to release all resources
 			stopRecording();
 			stopAudio();
-			if (patch != null) {
-				PdUtils.closePatch(patch);
-				patch = null;
+			if (patch != 0) {
+				PdBase.closePatch(patch);
+				patch = 0;
 			}
 			dispatcher.release();
 			PdBase.release();
@@ -409,9 +408,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					toast("Warning: No audio input available");
 				}
 			}
-			if (patch == null) {
+			if (patch == 0) {
 				try {
-					patch = PdUtils.openPatch(new File(sceneFolder, "_main.pd"));
+					patch = PdBase.openPatch(new File(sceneFolder, "_main.pd"));
 				} catch (IOException e) {
 					Log.e(TAG, e.toString());
 					toast("Unable to open patch; exiting");

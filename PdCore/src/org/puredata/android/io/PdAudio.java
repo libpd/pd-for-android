@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.puredata.core.PdBase;
-import org.puredata.core.utils.PdUtils;
 
 import android.content.Context;
 
@@ -64,7 +63,7 @@ public class PdAudio {
 		if (audioWrapper == null) {
 			throw new IllegalStateException("audio not initialized");
 		}
-		PdUtils.computeAudio(true);
+		PdBase.computeAudio(true);
 		audioWrapper.start(context);
 	}
 

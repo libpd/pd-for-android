@@ -16,7 +16,6 @@ import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
-import org.puredata.core.utils.PdUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -36,7 +35,6 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	private static final String TAG = "Pd Circle Of Fifths";
 	private static final String TOP = "top";
 	private static final int SAMPLE_RATE = 44100;
-	private String patch;
 	private RadioGroup options;
 	private int option = 0;
 
@@ -120,7 +118,7 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 		File patchFile = new File(dir, "chords.pd");
 		try {
 			IoUtils.extractZipResource(getResources().openRawResource(R.raw.patch), dir, true);
-			patch = PdUtils.openPatch(patchFile.getAbsolutePath());
+			PdBase.openPatch(patchFile.getAbsolutePath());
 		} catch (IOException e) {
 			Log.e(TAG, e.toString() + "; exiting now");
 			finish();
@@ -130,7 +128,6 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	private void cleanup() {
 		// make sure to release all resources
 		PdAudio.stopAudio();
-		PdUtils.closePatch(patch);
 		PdBase.release();
 	}
 
