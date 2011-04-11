@@ -80,6 +80,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private ToggleButton record;
 	private ImageButton info;
 	private SeekBar micVolume;
+	private int micValue;
 	private File sceneFolder;
 	private File recDir = null;
 	private PdService pdService = null;
@@ -189,6 +190,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		String scenePath = intent.getStringExtra(SCENE);
 		String recDirName = intent.getStringExtra(RECDIR);
 		recTag = intent.getStringExtra(RECTAG);
+		micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 		if (scenePath != null && recDirName != null) {
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
@@ -273,6 +275,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	protected void onPause() {
+		getPreferences(MODE_PRIVATE).edit().putInt(MICVOLUME, micValue).commit();
 		dismissProgressDialog();
 		super.onPause();
 	}
@@ -300,6 +303,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		info = (ImageButton) findViewById(R.id.sceneplayer_info);
 		info.setOnClickListener(this);
 		micVolume = (SeekBar) findViewById(R.id.mic_volume);
+		micVolume.setProgress(micValue);
 		micVolume.setOnSeekBarChangeListener(this);
 	}
 
@@ -411,6 +415,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			if (patch == 0) {
 				try {
 					patch = PdBase.openPatch(new File(sceneFolder, "_main.pd"));
+					adjustMicVolume(micValue);
 				} catch (IOException e) {
 					Log.e(TAG, e.toString());
 					toast("Unable to open patch; exiting");
@@ -507,7 +512,12 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		float q = progress * 0.01f;
+		micValue = progress;
+		adjustMicVolume(progress);
+	}
+
+	public void adjustMicVolume(int vol) {
+		float q = vol * 0.01f;
 		float volume = q * q * q * q;  // fourth power of mic volume slider value; somewhere between linear and exponential
 		PdBase.sendFloat(MICVOLUME, volume);
 	}
