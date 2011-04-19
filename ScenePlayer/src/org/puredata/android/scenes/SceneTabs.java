@@ -27,9 +27,9 @@ public class SceneTabs extends TabActivity {
 		intent = new Intent().setClass(this, SceneSelection.class);
 		spec = tabHost.newTabSpec("scenes").setIndicator("Scenes", res.getDrawable(R.drawable.tab_scenes_selector)).setContent(intent);
 		tabHost.addTab(spec);
-		intent = new Intent().setClass(this, SceneRecordings.class);
-		spec = tabHost.newTabSpec("recordings").setIndicator("Recordings", res.getDrawable(R.drawable.tab_recordings_selector)).setContent(intent);
-		tabHost.addTab(spec);
+//		intent = new Intent().setClass(this, SceneRecordings.class);
+//		spec = tabHost.newTabSpec("recordings").setIndicator("Recordings", res.getDrawable(R.drawable.tab_recordings_selector)).setContent(intent);
+//		tabHost.addTab(spec);
 //		intent = new Intent().setClass(this, RjDjInfo.class);
 //		spec = tabHost.newTabSpec("rjdj").setIndicator("RjDj.me", res.getDrawable(R.drawable.tab_rjdj_me_selector)).setContent(intent);
 //		tabHost.addTab(spec);
