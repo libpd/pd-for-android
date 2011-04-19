@@ -2,7 +2,7 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 
-import org.puredata.android.scenes.SceneDataBase.Column;
+import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -28,11 +28,11 @@ public class SceneListCursorAdapter extends CursorAdapter {
   @Override
   public void bindView(View view, Context context, Cursor cursor) {
     TextView textView1 = (TextView) view.findViewById(android.R.id.text1);
-    textView1.setText(SceneDataBase.getString(cursor, Column.SCENE_TITLE));
+    textView1.setText(SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE));
     TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
-    textView2.setText(SceneDataBase.getString(cursor, Column.SCENE_ARTIST));
+    textView2.setText(SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST));
     ImageView imageView = (ImageView) view.findViewById(android.R.id.selectedIcon);
-    String sceneFolder = SceneDataBase.getString(cursor, Column.SCENE_DIRECTORY);
+    String sceneFolder = SceneDataBase.getString(cursor, SceneColumn.SCENE_DIRECTORY);
 	File file = new File(sceneFolder, "thumb.jpg");
 	Drawable icon = Drawable.createFromPath(file.getAbsolutePath());
     if (icon == null) {

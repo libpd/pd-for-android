@@ -18,12 +18,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.SyncStateContract.Columns;
-import android.util.Log;
 
 public class SceneDataBase {
 
-	public static enum Column {
+	public static enum SceneColumn {
 		ID("_id", "integer primary key autoincrement, "),
 		SCENE_ARTIST("author", "text not null, "),
 		SCENE_TITLE("name", "text not null, "),
@@ -35,7 +33,7 @@ public class SceneDataBase {
 		private final String label;
 		private final String type;
 
-		private Column(String label, String type) {
+		private SceneColumn(String label, String type) {
 			this.label = label;
 			this.type = type;
 		}
@@ -64,27 +62,34 @@ public class SceneDataBase {
 			throw new IOException(e.getMessage());
 		}
 		ContentValues values = new ContentValues();
-		for (Column column : Column.values()) {
+		for (SceneColumn column : SceneColumn.values()) {
 			String name = column.label;
 			values.put(name, sceneInfo.get(name));
 		}
-		values.put(Column.SCENE_DIRECTORY.label, sceneFolder.getAbsolutePath());
+		values.put(SceneColumn.SCENE_DIRECTORY.label, sceneFolder.getAbsolutePath());
 		return db.insert(TABLE_SCENES, null, values);
 	}
 
+	public void delete(int id) {
+		db.delete(TABLE_SCENES, idClause(id), null);
+	}
+
 	public Cursor getAllScenes() {
-		return db.query(TABLE_SCENES, new String[] {Column.ID.label, Column.SCENE_ARTIST.label,
-			Column.SCENE_TITLE.label, Column.SCENE_DIRECTORY.label}, null, null, null, null, Column.SCENE_TITLE.label);
+		return db.query(TABLE_SCENES, new String[] {SceneColumn.ID.label, SceneColumn.SCENE_ARTIST.label,
+			SceneColumn.SCENE_TITLE.label, SceneColumn.SCENE_DIRECTORY.label}, null, null, null, null, SceneColumn.SCENE_TITLE.label);
 	}
 	
 	public Cursor getScene(int id) {
-		Cursor cursor = db.query(TABLE_SCENES, null, Column.ID.label + " = " + id,
-				null, null, null, null);
+		Cursor cursor = db.query(TABLE_SCENES, null, idClause(id), null, null, null, null);
 		cursor.moveToFirst();
 		return cursor;
 	}
 	
-	public static String getString(Cursor cursor, Column column) {
+	private String idClause(int id) {
+		return SceneColumn.ID.label + " = " + id;
+	}
+
+	public static String getString(Cursor cursor, SceneColumn column) {
 		return getString(cursor, column.label);
 	}
 
@@ -104,7 +109,7 @@ public class SceneDataBase {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			StringBuilder create = new StringBuilder("create table " + TABLE_SCENES + " (");
-			for (Column column: Column.values()) {
+			for (SceneColumn column: SceneColumn.values()) {
 				create.append(column.label);
 				create.append(" ");
 				create.append(column.type);

@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.puredata.android.scenes.SceneDataBase.Column;
+import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
@@ -181,10 +181,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		String scenePath = intent.getStringExtra(Column.SCENE_DIRECTORY.toString());
-		artist = intent.getStringExtra(Column.SCENE_ARTIST.toString());
-		title = intent.getStringExtra(Column.SCENE_TITLE.toString());
-		description = intent.getStringExtra(Column.SCENE_INFO.toString());
+		String scenePath = intent.getStringExtra(SceneColumn.SCENE_DIRECTORY.toString());
+		artist = intent.getStringExtra(SceneColumn.SCENE_ARTIST.toString());
+		title = intent.getStringExtra(SceneColumn.SCENE_TITLE.toString());
+		description = intent.getStringExtra(SceneColumn.SCENE_INFO.toString());
 		String recDirName = intent.getStringExtra(RECDIR);
 		recTag = intent.getStringExtra(RECTAG);
 		micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);

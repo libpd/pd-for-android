@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.puredata.android.scenes.SceneDataBase.Column;
+import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 import org.puredata.core.utils.IoUtils;
 
 import android.app.Activity;
@@ -28,8 +28,9 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
-public class SceneSelection extends Activity implements OnItemClickListener, OnClickListener {
+public class SceneSelection extends Activity implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
 
 	private ListView sceneView;
 	private Button updateButton;
@@ -47,6 +48,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnC
 		sceneView = (ListView) findViewById(R.id.scene_selection);
 		updateButton = (Button) findViewById(R.id.update_button);
 		sceneView.setOnItemClickListener(this);
+		sceneView.setOnItemLongClickListener(this);
 		updateButton.setOnClickListener(this);
 		updateList();
 	}
@@ -62,11 +64,18 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnC
 		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
 		Cursor cursor = db.getScene((int) id);
 		for (String column : cursor.getColumnNames()) {
-			if (!column.equals(Column.ID.toString())) {
+			if (!column.equals(SceneColumn.ID.toString())) {
 				intent.putExtra(column, SceneDataBase.getString(cursor, column));
 			}
 		}
 		startActivity(intent);
+	}
+
+	@Override
+	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, long id) {
+		db.delete((int) id);
+		updateList();
+		return true;
 	}
 
 	@Override
