@@ -178,7 +178,7 @@ public class SceneDataBase {
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {
 
 		public static final String DATABASE_NAME = "scenedb";
-		public static final int DATABASE_VERSION = 5;
+		public static final int DATABASE_VERSION = 15;
 		
 		public SceneDataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

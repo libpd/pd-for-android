@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">Scene Player</string>
-  
-  
-<string name="playing">Playing</string>
-<string name="paused">Play</string>
-<string name="startrec">Record</string>
-<string name="stoprec">Recording</string>
-<string name="update_label">Update list of scenes</string>
+  <string name="playing">Playing</string>
+  <string name="paused">Play</string>
+  <string name="startrec">Record</string>
+  <string name="stoprec">Recording</string>
+  <string name="update_label">Load scene</string>
+
+  <string name="location">Location</string>
+  <string name="cant_read_folder">folder can\'t be read!</string>
+  <string name="nnew">New</string>
+  <string name="select">Select</string>
+  <string name="file_name">File name:</string>
+  <string name="cancel">Cancel</string>
+  <string name="create">Create</string>
+  <string name="no_data">No Data</string>
+	<color name="gray">#ffff0000</color>
 </resources>

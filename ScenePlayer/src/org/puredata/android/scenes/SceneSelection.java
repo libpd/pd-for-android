@@ -11,13 +11,12 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
-import org.puredata.core.utils.IoUtils;
+
+import com.lamerman.FileDialog;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -32,6 +31,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 public class SceneSelection extends Activity implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
 
+	private static final int FILE_SELECT_CODE = 1;
 	private static final String TAG = "Scene Selection";
 	private ListView sceneView;
 	private Button updateButton;
@@ -88,37 +88,22 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	@Override
 	public void onClick(View v) {
 		if (v.equals(updateButton)) {
-			updateDataBase();
+			Intent intent = new Intent(this, FileDialog.class);
+			intent.putExtra(FileDialog.START_PATH, "/sdcard");
+			startActivityForResult(intent, FILE_SELECT_CODE);
 		}
 	}
-
-	private void updateDataBase() {
-		final ProgressDialog progress = new ProgressDialog(this);
-		progress.setMessage("Loading scenes.  Please wait...");
-		progress.setCancelable(false);
-		progress.setIndeterminate(true);
-		progress.show();
-		new Thread() {
-			@Override
-			public void run() {
-				List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
-				for (File dir: list) {
-					if (dir.isDirectory()) {
-						try {
-							db.addScene(dir);
-						} catch (IOException e) {
-							Log.e("Scene Player", e.toString());
-						}
-					}
-				}
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						updateList();
-						progress.dismiss();
-					}
-				});
-			};
-		}.start();
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE) {
+			String path = data.getStringExtra(FileDialog.RESULT_PATH);
+			try {
+				db.addScene(new File(path));
+				updateList();
+			} catch (IOException e) {
+				Log.e(TAG, e.toString());
+			}
+		}
 	}
 }
