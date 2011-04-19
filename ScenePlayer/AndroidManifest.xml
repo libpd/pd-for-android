@@ -13,7 +13,7 @@
 		</activity>
 		<activity android:name=".SceneSelection"
 			android:label="@string/app_name" android:screenOrientation="portrait" />
-		<activity android:name=".SceneRecordings"
+		<activity android:name=".RecordingSelection"
 			android:label="@string/app_name" android:screenOrientation="portrait" />
 		<activity android:name=".RjDjInfo"
 			android:label="@string/app_name" android:screenOrientation="portrait" />

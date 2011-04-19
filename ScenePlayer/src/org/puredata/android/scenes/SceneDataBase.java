@@ -34,10 +34,10 @@ public class SceneDataBase {
 		ID("_id", "integer primary key autoincrement, "),
 		SCENE_ARTIST("author", "text not null, "),
 		SCENE_TITLE("name", "text not null, "),
-		SCENE_INFO( "description", "text not null, "),
+		SCENE_INFO("description", "text not null, "),
 		SCENE_CATEGORY("category", "text, "),
 		SCENE_ID("sceneId", "text, "),
-		SCENE_DIRECTORY( "directory", "text unique not null");
+		SCENE_DIRECTORY("directory", "text unique not null");
 
 		private final String label;
 		private final String type;
@@ -53,7 +53,29 @@ public class SceneDataBase {
 		}
 	}
 
+	public static enum RecordingColumn {
+		ID("_id", "integer primary key autoincrement, "),
+		RECORDING_PATH("path", "text not null, "),
+		RECORDING_TIMESTAMP("time", "bigint not null, "),  // Unix time
+		SCENE_TITLE("name", "text not null, "),
+		SCENE_DIRECTORY("directory", "text not null");
+
+		private final String label;
+		private final String type;
+
+		private RecordingColumn(String label, String type) {
+			this.label = label;
+			this.type = type;
+		}
+		
+		@Override
+		public String toString() {
+			return label;
+		}
+	}
+
 	public static final String TABLE_SCENES = "scenes";
+	public static final String TABLE_RECORDINGS = "recordings";
 
 	private final SceneDataBaseHelper helper;
 	private final SQLiteDatabase db;
@@ -78,14 +100,32 @@ public class SceneDataBase {
 		values.put(SceneColumn.SCENE_DIRECTORY.label, sceneFolder.getAbsolutePath());
 		return db.insert(TABLE_SCENES, null, values);
 	}
+	
+	public long addRecording(String path, long time, String title, String directory) {
+		ContentValues values = new ContentValues();
+		values.put(RecordingColumn.RECORDING_PATH.label, path);
+		values.put(RecordingColumn.RECORDING_TIMESTAMP.label, time);
+		values.put(RecordingColumn.SCENE_TITLE.label, title);
+		values.put(RecordingColumn.SCENE_DIRECTORY.label, directory);
+		return db.insert(TABLE_RECORDINGS, null, values);
+	}
 
-	public void delete(int id) throws IOException {
+	public void deleteScene(long id) throws IOException {
 		Cursor cursor = getScene(id);
 		String path = getString(cursor, SceneColumn.SCENE_DIRECTORY);
 		if (new File(path).exists()) {
 			Runtime.getRuntime().exec("rm -r " + path);
 		}
-		db.delete(TABLE_SCENES, idClause(id), null);
+		db.delete(TABLE_SCENES, sceneIdClause(id), null);
+	}
+	
+	public void deleteRecording(long id) throws IOException {
+		Cursor cursor = getRecording(id);
+		String path = getString(cursor, RecordingColumn.RECORDING_PATH);
+		if (new File(path).exists()) {
+			Runtime.getRuntime().exec("rm " + path);
+		}
+		db.delete(TABLE_RECORDINGS, recordingIdClause(id), null);
 	}
 
 	public Cursor getAllScenes() {
@@ -93,28 +133,52 @@ public class SceneDataBase {
 			SceneColumn.SCENE_TITLE.label, SceneColumn.SCENE_DIRECTORY.label}, null, null, null, null, SceneColumn.SCENE_TITLE.label);
 	}
 	
-	public Cursor getScene(int id) {
-		Cursor cursor = db.query(TABLE_SCENES, null, idClause(id), null, null, null, null);
+	public Cursor getAllRecordings() {
+		return db.query(TABLE_RECORDINGS, new String[] {RecordingColumn.ID.label, RecordingColumn.RECORDING_PATH.label,
+			RecordingColumn.RECORDING_TIMESTAMP.label, RecordingColumn.SCENE_TITLE.label, RecordingColumn.SCENE_DIRECTORY.label},
+			null, null, null, null, RecordingColumn.RECORDING_TIMESTAMP.label);
+	}
+	
+	public Cursor getScene(long id) {
+		Cursor cursor = db.query(TABLE_SCENES, null, sceneIdClause(id), null, null, null, null);
 		cursor.moveToFirst();
 		return cursor;
 	}
 	
-	private String idClause(int id) {
+	private String sceneIdClause(long id) {
 		return SceneColumn.ID.label + " = " + id;
+	}
+
+	public Cursor getRecording(long id) {
+		Cursor cursor = db.query(TABLE_RECORDINGS, null, recordingIdClause(id), null, null, null, null);
+		cursor.moveToFirst();
+		return cursor;
+	}
+	
+	private String recordingIdClause(long id) {
+		return RecordingColumn.ID.label + " = " + id;
 	}
 
 	public static String getString(Cursor cursor, SceneColumn column) {
 		return getString(cursor, column.label);
 	}
 
+	public static String getString(Cursor cursor, RecordingColumn column) {
+		return getString(cursor, column.label);
+	}
+
 	public static String getString(Cursor cursor, String column) {
 		return cursor.getString(cursor.getColumnIndex(column));
+	}
+	
+	public static long getTime(Cursor cursor) {
+		return cursor.getLong(cursor.getColumnIndex(RecordingColumn.RECORDING_TIMESTAMP.label));
 	}
 
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {
 
 		public static final String DATABASE_NAME = "scenedb";
-		public static final int DATABASE_VERSION = 15;
+		public static final int DATABASE_VERSION = 5;
 		
 		public SceneDataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -130,12 +194,22 @@ public class SceneDataBase {
 			}
 			create.append(");");
 			db.execSQL(create.toString());
+			
+			create = new StringBuilder("create table " + TABLE_RECORDINGS + " (");
+			for (RecordingColumn column: RecordingColumn.values()) {
+				create.append(column.label);
+				create.append(" ");
+				create.append(column.type);
+			}
+			create.append(");");
+			db.execSQL(create.toString());
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			if (newVersion != oldVersion) {
-				db.execSQL("drop table " + TABLE_SCENES + ";");
+				db.execSQL("drop table if exists " + TABLE_SCENES + ";");
+				db.execSQL("drop table if exists " + TABLE_RECORDINGS + ";");
 				onCreate(db);
 			}
 		}

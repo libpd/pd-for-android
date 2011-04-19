@@ -32,7 +32,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 public class SceneSelection extends Activity implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
 
-	private static final String TAG = "Scene Selecton";
+	private static final String TAG = "Scene Selection";
 	private ListView sceneView;
 	private Button updateButton;
 	private SceneDataBase db;
@@ -65,7 +65,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
 		Intent intent = new Intent(this, ScenePlayer.class);
 		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
-		Cursor cursor = db.getScene((int) id);
+		Cursor cursor = db.getScene(id);
 		for (String column : cursor.getColumnNames()) {
 			if (!column.equals(SceneColumn.ID.toString())) {
 				intent.putExtra(column, SceneDataBase.getString(cursor, column));
@@ -77,7 +77,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	@Override
 	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, long id) {
 		try {
-			db.delete((int) id);
+			db.deleteScene(id);
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
 		}
