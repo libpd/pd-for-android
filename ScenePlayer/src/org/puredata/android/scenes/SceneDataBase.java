@@ -57,6 +57,8 @@ public class SceneDataBase {
 		ID("_id", "integer primary key autoincrement, "),
 		RECORDING_PATH("path", "text not null, "),
 		RECORDING_TIMESTAMP("time", "bigint not null, "),  // Unix time
+		RECORDING_DURATION("duration", "bigint not null, "),
+		RECORDING_DESCRIPTION("description", "text, "),
 		SCENE_TITLE("name", "text not null, "),
 		SCENE_DIRECTORY("directory", "text not null");
 
@@ -101,10 +103,11 @@ public class SceneDataBase {
 		return db.insert(TABLE_SCENES, null, values);
 	}
 	
-	public long addRecording(String path, long time, String title, String directory) {
+	public long addRecording(String path, long time, long duration, String title, String directory) {
 		ContentValues values = new ContentValues();
 		values.put(RecordingColumn.RECORDING_PATH.label, path);
 		values.put(RecordingColumn.RECORDING_TIMESTAMP.label, time);
+		values.put(RecordingColumn.RECORDING_DURATION.label, duration);
 		values.put(RecordingColumn.SCENE_TITLE.label, title);
 		values.put(RecordingColumn.SCENE_DIRECTORY.label, directory);
 		return db.insert(TABLE_RECORDINGS, null, values);
@@ -135,7 +138,8 @@ public class SceneDataBase {
 	
 	public Cursor getAllRecordings() {
 		return db.query(TABLE_RECORDINGS, new String[] {RecordingColumn.ID.label, RecordingColumn.RECORDING_PATH.label,
-			RecordingColumn.RECORDING_TIMESTAMP.label, RecordingColumn.SCENE_TITLE.label, RecordingColumn.SCENE_DIRECTORY.label},
+			RecordingColumn.RECORDING_TIMESTAMP.label, RecordingColumn.RECORDING_DURATION.label, RecordingColumn.SCENE_TITLE.label,
+			RecordingColumn.SCENE_DIRECTORY.label},
 			null, null, null, null, RecordingColumn.RECORDING_TIMESTAMP.label);
 	}
 	
@@ -171,14 +175,14 @@ public class SceneDataBase {
 		return cursor.getString(cursor.getColumnIndex(column));
 	}
 	
-	public static long getTime(Cursor cursor) {
-		return cursor.getLong(cursor.getColumnIndex(RecordingColumn.RECORDING_TIMESTAMP.label));
+	public static long getLong(Cursor cursor, RecordingColumn column) {
+		return cursor.getLong(cursor.getColumnIndex(column.label));
 	}
 
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {
 
 		public static final String DATABASE_NAME = "scenedb";
-		public static final int DATABASE_VERSION = 15;
+		public static final int DATABASE_VERSION = 101;
 		
 		public SceneDataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

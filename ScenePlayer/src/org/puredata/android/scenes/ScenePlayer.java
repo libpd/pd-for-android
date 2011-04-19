@@ -73,6 +73,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private int micValue;
 	private File sceneFolder;
 	private File recDir = null;
+	private String recFile = null;
+	private long recStart;
 	private String artist;
 	private String title;
 	private String description;
@@ -370,18 +372,20 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			record.setChecked(false);
 			return;
 		}
-		long time = System.currentTimeMillis();
-		String fileName = "recording_" + time + ".wav";
-		String path = new File(recDir, fileName).getAbsolutePath();
-		PdBase.sendMessage(TRANSPORT, "scene", path);
+		recStart = System.currentTimeMillis();
+		String fileName = "recording_" + recStart + ".wav";
+		recFile = new File(recDir, fileName).getAbsolutePath();
+		PdBase.sendMessage(TRANSPORT, "scene", recFile);
 		PdBase.sendMessage(TRANSPORT, "record", 1);
-		db.addRecording(path, time, title, sceneFolder.getAbsolutePath());
 		post("Recording...");
 	}
 
 	private void stopRecording() {
-		if (recDir == null) return;
+		if (recFile == null) return;
 		PdBase.sendMessage(TRANSPORT, "record", 0);
+		long duration = System.currentTimeMillis() - recStart;
+		db.addRecording(recFile, recStart, duration, title, sceneFolder.getAbsolutePath());
+		recFile = null;
 		post("Finished recording");
 	}
 

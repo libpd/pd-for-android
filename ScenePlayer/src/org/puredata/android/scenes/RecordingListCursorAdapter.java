@@ -37,7 +37,7 @@ public class RecordingListCursorAdapter extends CursorAdapter {
     TextView textView1 = (TextView) view.findViewById(android.R.id.text1);
     textView1.setText(SceneDataBase.getString(cursor, RecordingColumn.SCENE_TITLE));
     TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
-    textView2.setText(new Date(SceneDataBase.getTime(cursor)).toString());
+    textView2.setText(new Date(SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_TIMESTAMP)).toString());
     ImageView imageView = (ImageView) view.findViewById(android.R.id.selectedIcon);
     String sceneFolder = SceneDataBase.getString(cursor, RecordingColumn.SCENE_DIRECTORY);
 	File file = new File(sceneFolder, "thumb.jpg");
