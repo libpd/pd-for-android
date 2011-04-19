@@ -14,29 +14,42 @@ import java.io.IOException;
 
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 
-import com.lamerman.FileDialog;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.lamerman.FileDialog;
 
 public class SceneSelection extends Activity implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
 
 	private static final int FILE_SELECT_CODE = 1;
-	private static final String TAG = "Scene Selection";
 	private ListView sceneView;
 	private Button updateButton;
 	private SceneDataBase db;
-
+	private Toast toast = null;
+	
+	private void toast(final String msg) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (toast == null) {
+					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+				}
+				toast.setText(msg);
+				toast.show();
+			}
+		});
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -79,7 +92,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		try {
 			db.deleteScene(id);
 		} catch (IOException e) {
-			Log.e(TAG, e.toString());
+			toast(getResources().getString(R.string.delete_scene_fail));
 		}
 		updateList();
 		return true;
@@ -102,7 +115,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 				db.addScene(new File(path));
 				updateList();
 			} catch (IOException e) {
-				Log.e(TAG, e.toString());
+				toast(getResources().getString(R.string.open_scene_fail) + " " + path);
 			}
 		}
 	}

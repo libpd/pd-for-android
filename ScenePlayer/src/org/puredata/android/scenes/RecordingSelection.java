@@ -19,19 +19,33 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListView;
+import android.widget.Toast;
 
 public class RecordingSelection extends Activity implements OnItemClickListener, OnItemLongClickListener {
 
-	private static final String TAG = "Recording Selection";
 	private ListView recordingView;
 	private SceneDataBase db;
 
+	private Toast toast = null;
+	
+	private void toast(final String msg) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (toast == null) {
+					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+				}
+				toast.setText(msg);
+				toast.show();
+			}
+		});
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,7 +87,7 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 		try {
 			db.deleteRecording(id);
 		} catch (IOException e) {
-			Log.e(TAG, e.toString());
+			toast(getResources().getString(R.string.delete_recording_fail));
 		}
 		updateList();
 		return true;

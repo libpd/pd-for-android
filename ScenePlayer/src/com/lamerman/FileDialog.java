@@ -59,7 +59,8 @@ public class FileDialog extends ListActivity {
 			}
 		});
 		String startPath = getIntent().getStringExtra(START_PATH);
-		getDir(startPath != null ? startPath : null);
+		selectedFile = new File(startPath);
+		getDir(startPath);
 	}
 
 	private void getDir(String dirPath) {
@@ -129,14 +130,14 @@ public class FileDialog extends ListActivity {
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		File file = new File(path.get(position));
-		if (file.isDirectory()) {
-			if (file.canRead()) {
+		selectedFile = new File(path.get(position));
+		if (selectedFile.isDirectory()) {
+			if (selectedFile.canRead()) {
 				lastPositions.put(currentPath, position);
 				getDir(path.get(position));
 			} else {
 				new AlertDialog.Builder(this).setIcon(R.drawable.icon).setTitle(
-						"[" + file.getName() + "] "
+						"[" + selectedFile.getName() + "] "
 						+ getText(R.string.cant_read_folder))
 						.setPositiveButton("OK",
 								new DialogInterface.OnClickListener() {
@@ -149,7 +150,6 @@ public class FileDialog extends ListActivity {
 						}).show();
 			}
 		}
-		selectedFile = file;
 		v.setSelected(true);
 	}
 }

@@ -4,16 +4,13 @@
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent">
 
-	<LinearLayout android:id="@+id/fdLinearLayoutList"
-		android:orientation="vertical" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:layout_alignParentBottom="true">
-		<Button android:id="@+id/fdButtonSelect" android:layout_height="wrap_content"
-			android:layout_width="fill_parent" android:text="@string/select"></Button>
-	</LinearLayout>
+	<Button android:id="@+id/fdButtonSelect" android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true" android:layout_width="fill_parent"
+		android:text="@string/select" />
 
 	<LinearLayout android:orientation="vertical"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:layout_above="@+id/fdLinearLayoutList">
+		android:layout_above="@+id/fdButtonSelect">
 		<TextView android:id="@+id/path" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" />
 		<ListView android:id="@android:id/list" android:layout_width="fill_parent"

@@ -5,15 +5,13 @@
   <string name="paused">Play</string>
   <string name="startrec">Record</string>
   <string name="stoprec">Recording</string>
-  <string name="update_label">Load scene</string>
+  <string name="update_label">Add scene</string>
 
   <string name="location">Location</string>
-  <string name="cant_read_folder">folder can\'t be read!</string>
-  <string name="nnew">New</string>
+  <string name="cant_read_folder">Unable to read folder</string>
   <string name="select">Select</string>
-  <string name="file_name">File name:</string>
-  <string name="cancel">Cancel</string>
-  <string name="create">Create</string>
   <string name="no_data">No Data</string>
-	<color name="gray">#ffff0000</color>
+  <string name="delete_scene_fail">Unable to delete scene</string>
+  <string name="open_scene_fail">Unable to open scene</string>
+  <string name="delete_recording_fail">Unable to delete recording</string>
 </resources>
