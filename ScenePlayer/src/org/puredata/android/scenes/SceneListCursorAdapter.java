@@ -1,3 +1,12 @@
+/**
+ * @author Martin Roth (mhroth@rjdj.me)
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ * 
+ * For information on usage and redistribution, and for a DISCLAIMER OF ALL
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ * 
+ */
+
 package org.puredata.android.scenes;
 
 import java.io.File;
@@ -15,9 +24,6 @@ import android.widget.TextView;
 
 /**
  * Simple adapter for displaying icons, titles, and authors of scenes in a list.
- * 
- * @author Martin Roth (mhroth@rjdj.me)
- * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
 public class SceneListCursorAdapter extends CursorAdapter {
 
