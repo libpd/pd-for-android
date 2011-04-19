@@ -80,7 +80,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
 		Cursor cursor = db.getScene(id);
 		for (String column : cursor.getColumnNames()) {
-			if (!column.equals(SceneColumn.ID.toString())) {
+			if (!column.equals(SceneColumn.ID.getLabel())) {
 				intent.putExtra(column, SceneDataBase.getString(cursor, column));
 			}
 		}

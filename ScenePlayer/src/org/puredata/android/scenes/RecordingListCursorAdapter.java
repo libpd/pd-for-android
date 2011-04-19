@@ -41,7 +41,7 @@ public class RecordingListCursorAdapter extends CursorAdapter {
     textView.setText(DateFormat.format("yyyy-MM-dd hh:mm", timestamp));
     textView = (TextView) view.findViewById(R.id.durationInfo);
     long duration = SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_DURATION);
-    textView.setText(DateFormat.format("m:ss", duration));
+    textView.setText(DateFormat.format("mm:ss", duration));
     ImageView imageView = (ImageView) view.findViewById(R.id.sceneIcon);
     String sceneFolder = SceneDataBase.getString(cursor, RecordingColumn.SCENE_DIRECTORY);
 	File file = new File(sceneFolder, "thumb.jpg");

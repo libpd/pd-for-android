@@ -30,7 +30,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class SceneDataBase {
 
-	public static enum SceneColumn {
+	public interface Column {
+		String getLabel();
+	}
+	
+	public static enum SceneColumn implements Column {
 		ID("_id", "integer primary key autoincrement, "),
 		SCENE_ARTIST("author", "text not null, "),
 		SCENE_TITLE("name", "text not null, "),
@@ -46,14 +50,14 @@ public class SceneDataBase {
 			this.label = label;
 			this.type = type;
 		}
-		
+
 		@Override
-		public String toString() {
+		public String getLabel() {
 			return label;
 		}
 	}
 
-	public static enum RecordingColumn {
+	public static enum RecordingColumn implements Column {
 		ID("_id", "integer primary key autoincrement, "),
 		RECORDING_PATH("path", "text not null, "),
 		RECORDING_TIMESTAMP("time", "bigint not null, "),  // Unix time
@@ -69,9 +73,9 @@ public class SceneDataBase {
 			this.label = label;
 			this.type = type;
 		}
-		
+
 		@Override
-		public String toString() {
+		public String getLabel() {
 			return label;
 		}
 	}
@@ -132,15 +136,11 @@ public class SceneDataBase {
 	}
 
 	public Cursor getAllScenes() {
-		return db.query(TABLE_SCENES, new String[] {SceneColumn.ID.label, SceneColumn.SCENE_ARTIST.label,
-			SceneColumn.SCENE_TITLE.label, SceneColumn.SCENE_DIRECTORY.label}, null, null, null, null, SceneColumn.SCENE_TITLE.label);
+		return db.query(TABLE_SCENES, null, null, null, null, null, SceneColumn.SCENE_TITLE.label);
 	}
 	
 	public Cursor getAllRecordings() {
-		return db.query(TABLE_RECORDINGS, new String[] {RecordingColumn.ID.label, RecordingColumn.RECORDING_PATH.label,
-			RecordingColumn.RECORDING_TIMESTAMP.label, RecordingColumn.RECORDING_DURATION.label, RecordingColumn.SCENE_TITLE.label,
-			RecordingColumn.SCENE_DIRECTORY.label},
-			null, null, null, null, RecordingColumn.RECORDING_TIMESTAMP.label);
+		return db.query(TABLE_RECORDINGS, null, null, null, null, null, RecordingColumn.RECORDING_TIMESTAMP.label);
 	}
 	
 	public Cursor getScene(long id) {
@@ -163,26 +163,26 @@ public class SceneDataBase {
 		return RecordingColumn.ID.label + " = " + id;
 	}
 	
-	public void setDescription(long id, String description) {
+	public void setRecordingDescription(long id, String description) {
 		ContentValues values = new ContentValues();
 		values.put(RecordingColumn.RECORDING_DESCRIPTION.label, description);
 		db.update(TABLE_RECORDINGS, values, recordingIdClause(id), null);
 	}
 
-	public static String getString(Cursor cursor, SceneColumn column) {
-		return getString(cursor, column.label);
+	public static String getString(Cursor cursor, Column column) {
+		return getString(cursor, column.getLabel());
 	}
-
-	public static String getString(Cursor cursor, RecordingColumn column) {
-		return getString(cursor, column.label);
-	}
-
+	
 	public static String getString(Cursor cursor, String column) {
 		return cursor.getString(cursor.getColumnIndex(column));
 	}
 	
-	public static long getLong(Cursor cursor, RecordingColumn column) {
-		return cursor.getLong(cursor.getColumnIndex(column.label));
+	public static long getLong(Cursor cursor, Column column) {
+		return getLong(cursor, column.getLabel());
+	}
+
+	public static long getLong(Cursor cursor, String column) {
+		return cursor.getLong(cursor.getColumnIndex(column));
 	}
 
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {

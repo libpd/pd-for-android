@@ -47,10 +47,10 @@ import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 
 public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener, OnSeekBarChangeListener {
@@ -182,10 +182,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		String scenePath = intent.getStringExtra(SceneColumn.SCENE_DIRECTORY.toString());
-		artist = intent.getStringExtra(SceneColumn.SCENE_ARTIST.toString());
-		title = intent.getStringExtra(SceneColumn.SCENE_TITLE.toString());
-		description = intent.getStringExtra(SceneColumn.SCENE_INFO.toString());
+		String scenePath = intent.getStringExtra(SceneColumn.SCENE_DIRECTORY.getLabel());
+		artist = intent.getStringExtra(SceneColumn.SCENE_ARTIST.getLabel());
+		title = intent.getStringExtra(SceneColumn.SCENE_TITLE.getLabel());
+		description = intent.getStringExtra(SceneColumn.SCENE_INFO.getLabel());
 		String recDirName = intent.getStringExtra(RECDIR);
 		micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 		if (scenePath != null && recDirName != null) {
