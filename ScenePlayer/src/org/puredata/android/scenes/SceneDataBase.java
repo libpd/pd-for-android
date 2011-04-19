@@ -162,6 +162,12 @@ public class SceneDataBase {
 	private String recordingIdClause(long id) {
 		return RecordingColumn.ID.label + " = " + id;
 	}
+	
+	public void setDescription(long id, String description) {
+		ContentValues values = new ContentValues();
+		values.put(RecordingColumn.RECORDING_DESCRIPTION.label, description);
+		db.update(TABLE_RECORDINGS, values, recordingIdClause(id), null);
+	}
 
 	public static String getString(Cursor cursor, SceneColumn column) {
 		return getString(cursor, column.label);
