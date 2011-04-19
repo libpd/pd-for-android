@@ -64,7 +64,7 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 		Intent intent = new Intent();
 		intent.setAction(Intent.ACTION_VIEW);
 		File file = new File(path);
-		intent.setDataAndType(Uri.fromFile(file), "audio/*");
+		intent.setDataAndType(Uri.fromFile(file), "audio/x-wav");
 		startActivity(intent);
 	}
 
