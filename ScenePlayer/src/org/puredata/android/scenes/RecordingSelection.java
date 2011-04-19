@@ -11,7 +11,11 @@ package org.puredata.android.scenes;
 
 import java.io.IOException;
 
+import org.puredata.android.scenes.SceneDataBase.RecordingColumn;
+
 import android.app.Activity;
+import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +29,7 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	private static final String TAG = "Recording Selection";
 	private ListView recordingView;
 	private SceneDataBase db;
+	private MediaPlayer player;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +43,23 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 		recordingView = (ListView) findViewById(R.id.recording_selection);
 		recordingView.setOnItemClickListener(this);
 		recordingView.setOnItemLongClickListener(this);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
 		updateList();
 	}
 
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (player != null) {
+			player.release();
+			player = null;
+		}
+	}
+	
 	private void updateList() {
 		RecordingListCursorAdapter adapter = new RecordingListCursorAdapter(RecordingSelection.this, db.getAllRecordings());
 		recordingView.setAdapter(adapter);
@@ -48,7 +67,19 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
-		// Do something...
+		Cursor cursor = db.getRecording(id);
+		try {
+			if (player != null) {
+				player.stop();
+				player.release();
+			}
+			player = new MediaPlayer();
+			player.setDataSource(SceneDataBase.getString(cursor, RecordingColumn.RECORDING_PATH));
+			player.prepare();
+			player.start();
+		} catch (Exception e) {
+			Log.e(TAG, e.toString());
+		}
 	}
 
 	@Override
