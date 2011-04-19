@@ -32,6 +32,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 public class SceneSelection extends Activity implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
 
+	private static final String TAG = "Scene Selecton";
 	private ListView sceneView;
 	private Button updateButton;
 	private SceneDataBase db;
@@ -75,7 +76,11 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, long id) {
-		db.delete((int) id);
+		try {
+			db.delete((int) id);
+		} catch (IOException e) {
+			Log.e(TAG, e.toString());
+		}
 		updateList();
 		return true;
 	}

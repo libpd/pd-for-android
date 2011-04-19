@@ -70,7 +70,12 @@ public class SceneDataBase {
 		return db.insert(TABLE_SCENES, null, values);
 	}
 
-	public void delete(int id) {
+	public void delete(int id) throws IOException {
+		Cursor cursor = getScene(id);
+		String path = getString(cursor, SceneColumn.SCENE_DIRECTORY);
+		if (new File(path).exists()) {
+			Runtime.getRuntime().exec("rm -r " + path);
+		}
 		db.delete(TABLE_SCENES, idClause(id), null);
 	}
 
