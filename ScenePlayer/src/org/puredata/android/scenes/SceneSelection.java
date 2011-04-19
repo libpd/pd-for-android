@@ -46,7 +46,9 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	private void initGui() {
 		setContentView(R.layout.scene_selection);
 		sceneView = (ListView) findViewById(R.id.scene_selection);
-		updateButton = (Button) findViewById(R.id.update_button);
+		updateButton = new Button(this);
+		updateButton.setText(getResources().getString(R.string.update_label));
+		sceneView.addFooterView(updateButton);
 		sceneView.setOnItemClickListener(this);
 		sceneView.setOnItemLongClickListener(this);
 		updateButton.setOnClickListener(this);
@@ -91,17 +93,27 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		progress.setCancelable(false);
 		progress.setIndeterminate(true);
 		progress.show();
-		List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
-		for (File dir: list) {
-			if (dir.isDirectory()) {
-				try {
-					db.addScene(dir);
-				} catch (IOException e) {
-					Log.e("Scene Player", e.toString());
+		new Thread() {
+			@Override
+			public void run() {
+				List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
+				for (File dir: list) {
+					if (dir.isDirectory()) {
+						try {
+							db.addScene(dir);
+						} catch (IOException e) {
+							Log.e("Scene Player", e.toString());
+						}
+					}
 				}
-			}
-		}
-		updateList();
-		progress.dismiss();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						updateList();
+						progress.dismiss();
+					}
+				});
+			};
+		}.start();
 	}
 }
