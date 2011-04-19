@@ -3,3 +3,8 @@ PdCore/jni/libpd/pure-data/src/libpd.so
 TAGS
 local.properties
 *.o
+CircleOfFifths/bin
+PdCore/bin
+PdTest/bin
+ScenePlayer/bin
+Voice-O-Rama/bin

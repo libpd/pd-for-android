@@ -11,99 +11,88 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.puredata.android.utils.Properties;
-import org.puredata.core.PdBase;
+import org.puredata.android.scenes.SceneDataBase.Column;
 import org.puredata.core.utils.IoUtils;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class SceneSelection extends Activity implements OnItemClickListener {
+public class SceneSelection extends Activity implements OnItemClickListener, OnClickListener {
 
 	private ListView sceneView;
-	private final Map<String, String> scenes = new HashMap<String, String>();
+	private Button updateButton;
+	private SceneDataBase db;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		db = new SceneDataBase(this);
 		initGui();
-	}
-
-	private void unpackResources() {
-		Resources res = getResources();
-		File libDir = getFilesDir();
-		try {
-			IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir, true);
-			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.externals_v7a : R.raw.externals), libDir, true);
-			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd"), true);
-			// many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
-		} catch (IOException e) {
-			Log.e("Scene Player", e.toString());
-		}
-		PdBase.addToSearchPath(libDir.getAbsolutePath());
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
-		TextView item = (TextView) v;
-		String name = item.getText().toString();
-		Intent intent = new Intent(this, ScenePlayer.class);
-		intent.putExtra(ScenePlayer.SCENE, scenes.get(name));
-		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
-		startActivity(intent);
 	}
 
 	private void initGui() {
 		setContentView(R.layout.scene_selection);
 		sceneView = (ListView) findViewById(R.id.scene_selection);
+		updateButton = (Button) findViewById(R.id.update_button);
+		sceneView.setOnItemClickListener(this);
+		updateButton.setOnClickListener(this);
+		updateList();
+	}
+
+	private void updateList() {
+		SceneListCursorAdapter adapter = new SceneListCursorAdapter(SceneSelection.this, db.getAllScenes());
+		sceneView.setAdapter(adapter);
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
+		Intent intent = new Intent(this, ScenePlayer.class);
+		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
+		Cursor cursor = db.getScene((int) id);
+		for (String column : cursor.getColumnNames()) {
+			if (!column.equals(Column.ID.toString())) {
+				intent.putExtra(column, SceneDataBase.getString(cursor, column));
+			}
+		}
+		startActivity(intent);
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v.equals(updateButton)) {
+			updateDataBase();
+		}
+	}
+
+	private void updateDataBase() {
 		final ProgressDialog progress = new ProgressDialog(this);
 		progress.setMessage("Loading scenes.  Please wait...");
 		progress.setCancelable(false);
 		progress.setIndeterminate(true);
 		progress.show();
-		new Thread() {
-			@Override
-			public void run() {
-				unpackResources();
-				List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
-				for (File dir: list) {
-					if (dir.isDirectory()) {
-						scenes.put(dir.getName(), dir.getAbsolutePath());
-					}
+		List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
+		for (File dir: list) {
+			if (dir.isDirectory()) {
+				try {
+					db.addScene(dir);
+				} catch (IOException e) {
+					Log.e("Scene Player", e.toString());
 				}
-				ArrayList<String> keyList = new ArrayList<String>(scenes.keySet());
-				Collections.sort(keyList, new Comparator<String>() {
-					public int compare(String a, String b) {
-						return a.toLowerCase().compareTo(b.toLowerCase());
-					}
-				});
-				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SceneSelection.this, android.R.layout.simple_list_item_1, keyList);
-				sceneView.getHandler().post(new Runnable() {
-					@Override
-					public void run() {
-						sceneView.setAdapter(adapter);
-						progress.dismiss();
-					}
-				});
-			};
-		}.start();
-		sceneView.setOnItemClickListener(this);
+			}
+		}
+		updateList();
+		progress.dismiss();
 	}
 }

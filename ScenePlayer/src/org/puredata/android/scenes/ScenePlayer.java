@@ -15,17 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
+import org.puredata.android.scenes.SceneDataBase.Column;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -60,12 +55,9 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
-	public static final String SCENE = "SCENE";
 	public static final String RECDIR = "RECDIR";
 	public static final String RECTAG = "RECTAG"; // key for recording tag, e.g., for geolocation
 	public static final String RECSEP = "___";
-	private static final String TITLE = "name";
-	private static final String AUTHOR = "author";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -83,10 +75,12 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private int micValue;
 	private File sceneFolder;
 	private File recDir = null;
+	private String artist;
+	private String title;
+	private String description;
 	private PdService pdService = null;
 	private int patch = 0;
 	private String recTag = null;
-	private final Map<String, String> sceneInfo = new HashMap<String, String>();
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
 		public void print(String s) {
@@ -187,7 +181,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		String scenePath = intent.getStringExtra(SCENE);
+		String scenePath = intent.getStringExtra(Column.SCENE_DIRECTORY.toString());
+		artist = intent.getStringExtra(Column.SCENE_ARTIST.toString());
+		title = intent.getStringExtra(Column.SCENE_TITLE.toString());
+		description = intent.getStringExtra(Column.SCENE_INFO.toString());
 		String recDirName = intent.getStringExtra(RECDIR);
 		recTag = intent.getStringExtra(RECTAG);
 		micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
@@ -287,12 +284,11 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void initGui() {
-		readInfo();
 		setContentView(R.layout.scene_player);
 		TextView tv = (TextView) findViewById(R.id.sceneplayer_title);
-		tv.setText(sceneInfo.get(TITLE));
+		tv.setText(title);
 		tv = (TextView) findViewById(R.id.sceneplayer_artist);
-		tv.setText(sceneInfo.get(AUTHOR));
+		tv.setText(artist);
 		sceneView = (SceneView) findViewById(R.id.sceneplayer_pic);
 		sceneView.setOnTouchListener(this);
 		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
@@ -429,7 +425,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				}
 			}
 			pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon,
-					sceneInfo.get(TITLE) + " by " + sceneInfo.get(AUTHOR), "Return to scene.");
+					title + " by " + artist, "Return to scene.");
 			PdBase.sendMessage(TRANSPORT, "play", 1);
 		}
 	}
@@ -449,65 +445,20 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void showInfo() {
 		AlertDialog.Builder ad = new AlertDialog.Builder(this);
-		if (sceneInfo.isEmpty()) {
-			ad.setTitle("Oops");
-			ad.setMessage("Info not available...");
-		} else {
-			View header = View.inflate(this, R.layout.two_line_dialog_title, null);
-			((TextView) header.findViewById(android.R.id.text1)).setText(sceneInfo.get(TITLE));
-			((TextView) header.findViewById(android.R.id.text2)).setText(sceneInfo.get(AUTHOR));
-			File pic = new File(sceneFolder, "thumb.jpg");
-			if (!pic.exists()) pic = new File(sceneFolder, "image.jpg");
-			if (pic.exists()) {
-				ImageView sceneThumbnail = (ImageView) header.findViewById(android.R.id.selectedIcon);
-				sceneThumbnail.setImageDrawable(Drawable.createFromPath(pic.getAbsolutePath()));
-			}
-			ad.setCustomTitle(header);
-			ad.setMessage(sceneInfo.get("description"));
+		View header = View.inflate(this, R.layout.two_line_dialog_title, null);
+		((TextView) header.findViewById(android.R.id.text1)).setText(title);
+		((TextView) header.findViewById(android.R.id.text2)).setText(artist);
+		File pic = new File(sceneFolder, "thumb.jpg");
+		if (!pic.exists()) pic = new File(sceneFolder, "image.jpg");
+		if (pic.exists()) {
+			ImageView sceneThumbnail = (ImageView) header.findViewById(android.R.id.selectedIcon);
+			sceneThumbnail.setImageDrawable(Drawable.createFromPath(pic.getAbsolutePath()));
 		}
+		ad.setCustomTitle(header);
+		ad.setMessage(description);
 		ad.setNeutralButton(android.R.string.ok, null);
 		ad.setCancelable(true);
 		ad.show();
-	}
-
-	private void readInfo() {
-		try {
-			SAXParserFactory spf = SAXParserFactory.newInstance();
-			SAXParser sp = spf.newSAXParser();
-			sp.parse(new File(sceneFolder, "Info.plist"), new DefaultHandler() {
-				private String key = "", val = "";
-				private boolean expectKey;
-				@Override
-				public void startElement(String uri, String localName,
-						String qName, Attributes attributes) throws SAXException {
-					expectKey = localName.equalsIgnoreCase("key");
-					if (expectKey) {
-						key = val = "";
-					}
-				}
-
-				@Override
-				public void characters(char[] ch, int start, int length) throws SAXException {
-					String s = new String(ch, start, length);
-					if (expectKey) {
-						key += s;
-					} else {
-						val += s;
-					}
-				}
-
-				@Override
-				public void endElement(String uri, String localName, String qName) throws SAXException {
-					key = key.trim();
-					val = val.trim();
-					if (key.length() > 0) {
-						sceneInfo.put(key, val);
-					}
-				}
-			});
-		} catch (Exception e) {
-			sceneInfo.clear();
-		}
 	}
 
 	@Override
