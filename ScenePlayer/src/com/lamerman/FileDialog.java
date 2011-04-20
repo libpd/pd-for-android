@@ -1,3 +1,10 @@
+/**
+ * Based on Alexander Ponomarev's file dialog class (https://code.google.com/p/android-file-dialog/)
+ *
+ * @author Alexander Ponomarev
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ */
+
 package com.lamerman;
 
 import java.io.File;

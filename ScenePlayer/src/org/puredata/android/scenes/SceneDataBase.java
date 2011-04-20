@@ -82,11 +82,10 @@ public class SceneDataBase {
 		}
 	}
 
-	private final SceneDataBaseHelper helper;
 	private final SQLiteDatabase db;
 
 	public SceneDataBase(Context context) {
-		helper = new SceneDataBaseHelper(context);
+		SceneDataBaseHelper helper = new SceneDataBaseHelper(context);
 		db = helper.getWritableDatabase();
 	}
 
