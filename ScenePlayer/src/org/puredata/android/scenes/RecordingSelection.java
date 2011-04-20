@@ -9,15 +9,12 @@
 
 package org.puredata.android.scenes;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.puredata.android.scenes.SceneDataBase.RecordingColumn;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -73,12 +70,8 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
-		Cursor cursor = db.getRecording(id);
-		String path = SceneDataBase.getString(cursor, RecordingColumn.RECORDING_PATH);
-		Intent intent = new Intent();
-		intent.setAction(Intent.ACTION_VIEW);
-		File file = new File(path);
-		intent.setDataAndType(Uri.fromFile(file), "audio/x-wav");
+		Intent intent = new Intent(this, RecordingPlayer.class);
+		intent.putExtra(RecordingColumn.ID.getLabel(), id);
 		startActivity(intent);
 	}
 

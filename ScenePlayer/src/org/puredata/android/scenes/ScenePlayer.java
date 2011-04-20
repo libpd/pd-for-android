@@ -56,7 +56,6 @@ import android.widget.ToggleButton;
 
 public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
-	public static final String RECDIR = "RECDIR";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -192,7 +191,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			artist = SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST);
 			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
 			description = SceneDataBase.getString(cursor, SceneColumn.SCENE_INFO);
-			String recDirName = intent.getStringExtra(RECDIR);
 			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
@@ -200,7 +198,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			progress.setMessage("Loading scene...");
 			progress.show();
 			sceneFolder = new File(scenePath);
-			recDir = new File(recDirName);
+			recDir = new File(getResources().getString(R.string.recording_folder));
 			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs())) recDir = null;
 			initGui();
 			initSystemServices();
