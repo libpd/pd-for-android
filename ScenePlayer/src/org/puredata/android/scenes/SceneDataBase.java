@@ -30,6 +30,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class SceneDataBase {
 
+	public static final String TABLE_SCENES = "scenes";
+	public static final String TABLE_RECORDINGS = "recordings";
+
 	public interface Column {
 		String getLabel();
 	}
@@ -63,8 +66,7 @@ public class SceneDataBase {
 		RECORDING_TIMESTAMP("time", "bigint not null, "),  // Unix time
 		RECORDING_DURATION("duration", "bigint not null, "),
 		RECORDING_DESCRIPTION("description", "text, "),
-		SCENE_TITLE("name", "text not null, "),
-		SCENE_DIRECTORY("directory", "text not null");
+		SCENE_ID("scene_id", "bigint not null");
 
 		private final String label;
 		private final String type;
@@ -79,9 +81,6 @@ public class SceneDataBase {
 			return label;
 		}
 	}
-
-	public static final String TABLE_SCENES = "scenes";
-	public static final String TABLE_RECORDINGS = "recordings";
 
 	private final SceneDataBaseHelper helper;
 	private final SQLiteDatabase db;
@@ -107,13 +106,12 @@ public class SceneDataBase {
 		return db.insert(TABLE_SCENES, null, values);
 	}
 	
-	public long addRecording(String path, long time, long duration, String title, String directory) {
+	public long addRecording(String path, long time, long duration, long id) {
 		ContentValues values = new ContentValues();
 		values.put(RecordingColumn.RECORDING_PATH.label, path);
 		values.put(RecordingColumn.RECORDING_TIMESTAMP.label, time);
 		values.put(RecordingColumn.RECORDING_DURATION.label, duration);
-		values.put(RecordingColumn.SCENE_TITLE.label, title);
-		values.put(RecordingColumn.SCENE_DIRECTORY.label, directory);
+		values.put(RecordingColumn.SCENE_ID.label, id);
 		return db.insert(TABLE_RECORDINGS, null, values);
 	}
 
@@ -188,7 +186,7 @@ public class SceneDataBase {
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {
 
 		public static final String DATABASE_NAME = "scenedb";
-		public static final int DATABASE_VERSION = 101;
+		public static final int DATABASE_VERSION = 10001;
 		
 		public SceneDataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

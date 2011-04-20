@@ -388,7 +388,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		if (recFile == null) return;
 		PdBase.sendMessage(TRANSPORT, "record", 0);
 		long duration = System.currentTimeMillis() - recStart;
-		db.addRecording(recFile, recStart, duration, title, sceneFolder.getAbsolutePath());
+		db.addRecording(recFile, recStart, duration, sceneId);
 		recFile = null;
 		post("Finished recording");
 	}
