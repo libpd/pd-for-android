@@ -14,4 +14,5 @@
   <string name="delete_scene_fail">Unable to delete scene</string>
   <string name="open_scene_fail">Unable to open scene</string>
   <string name="delete_recording_fail">Unable to delete recording</string>
+<string name="date_format">yyyy-MM-dd hh:mm</string>
 </resources>
