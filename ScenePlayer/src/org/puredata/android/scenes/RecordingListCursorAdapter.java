@@ -45,7 +45,6 @@ public class RecordingListCursorAdapter extends CursorAdapter {
     textView.setText(DateFormat.format(context.getResources().getString(R.string.date_format), timestamp));
     textView = (TextView) view.findViewById(R.id.durationInfo);
     long duration = SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_DURATION);
-    textView.setText(DateFormat.format("mm:ss", duration));
     textView.setText(DateFormat.format(context.getResources().getString(R.string.duration_format), duration));
     ImageView imageView = (ImageView) view.findViewById(R.id.sceneIcon);
     Cursor sceneCursor = db.getScene(sceneId);
