@@ -63,9 +63,11 @@ public class SceneDataBase {
 	public static enum RecordingColumn implements Column {
 		ID("_id", "integer primary key autoincrement, "),
 		RECORDING_PATH("path", "text not null, "),
-		RECORDING_TIMESTAMP("time", "bigint not null, "),  // Unix time
-		RECORDING_DURATION("duration", "bigint not null, "),
+		RECORDING_TIMESTAMP("time", "integer not null, "),  // Unix time
+		RECORDING_DURATION("duration", "integer not null, "),
 		RECORDING_DESCRIPTION("description", "text, "),
+		RECORDING_LATITUDE("latitude", "real, "),
+		RECORDING_LONGITUDE("longitude", "real, "),
 		SCENE_ID("scene_id", "bigint not null");
 
 		private final String label;
@@ -185,7 +187,7 @@ public class SceneDataBase {
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {
 
 		public static final String DATABASE_NAME = "scenedb";
-		public static final int DATABASE_VERSION = 10001;
+		public static final int DATABASE_VERSION = 100001;
 		
 		public SceneDataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
