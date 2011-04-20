@@ -78,12 +78,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
 		Intent intent = new Intent(this, ScenePlayer.class);
 		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
-		Cursor cursor = db.getScene(id);
-		for (String column : cursor.getColumnNames()) {
-			if (!column.equals(SceneColumn.ID.getLabel())) {
-				intent.putExtra(column, SceneDataBase.getString(cursor, column));
-			}
-		}
+		intent.putExtra(SceneColumn.ID.getLabel(), id);
 		startActivity(intent);
 	}
 

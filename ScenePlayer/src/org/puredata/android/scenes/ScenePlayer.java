@@ -29,6 +29,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -75,6 +76,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private File recDir = null;
 	private String recFile = null;
 	private long recStart;
+	private long sceneId;
 	private String artist;
 	private String title;
 	private String description;
@@ -182,19 +184,21 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
-		String scenePath = intent.getStringExtra(SceneColumn.SCENE_DIRECTORY.getLabel());
-		artist = intent.getStringExtra(SceneColumn.SCENE_ARTIST.getLabel());
-		title = intent.getStringExtra(SceneColumn.SCENE_TITLE.getLabel());
-		description = intent.getStringExtra(SceneColumn.SCENE_INFO.getLabel());
-		String recDirName = intent.getStringExtra(RECDIR);
-		micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
-		if (scenePath != null && recDirName != null) {
+		sceneId = intent.getLongExtra(SceneColumn.ID.getLabel(), -1);
+		if (sceneId >= 0) {
+			db = new SceneDataBase(this);
+			Cursor cursor = db.getScene(sceneId);
+			String scenePath = SceneDataBase.getString(cursor, SceneColumn.SCENE_DIRECTORY);
+			artist = SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST);
+			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
+			description = SceneDataBase.getString(cursor, SceneColumn.SCENE_INFO);
+			String recDirName = intent.getStringExtra(RECDIR);
+			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
 			progress.setIndeterminate(true);
 			progress.setMessage("Loading scene...");
 			progress.show();
-			db = new SceneDataBase(this);
 			sceneFolder = new File(scenePath);
 			recDir = new File(recDirName);
 			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs())) recDir = null;
@@ -202,7 +206,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			initSystemServices();
 			initPdService();
 		} else {
-			Log.e(TAG, "launch intent without scene path");
+			Log.e(TAG, "launch intent without scene ID");
 			finish();
 		}
 	}
