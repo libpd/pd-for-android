@@ -1,7 +1,16 @@
+/**
+ * 
+ * @author Martin Roth (mhroth@rjdj.me)
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ * 
+ * For information on usage and redistribution, and for a DISCLAIMER OF ALL
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ * 
+ */
+
 package org.puredata.android.scenes;
 
 import java.io.File;
-import java.util.concurrent.Semaphore;
 
 import org.puredata.android.scenes.SceneDataBase.RecordingColumn;
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
@@ -26,198 +35,170 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-/**
- * This Activity provides the primary playback interface for scene recordings.
- * 
- * @author Martin Roth (mhroth@rjdj.me)
- * @author Peter Brinkmann (peter.brinkmann@gmail.com)
- */
-public class RecordingPlayer extends Activity {
+public class RecordingPlayer extends Activity implements OnSeekBarChangeListener, OnCheckedChangeListener, OnClickListener {
 
+	private final static String TAG = "RecordingPlayer";
 	private SceneDataBase db;
 	private long recordingId;
 	private long sceneId;
+	private ToggleButton playButton;
+	private ImageButton sceneButton;
+	private ImageButton editButton;
+	private SeekBar seekBar;
 	private MediaPlayer mediaPlayer;
-	private SeekbarUpdateRunnable seekbarUpdateRunnable;
-	private volatile boolean mediaPlayerWasPlayingBeforeTouchSeek;
-
-	private static final String SEEKBAR_UPDATE_THREAD_NAME = "Seekbar Update Thread";
-
-	/**
-	 * Ensures that the seekbar update thread does not attempt to update the
-	 * seekbar position while the seekbar is being manipulated by the user.
-	 */
-	private Semaphore seekbarUpdateSemaphore;
-	private static final long SEEKBAR_UPDATE_INTERVAL_MS = 50;
+	private boolean playbackState;
+	private Thread updateThread = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.recording_player);
-		db = new SceneDataBase(this);
-		recordingId = this.getIntent().getLongExtra(
-				RecordingColumn.ID.getLabel(), -1);
+		recordingId = this.getIntent().getLongExtra(RecordingColumn.ID.getLabel(), -1);
 		if (recordingId >= 0) {
+			db = new SceneDataBase(this);
+			Cursor cursor = db.getRecording(recordingId);
+			sceneId = SceneDataBase.getLong(cursor, RecordingColumn.SCENE_ID);
+			displaySceneInfo(sceneId);
+			seekBar = (SeekBar) findViewById(R.id.recording_play_seekbar);
+			seekBar.setMax((int) SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_DURATION));
+			seekBar.setOnSeekBarChangeListener(this);
+			TextView textView = (TextView) findViewById(R.id.recording_play_description_text);
+			textView.setText(SceneDataBase.getString(cursor, RecordingColumn.RECORDING_DESCRIPTION));
+			textView = (TextView) findViewById(R.id.recording_play_duration_text);
+			String durationFormat = this.getString(R.string.duration_format);
+			textView.setText(DateFormat.format(durationFormat, SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_DURATION)));
+			textView = (TextView) findViewById(R.id.recording_play_date_text);
+			String dateFormat = this.getString(R.string.date_format);
+			textView.setText(DateFormat.format(dateFormat, SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_TIMESTAMP)));
+			playButton = (ToggleButton) findViewById(R.id.recording_play_play_button);
+			playButton.setOnCheckedChangeListener(this);
+			playButton.setChecked(true);
+			sceneButton = (ImageButton) findViewById(R.id.recording_play_scene_button);
+			sceneButton.setOnClickListener(this);
+			editButton = (ImageButton) findViewById(R.id.recording_play_rename_button);
+			editButton.setOnClickListener(this);
+			mediaPlayer = new MediaPlayer();
+			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			mediaPlayer.setLooping(true);
+			String recPath = SceneDataBase.getString(cursor, RecordingColumn.RECORDING_PATH);
+			try {
+				mediaPlayer.setDataSource(recPath);
+				mediaPlayer.prepare();
+			} catch (Exception e) {
+				Log.e(TAG, e.toString());
+				finish();
+			}
 		} else {
+			Log.i(TAG, "invalid recording ID");
 			finish();
 		}
-		String durationFormat = this.getString(R.string.duration_format);
-		String dateFormat = this.getString(R.string.date_format);
-		Cursor recCursor = db.getRecording(recordingId);
-		sceneId = SceneDataBase.getLong(recCursor, RecordingColumn.SCENE_ID);
-		Cursor sceneCursor = db.getScene(sceneId);
-		TextView titleView = (TextView) findViewById(R.id.recording_play_title);
-		titleView.setText(SceneDataBase.getString(sceneCursor,
-				SceneColumn.SCENE_TITLE));
-		TextView artistView = (TextView) findViewById(R.id.recording_play_artist);
-		artistView.setText(SceneDataBase.getString(sceneCursor,
-				SceneColumn.SCENE_ARTIST));
-		seekbarUpdateSemaphore = new Semaphore(1); // only one permit available
-													// (binary exclusion)
-		final SeekBar seekBar = (SeekBar) findViewById(R.id.recording_play_seekbar);
-		seekBar.setMax((int) SceneDataBase.getLong(recCursor,
-				RecordingColumn.RECORDING_DURATION));
-		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
-			public void onProgressChanged(SeekBar seekBar, int progress,
-					boolean fromUser) {
-				if (fromUser) {
-					mediaPlayer.seekTo(progress);
-				}
-			}
-
-			public void onStartTrackingTouch(SeekBar seekBar) {
-				try {
-					seekbarUpdateSemaphore.acquire();
-					mediaPlayerWasPlayingBeforeTouchSeek = mediaPlayer
-							.isPlaying();
-					mediaPlayer.pause();
-				} catch (InterruptedException ie) {
-					Log.e(RecordingPlayer.class.getSimpleName(), "", ie);
-				}
-			}
-
-			public void onStopTrackingTouch(SeekBar seekBar) {
-				if (mediaPlayerWasPlayingBeforeTouchSeek) {
-					mediaPlayer.start();
-				}
-				seekbarUpdateSemaphore.release();
-			}
-		});
-		seekbarUpdateRunnable = new SeekbarUpdateRunnable(seekBar);
-		mediaPlayer = new MediaPlayer();
-		mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-		mediaPlayer.setLooping(true); // recording will loop endlessly
-		String recPath = SceneDataBase.getString(recCursor, RecordingColumn.RECORDING_PATH);
-		try {
-			mediaPlayer.setDataSource(recPath);
-			mediaPlayer.prepare();
-		} catch (Exception e) {
-			// TODO: Handle this...
+	}
+	
+	private void displaySceneInfo(long sceneId) {
+		Cursor cursor = db.getScene(sceneId);
+		if (cursor.getCount() > 0) {
+			TextView textView = (TextView) findViewById(R.id.recording_play_title);
+			textView.setText(SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE));
+			textView = (TextView) findViewById(R.id.recording_play_artist);
+			textView.setText(SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST));
+			String scenePath = SceneDataBase.getString(cursor, SceneColumn.SCENE_DIRECTORY);
+			ImageView imageView = (ImageView) findViewById(R.id.recording_play_image);
+			imageView.setImageBitmap(BitmapFactory.decodeFile(new File(scenePath, "image.jpg").getAbsolutePath()));
 		}
-		String scenePath = SceneDataBase.getString(sceneCursor,
-				SceneColumn.SCENE_DIRECTORY);
-		ImageView imageView = (ImageView) findViewById(R.id.recording_play_image);
-		imageView.setImageBitmap(BitmapFactory.decodeFile(new File(scenePath,
-				"image.jpg").getAbsolutePath()));
-		TextView descriptionText = (TextView) findViewById(R.id.recording_play_description_text);
-		descriptionText.setText(SceneDataBase.getString(recCursor,
-				RecordingColumn.RECORDING_DESCRIPTION));
-		TextView durationText = (TextView) findViewById(R.id.recording_play_duration_text);
-		durationText.setText(DateFormat.format(durationFormat, SceneDataBase
-				.getLong(recCursor, RecordingColumn.RECORDING_DURATION)));
-		TextView dateText = (TextView) findViewById(R.id.recording_play_date_text);
-		dateText.setText(DateFormat.format(dateFormat, SceneDataBase.getLong(
-				recCursor, RecordingColumn.RECORDING_TIMESTAMP)));
-		final ToggleButton playButton = (ToggleButton) findViewById(R.id.recording_play_play_button);
-		playButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				if (isChecked) {
-					startAudioPlayback();
-				} else {
-					stopAudioPlayback();
-				}
-			}
-		});
-		ImageButton gotoSceneButton = (ImageButton) findViewById(R.id.recording_play_scene_button);
-		gotoSceneButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				if (mediaPlayer.isPlaying()) {
-					playButton.toggle();
-				}
-				Intent intent = new Intent(RecordingPlayer.this,
-						ScenePlayer.class);
-				intent.putExtra(SceneColumn.ID.getLabel(), sceneId);
-				startActivity(intent);
-			}
-		});
-		playButton.setChecked(true);
-		startAudioPlayback();
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		if (playButton.isChecked()) {
+			startPlayback();
+		}
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		stopPlayback();
+	}
+	
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-
-		// shut down the media player
-		try {
-			seekbarUpdateRunnable.stopUpdating();
-			seekbarUpdateSemaphore.acquire(); // ensure that the seekbar update
-												// thread really is done
-			mediaPlayer.stop();
-			mediaPlayer.release();
-			seekbarUpdateSemaphore.release();
-		} catch (InterruptedException ie) {
-			Log.e(RecordingPlayer.class.getSimpleName(), "", ie);
-		}
+		mediaPlayer.release();
 	}
 
-	private void startAudioPlayback() {
+	private void startPlayback() {
+		startUpdateThread();
 		mediaPlayer.start();
-		seekbarUpdateRunnable.reset();
-		Thread thread = new Thread(seekbarUpdateRunnable);
-		thread.setPriority(Thread.MIN_PRIORITY);
-		thread.setName(SEEKBAR_UPDATE_THREAD_NAME);
-		thread.start();
 	}
 
-	private void stopAudioPlayback() {
+	private void stopPlayback() {
 		mediaPlayer.pause();
-		seekbarUpdateRunnable.stopUpdating();
+		stopUpdateThread();
 	}
 
-	private class SeekbarUpdateRunnable implements Runnable {
-
-		private final SeekBar seekBar;
-		private volatile boolean shouldContinueUpdatingSeekbar;
-
-		public SeekbarUpdateRunnable(SeekBar seekBar) {
-			this.seekBar = seekBar;
-			shouldContinueUpdatingSeekbar = true;
+	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+		if (fromUser) {
+			mediaPlayer.seekTo(progress);
 		}
+	}
 
-		public void run() {
-			while (shouldContinueUpdatingSeekbar) {
-				try {
-					seekbarUpdateSemaphore.acquire();
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		playbackState = mediaPlayer.isPlaying();
+		stopPlayback();
+	}
+
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		if (playbackState) {
+			startPlayback();
+		}
+	}
+	
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if (isChecked) {
+			startPlayback();
+		} else {
+			stopPlayback();
+		}
+	}
+
+	public void onClick(View v) {
+		if (v.equals(sceneButton)) {
+			Intent intent = new Intent(RecordingPlayer.this, ScenePlayer.class);
+			intent.putExtra(SceneColumn.ID.getLabel(), sceneId);
+			startActivity(intent);
+		} else if (v.equals(editButton)) {
+			// edit...
+		}
+	}
+	
+	private void startUpdateThread() {
+		stopUpdateThread();
+		updateThread = new Thread() {
+			@Override
+			public void run() {
+				while (!isInterrupted()) {
 					seekBar.setProgress(mediaPlayer.getCurrentPosition());
-					seekbarUpdateSemaphore.release();
-					Thread.sleep(SEEKBAR_UPDATE_INTERVAL_MS);
-				} catch (InterruptedException ie) {
-					// whatever, just get on with it
-					Log.e(RecordingPlayer.class.getSimpleName(),
-							SEEKBAR_UPDATE_THREAD_NAME
-									+ " interrupted during update sleep.", ie);
+					try {
+						Thread.sleep(250);
+					} catch (InterruptedException e) {
+						break;
+					}
 				}
+			};
+		};
+		updateThread.start();
+	}
+	
+	private void stopUpdateThread() {
+		if (updateThread != null) {
+			updateThread.interrupt();
+			try {
+				updateThread.join();
+			} catch (InterruptedException e) {
+				// Don't care.
 			}
-		}
-
-		public void reset() {
-			shouldContinueUpdatingSeekbar = true;
-		}
-
-		public void stopUpdating() {
-			shouldContinueUpdatingSeekbar = false;
+			updateThread = null;
 		}
 	}
 }
