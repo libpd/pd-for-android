@@ -90,6 +90,10 @@ public class SceneDataBase {
 		SceneDataBaseHelper helper = new SceneDataBaseHelper(context);
 		db = helper.getWritableDatabase();
 	}
+	
+	public void close() {
+		db.close();
+	}
 
 	public long addScene(File sceneFolder) throws IOException {
 		Map<String, String> sceneInfo;
