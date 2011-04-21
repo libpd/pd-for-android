@@ -198,13 +198,13 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 	}
 	
 	private void editDescription() {
-		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-		dialogBuilder.setTitle(getResources().getString(R.string.description));
-		dialogBuilder.setMessage(getResources().getString(R.string.edit_description));
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setTitle(getResources().getString(R.string.description));
+		dialog.setMessage(getResources().getString(R.string.edit_description));
 		final EditText editText = new EditText(this);
 		editText.setText(description);
-		dialogBuilder.setView(editText);
-		dialogBuilder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+		dialog.setView(editText);
+		dialog.setPositiveButton(getResources().getString(android.R.string.ok), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				description = editText.getText().toString();
@@ -214,8 +214,8 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 				db.close();
 			}
 		});
-		dialogBuilder.setNegativeButton("Cancel", null);
-		dialogBuilder.show();
+		dialog.setNegativeButton(getResources().getString(android.R.string.cancel), null);
+		dialog.show();
 	}
 
 	private void startUpdateThread() {

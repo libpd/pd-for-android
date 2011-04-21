@@ -15,6 +15,8 @@ import java.io.IOException;
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -99,13 +101,24 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, long id) {
-		try {
-			db.deleteScene(id);
-		} catch (IOException e) {
-			toast(getResources().getString(R.string.delete_scene_fail));
-		}
-		updateList();
+	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, final long id) {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setIcon(android.R.drawable.ic_dialog_alert);
+		dialog.setTitle(getResources().getString(R.string.delete_scene_title));
+		dialog.setMessage(getResources().getString(R.string.delete_scene_message));
+		dialog.setPositiveButton(getResources().getString(android.R.string.yes), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					db.deleteScene(id);
+				} catch (IOException e) {
+					toast(getResources().getString(R.string.delete_scene_fail));
+				}
+				updateList();
+			}
+		});
+		dialog.setNegativeButton(getResources().getString(android.R.string.no), null);
+		dialog.show();
 		return true;
 	}
 

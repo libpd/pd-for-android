@@ -25,4 +25,9 @@
 <string name="latitude">Latitude</string>
 <string name="open_recording_fail">Unable to open audio file</string>
 <string name="no_such_recording">No such recording</string>
+<string name="delete_scene_title">Delete scene</string>
+<string name="delete_scene_message">Delete scene and all associated files?</string>
+<string name="delete_recording_title">Delete recording</string>
+<string name="delete_recording_message">Delete recording?</string>
+
 </resources>

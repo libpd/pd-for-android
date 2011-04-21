@@ -14,6 +14,8 @@ import java.io.IOException;
 import org.puredata.android.scenes.SceneDataBase.RecordingColumn;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -89,13 +91,24 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, long id) {
-		try {
-			db.deleteRecording(id);
-		} catch (IOException e) {
-			toast(getResources().getString(R.string.delete_recording_fail));
-		}
-		updateList();
+	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, final long id) {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setIcon(android.R.drawable.ic_dialog_alert);
+		dialog.setTitle(getResources().getString(R.string.delete_recording_title));
+		dialog.setMessage(getResources().getString(R.string.delete_recording_message));
+		dialog.setPositiveButton(getResources().getString(android.R.string.yes), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					db.deleteRecording(id);
+				} catch (IOException e) {
+					toast(getResources().getString(R.string.delete_recording_fail));
+				}
+				updateList();
+			}
+		});
+		dialog.setNegativeButton(getResources().getString(android.R.string.no), null);
+		dialog.show();
 		return true;
 	}
 }
