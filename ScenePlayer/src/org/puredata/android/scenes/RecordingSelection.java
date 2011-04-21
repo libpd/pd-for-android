@@ -15,6 +15,7 @@ import org.puredata.android.scenes.SceneDataBase.RecordingColumn;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,6 +28,7 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 
 	private ListView recordingView;
 	private SceneDataBase db;
+	private Cursor cursor = null;
 
 	private Toast toast = null;
 	
@@ -46,7 +48,6 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		db = new SceneDataBase(this);
 		initGui();
 	}
 
@@ -60,17 +61,23 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	@Override
 	protected void onResume() {
 		super.onResume();
+		db = new SceneDataBase(this);
 		updateList();
 	}
 	
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onPause() {
+		super.onPause();
+		cursor.close();
 		db.close();
 	}
 
 	private void updateList() {
-		RecordingListCursorAdapter adapter = new RecordingListCursorAdapter(RecordingSelection.this, db.getAllRecordings());
+		if (cursor != null) {
+			cursor.close();
+		}
+		cursor = db.getAllRecordings();
+		RecordingListCursorAdapter adapter = new RecordingListCursorAdapter(RecordingSelection.this, cursor, db);
 		recordingView.setAdapter(adapter);
 	}
 	

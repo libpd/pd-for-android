@@ -83,7 +83,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private String description;
 	private PdService pdService = null;
 	private int patch = 0;
-	private SceneDataBase db;
 	
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
@@ -187,13 +186,14 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		Intent intent = getIntent();
 		sceneId = intent.getLongExtra(SceneColumn.ID.getLabel(), -1);
 		if (sceneId >= 0) {
-			db = new SceneDataBase(this);
+			SceneDataBase db = new SceneDataBase(this);
 			Cursor cursor = db.getScene(sceneId);
 			String scenePath = SceneDataBase.getString(cursor, SceneColumn.SCENE_DIRECTORY);
 			artist = SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST);
 			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
 			description = SceneDataBase.getString(cursor, SceneColumn.SCENE_INFO);
 			cursor.close();
+			db.close();
 			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
@@ -287,7 +287,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanup();
-		db.close();
 	}
 
 	private void initGui() {
@@ -392,7 +391,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		long duration = System.currentTimeMillis() - recStart;
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		SceneDataBase db = new SceneDataBase(this);
 		db.addRecording(recFile, recStart, duration, location.getLongitude(), location.getLatitude(), sceneId);
+		db.close();
 		recFile = null;
 		post("Finished recording");
 	}

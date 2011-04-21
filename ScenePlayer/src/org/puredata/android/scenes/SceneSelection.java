@@ -16,6 +16,7 @@ import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +35,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	private ListView sceneView;
 	private Button updateButton;
 	private SceneDataBase db;
+	private Cursor cursor = null;
 	private Toast toast = null;
 	
 	private void toast(final String msg) {
@@ -52,13 +54,20 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		db = new SceneDataBase(this);
 		initGui();
 	}
 	
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onResume() {
+		super.onResume();
+		db = new SceneDataBase(this);
+		updateList();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		cursor.close();
 		db.close();
 	}
 
@@ -71,11 +80,14 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		sceneView.setOnItemClickListener(this);
 		sceneView.setOnItemLongClickListener(this);
 		updateButton.setOnClickListener(this);
-		updateList();
 	}
 
 	private void updateList() {
-		SceneListCursorAdapter adapter = new SceneListCursorAdapter(SceneSelection.this, db.getAllScenes());
+		if (cursor != null) {
+			cursor.close();
+		}
+		cursor = db.getAllScenes();
+		SceneListCursorAdapter adapter = new SceneListCursorAdapter(SceneSelection.this, cursor);
 		sceneView.setAdapter(adapter);
 	}
 	
