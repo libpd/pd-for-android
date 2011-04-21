@@ -18,15 +18,17 @@
 			android:paddingBottom="5px" android:ellipsize="end"
 			android:singleLine="true" />
 	</LinearLayout>
+	<ImageView android:id="@+id/recording_play_image"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@id/recording_play_header" android:scaleType="centerInside" />
 	<LinearLayout android:id="@+id/recording_play_footer"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:gravity="center" android:background="@drawable/white_gradient_bottom"
 		android:layout_alignParentBottom="true">
-		<ToggleButton
-			android:id="@+id/recording_play_play_button" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_weight="1" android:checked="true"
-			android:drawableTop="@drawable/play_button" android:lines="0"
-			android:background="@drawable/all_transparent" />
+		<ToggleButton android:id="@+id/recording_play_play_button"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1" android:checked="true" android:drawableTop="@drawable/play_button"
+			android:lines="0" android:background="@drawable/all_transparent" />
 		<ImageButton android:id="@+id/recording_play_scene_button"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_weight="1" android:src="@drawable/transport_goto_scene"
@@ -36,18 +38,16 @@
 			android:layout_weight="1" android:src="@drawable/transport_edit_description"
 			android:background="@drawable/all_transparent" />
 	</LinearLayout>
-	<ImageView android:id="@+id/recording_play_image"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_below="@id/recording_play_header" android:layout_above="@id/recording_play_footer"
-		android:scaleType="centerInside" />
-	<SeekBar android:id="@+id/recording_play_seekbar"
+	<LinearLayout android:id="@+id/seekbar_holder" android:gravity="center"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:paddingLeft="15px" android:paddingRight="15px"
-		android:background="@android:drawable/alert_dark_frame"
-		android:layout_above="@id/recording_play_footer" />
+		android:layout_above="@id/recording_play_footer" android:layout_below="@id/recording_play_image">
+		<SeekBar android:id="@+id/recording_play_seekbar"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:padding="12dip" />
+	</LinearLayout>
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:layout_below="@id/recording_play_header"
-		android:layout_above="@id/recording_play_seekbar" android:background="@drawable/popup_custom">
+		android:layout_above="@id/seekbar_holder" android:background="@drawable/popup_custom">
 		<LinearLayout android:id="@+id/recording_play_layout_date"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:orientation="horizontal" android:layout_alignParentBottom="true">
