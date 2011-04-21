@@ -58,6 +58,7 @@ import android.widget.ToggleButton;
 
 public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
+	public static final String RECORDING_PATH = "recording_path";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -201,7 +202,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			progress.setMessage("Loading scene...");
 			progress.show();
 			sceneFolder = new File(scenePath);
-			recDir = new File(getResources().getString(R.string.recording_folder));
+			String recDirPath = intent.getStringExtra(RECORDING_PATH);
+			recDir = new File(recDirPath != null ? recDirPath : getResources().getString(R.string.recording_folder));
 			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs())) recDir = null;
 			initGui();
 			initSystemServices();
