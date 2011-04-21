@@ -199,6 +199,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 	
 	private void editDescription() {
 		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setIcon(R.drawable.transport_edit_description);
 		dialog.setTitle(getResources().getString(R.string.description));
 		dialog.setMessage(getResources().getString(R.string.edit_description));
 		final EditText editText = new EditText(this);
