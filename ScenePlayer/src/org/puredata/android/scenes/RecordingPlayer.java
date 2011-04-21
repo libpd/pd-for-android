@@ -16,6 +16,8 @@ import org.puredata.android.scenes.SceneDataBase.RecordingColumn;
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -28,6 +30,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -41,9 +44,11 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 	private SceneDataBase db;
 	private long recordingId;
 	private long sceneId;
+	private String description;
 	private ToggleButton playButton;
 	private ImageButton sceneButton;
 	private ImageButton editButton;
+	private TextView descriptionView;
 	private SeekBar seekBar;
 	private MediaPlayer mediaPlayer;
 	private boolean playbackState;
@@ -62,9 +67,10 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			seekBar = (SeekBar) findViewById(R.id.recording_play_seekbar);
 			seekBar.setMax((int) SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_DURATION));
 			seekBar.setOnSeekBarChangeListener(this);
-			TextView textView = (TextView) findViewById(R.id.recording_play_description_text);
-			textView.setText(SceneDataBase.getString(cursor, RecordingColumn.RECORDING_DESCRIPTION));
-			textView = (TextView) findViewById(R.id.recording_play_duration_text);
+			descriptionView = (TextView) findViewById(R.id.recording_play_description_text);
+			description = SceneDataBase.getString(cursor, RecordingColumn.RECORDING_DESCRIPTION);
+			descriptionView.setText(description);
+			TextView textView = (TextView) findViewById(R.id.recording_play_duration_text);
 			String durationFormat = this.getString(R.string.duration_format);
 			textView.setText(DateFormat.format(durationFormat, SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_DURATION)));
 			textView = (TextView) findViewById(R.id.recording_play_date_text);
@@ -168,10 +174,29 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			intent.putExtra(SceneColumn.ID.getLabel(), sceneId);
 			startActivity(intent);
 		} else if (v.equals(editButton)) {
-			// edit...
+			editDescription();
 		}
 	}
 	
+	private void editDescription() {
+		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+		dialogBuilder.setTitle(getResources().getString(R.string.description));
+		dialogBuilder.setMessage(getResources().getString(R.string.edit_description));
+		final EditText editText = new EditText(this);
+		editText.setText(description);
+		dialogBuilder.setView(editText);
+		dialogBuilder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				description = editText.getText().toString();
+				descriptionView.setText(description);
+				db.setRecordingDescription(recordingId, description);
+			}
+		});
+		dialogBuilder.setNegativeButton("Cancel", null);
+		dialogBuilder.show();
+	}
+
 	private void startUpdateThread() {
 		stopUpdateThread();
 		updateThread = new Thread() {
