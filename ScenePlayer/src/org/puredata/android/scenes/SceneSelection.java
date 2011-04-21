@@ -55,6 +55,12 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		db = new SceneDataBase(this);
 		initGui();
 	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		db.close();
+	}
 
 	private void initGui() {
 		setContentView(R.layout.scene_selection);

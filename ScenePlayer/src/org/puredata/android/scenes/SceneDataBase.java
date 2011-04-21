@@ -68,7 +68,7 @@ public class SceneDataBase {
 		RECORDING_DESCRIPTION("description", "text, "),
 		RECORDING_LATITUDE("latitude", "real, "),
 		RECORDING_LONGITUDE("longitude", "real, "),
-		SCENE_ID("scene_id", "bigint not null");
+		SCENE_ID("scene_id", "integer not null");
 
 		private final String label;
 		private final String type;
@@ -121,6 +121,7 @@ public class SceneDataBase {
 	public void deleteScene(long id) throws IOException {
 		Cursor cursor = getScene(id);
 		String path = getString(cursor, SceneColumn.SCENE_DIRECTORY);
+		cursor.close();
 		if (new File(path).exists()) {
 			Runtime.getRuntime().exec("rm -r " + path);
 		}
@@ -130,6 +131,7 @@ public class SceneDataBase {
 	public void deleteRecording(long id) throws IOException {
 		Cursor cursor = getRecording(id);
 		String path = getString(cursor, RecordingColumn.RECORDING_PATH);
+		cursor.close();
 		if (new File(path).exists()) {
 			Runtime.getRuntime().exec("rm " + path);
 		}
@@ -197,7 +199,7 @@ public class SceneDataBase {
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {
 
 		public static final String DATABASE_NAME = "scenedb";
-		public static final int DATABASE_VERSION = 100001;
+		public static final int DATABASE_VERSION = 1001;
 		
 		public SceneDataBaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

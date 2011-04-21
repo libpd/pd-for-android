@@ -52,6 +52,7 @@ public class RecordingListCursorAdapter extends CursorAdapter {
       textView = (TextView) view.findViewById(R.id.sceneInfo);
       textView.setText(SceneDataBase.getString(sceneCursor, SceneColumn.SCENE_TITLE));
       String sceneFolder = SceneDataBase.getString(sceneCursor, SceneColumn.SCENE_DIRECTORY);
+      sceneCursor.close();
       File file = new File(sceneFolder, "thumb.jpg");
       Drawable icon = Drawable.createFromPath(file.getAbsolutePath());
       if (icon == null) {

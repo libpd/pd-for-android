@@ -193,6 +193,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			artist = SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST);
 			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
 			description = SceneDataBase.getString(cursor, SceneColumn.SCENE_INFO);
+			cursor.close();
 			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
@@ -286,6 +287,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanup();
+		db.close();
 	}
 
 	private void initGui() {

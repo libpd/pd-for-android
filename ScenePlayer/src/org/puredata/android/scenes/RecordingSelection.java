@@ -62,6 +62,12 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 		super.onResume();
 		updateList();
 	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		db.close();
+	}
 
 	private void updateList() {
 		RecordingListCursorAdapter adapter = new RecordingListCursorAdapter(RecordingSelection.this, db.getAllRecordings());

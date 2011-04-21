@@ -91,6 +91,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 			mediaPlayer.setLooping(true);
 			String recPath = SceneDataBase.getString(cursor, RecordingColumn.RECORDING_PATH);
+			cursor.close();
 			try {
 				mediaPlayer.setDataSource(recPath);
 				mediaPlayer.prepare();
@@ -115,6 +116,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			ImageView imageView = (ImageView) findViewById(R.id.recording_play_image);
 			imageView.setImageBitmap(BitmapFactory.decodeFile(new File(scenePath, "image.jpg").getAbsolutePath()));
 		}
+		cursor.close();
 	}
 
 	@Override
@@ -135,6 +137,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 	protected void onDestroy() {
 		super.onDestroy();
 		mediaPlayer.release();
+		db.close();
 	}
 
 	private void startPlayback() {
