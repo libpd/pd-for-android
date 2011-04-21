@@ -66,6 +66,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String MICVOLUME = "#micvolume";
 	private static final int SAMPLE_RATE = 22050;
 	private final Object lock = new Object();
+	private SceneDataBase db;
 	private ProgressDialog progress = null;
 	private SceneView sceneView;
 	private ToggleButton play;
@@ -183,17 +184,16 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		db = new SceneDataBase(this);
 		Intent intent = getIntent();
 		sceneId = intent.getLongExtra(SceneColumn.ID.getLabel(), -1);
 		if (sceneId >= 0) {
-			SceneDataBase db = new SceneDataBase(this);
 			Cursor cursor = db.getScene(sceneId);
 			String scenePath = SceneDataBase.getString(cursor, SceneColumn.SCENE_DIRECTORY);
 			artist = SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST);
 			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
 			description = SceneDataBase.getString(cursor, SceneColumn.SCENE_INFO);
 			cursor.close();
-			db.close();
 			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
@@ -287,6 +287,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanup();
+		db.close();
 	}
 
 	private void initGui() {
@@ -391,9 +392,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		long duration = System.currentTimeMillis() - recStart;
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		SceneDataBase db = new SceneDataBase(this);
 		db.addRecording(recFile, recStart, duration, location.getLongitude(), location.getLatitude(), sceneId);
-		db.close();
 		recFile = null;
 		post("Finished recording");
 	}

@@ -40,6 +40,7 @@ import android.widget.ToggleButton;
 
 public class RecordingPlayer extends Activity implements OnSeekBarChangeListener, OnCheckedChangeListener, OnClickListener {
 
+	private SceneDataBase db;
 	private long recordingId;
 	private long sceneId;
 	private String description;
@@ -70,12 +71,12 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.recording_player);
+		db = new SceneDataBase(this);
 		recordingId = this.getIntent().getLongExtra(RecordingColumn.ID.getLabel(), -1);
 		if (recordingId >= 0) {
-			SceneDataBase db = new SceneDataBase(this);
 			Cursor cursor = db.getRecording(recordingId);
 			sceneId = SceneDataBase.getLong(cursor, RecordingColumn.SCENE_ID);
-			displaySceneInfo(sceneId, db);
+			displaySceneInfo(sceneId);
 			seekBar = (SeekBar) findViewById(R.id.recording_play_seekbar);
 			seekBar.setMax((int) SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_DURATION));
 			seekBar.setOnSeekBarChangeListener(this);
@@ -104,7 +105,6 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			mediaPlayer.setLooping(true);
 			String recPath = SceneDataBase.getString(cursor, RecordingColumn.RECORDING_PATH);
 			cursor.close();
-			db.close();
 			try {
 				mediaPlayer.setDataSource(recPath);
 				mediaPlayer.prepare();
@@ -118,7 +118,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 		}
 	}
 	
-	private void displaySceneInfo(long sceneId, SceneDataBase db) {
+	private void displaySceneInfo(long sceneId) {
 		Cursor cursor = db.getScene(sceneId);
 		if (cursor.getCount() > 0) {
 			TextView textView = (TextView) findViewById(R.id.recording_play_title);
@@ -150,6 +150,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 	protected void onDestroy() {
 		super.onDestroy();
 		mediaPlayer.release();
+		db.close();
 	}
 
 	private void startPlayback() {
@@ -210,9 +211,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			public void onClick(DialogInterface dialog, int which) {
 				description = editText.getText().toString();
 				descriptionView.setText(description);
-				SceneDataBase db = new SceneDataBase(RecordingPlayer.this);
 				db.setRecordingDescription(recordingId, description);
-				db.close();
 			}
 		});
 		dialog.setNegativeButton(getResources().getString(android.R.string.cancel), null);
