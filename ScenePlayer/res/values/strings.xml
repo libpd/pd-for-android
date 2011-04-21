@@ -23,4 +23,6 @@
 <string name="edit_description">Edit description:</string>
 <string name="longitude">Longitude</string>
 <string name="latitude">Latitude</string>
+<string name="open_recording_fail">Unable to open audio file</string>
+<string name="no_such_recording">No such recording</string>
 </resources>

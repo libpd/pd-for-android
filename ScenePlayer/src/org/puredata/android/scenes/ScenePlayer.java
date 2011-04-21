@@ -105,7 +105,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				if (toast == null) {
 					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
 				}
-				toast.setText(TAG + ": " + msg);
+				toast.setText(msg);
 				toast.show();
 			}
 		});

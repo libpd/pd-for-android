@@ -25,7 +25,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CompoundButton;
@@ -36,11 +35,11 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class RecordingPlayer extends Activity implements OnSeekBarChangeListener, OnCheckedChangeListener, OnClickListener {
 
-	private final static String TAG = "RecordingPlayer";
 	private SceneDataBase db;
 	private long recordingId;
 	private long sceneId;
@@ -53,6 +52,20 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 	private MediaPlayer mediaPlayer;
 	private boolean playbackState;
 	private Thread updateThread = null;
+	private Toast toast = null;
+	
+	private void toast(final String msg) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (toast == null) {
+					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+				}
+				toast.setText(msg);
+				toast.show();
+			}
+		});
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -96,11 +109,11 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 				mediaPlayer.setDataSource(recPath);
 				mediaPlayer.prepare();
 			} catch (Exception e) {
-				Log.e(TAG, e.toString());
+				toast(getResources().getString(R.string.open_recording_fail));
 				finish();
 			}
 		} else {
-			Log.i(TAG, "invalid recording ID");
+			toast(getResources().getString(R.string.no_such_recording));
 			finish();
 		}
 	}
