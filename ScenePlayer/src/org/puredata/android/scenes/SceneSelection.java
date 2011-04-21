@@ -55,18 +55,18 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initGui();
+		db = new SceneDataBase(this);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		db = new SceneDataBase(this);
 		updateList();
 	}
 	
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onDestroy() {
+		super.onDestroy();
 		cursor.close();
 		db.close();
 	}

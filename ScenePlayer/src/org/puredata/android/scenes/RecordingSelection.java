@@ -49,6 +49,7 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initGui();
+		db = new SceneDataBase(this);
 	}
 
 	private void initGui() {
@@ -61,13 +62,12 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	@Override
 	protected void onResume() {
 		super.onResume();
-		db = new SceneDataBase(this);
 		updateList();
 	}
 	
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onDestroy() {
+		super.onDestroy();
 		cursor.close();
 		db.close();
 	}
