@@ -76,6 +76,10 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			textView = (TextView) findViewById(R.id.recording_play_date_text);
 			String dateFormat = this.getString(R.string.date_format);
 			textView.setText(DateFormat.format(dateFormat, SceneDataBase.getLong(cursor, RecordingColumn.RECORDING_TIMESTAMP)));
+			textView = (TextView) findViewById(R.id.recording_play_latitude_text);
+			textView.setText("" + SceneDataBase.getDouble(cursor, RecordingColumn.RECORDING_LATITUDE));
+			textView = (TextView) findViewById(R.id.recording_play_longitude_text);
+			textView.setText("" + SceneDataBase.getDouble(cursor, RecordingColumn.RECORDING_LONGITUDE));
 			playButton = (ToggleButton) findViewById(R.id.recording_play_play_button);
 			playButton.setOnCheckedChangeListener(this);
 			playButton.setChecked(true);

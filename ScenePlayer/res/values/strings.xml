@@ -21,4 +21,6 @@
 <string name="duration">Duration</string>
 <string name="description">Description</string>
 <string name="edit_description">Edit description:</string>
+<string name="longitude">Longitude</string>
+<string name="latitude">Latitude</string>
 </resources>

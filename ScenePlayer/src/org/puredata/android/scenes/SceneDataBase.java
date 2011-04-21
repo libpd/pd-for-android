@@ -18,6 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.puredata.android.scenes.SceneDataBase.RecordingColumn;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -107,12 +108,14 @@ public class SceneDataBase {
 		return db.insert(TABLE_SCENES, null, values);
 	}
 	
-	public long addRecording(String path, long time, long duration, long id) {
+	public long addRecording(String path, long time, long duration, double longitude, double latitude, long sceneId) {
 		ContentValues values = new ContentValues();
 		values.put(RecordingColumn.RECORDING_PATH.label, path);
 		values.put(RecordingColumn.RECORDING_TIMESTAMP.label, time);
 		values.put(RecordingColumn.RECORDING_DURATION.label, duration);
-		values.put(RecordingColumn.SCENE_ID.label, id);
+		values.put(RecordingColumn.RECORDING_LONGITUDE.label, longitude);
+		values.put(RecordingColumn.RECORDING_LATITUDE.label, latitude);
+		values.put(RecordingColumn.SCENE_ID.label, sceneId);
 		return db.insert(TABLE_RECORDINGS, null, values);
 	}
 
@@ -182,6 +185,14 @@ public class SceneDataBase {
 
 	public static long getLong(Cursor cursor, String column) {
 		return cursor.getLong(cursor.getColumnIndex(column));
+	}
+
+	public static double getDouble(Cursor cursor, Column column) {
+		return getDouble(cursor, column.getLabel());
+	}
+	
+	public static double getDouble(Cursor cursor, String column) {
+		return cursor.getDouble(cursor.getColumnIndex(column));
 	}
 
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {

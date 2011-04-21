@@ -36,6 +36,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
@@ -386,7 +388,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		if (recFile == null) return;
 		PdBase.sendMessage(TRANSPORT, "record", 0);
 		long duration = System.currentTimeMillis() - recStart;
-		db.addRecording(recFile, recStart, duration, sceneId);
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		db.addRecording(recFile, recStart, duration, location.getLongitude(), location.getLatitude(), sceneId);
 		recFile = null;
 		post("Finished recording");
 	}
