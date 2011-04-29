@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:rjdj="http://schemas.android.com/apk/res/me.rjdj.rjdjroid"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<LinearLayout android:id="@+id/recording_play_header"
+		android:orientation="vertical" android:layout_width="fill_parent"
+		android:layout_height="65px" android:padding="0px"
+		android:layout_alignParentTop="true" android:background="@drawable/white_gradient_top">
+		<TextView android:id="@+id/recording_play_title"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:textColor="#000" android:gravity="center"
+			android:layout_weight="2" android:textSize="24sp" android:ellipsize="end"
+			android:singleLine="true" />
+		<TextView android:id="@+id/recording_play_artist"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:textColor="#555" android:gravity="center"
+			android:layout_weight="1" android:textSize="18sp"
+			android:paddingBottom="5px" android:ellipsize="end"
+			android:singleLine="true" />
+	</LinearLayout>
+	<ImageView android:id="@+id/recording_play_image"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@id/recording_play_header" android:scaleType="centerInside" />
+	<LinearLayout android:id="@+id/recording_play_footer"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:gravity="center" android:background="@drawable/white_gradient_bottom"
+		android:layout_alignParentBottom="true">
+		<ToggleButton android:id="@+id/recording_play_play_button"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1" android:checked="true" android:drawableTop="@drawable/play_button"
+			android:lines="0" android:background="@drawable/all_transparent" />
+		<ImageButton android:id="@+id/recording_play_scene_button"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1" android:src="@drawable/transport_goto_scene"
+			android:background="@drawable/all_transparent" />
+		<ImageButton android:id="@+id/recording_play_rename_button"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_weight="1" android:src="@drawable/transport_edit_description"
+			android:background="@drawable/all_transparent" />
+	</LinearLayout>
+	<LinearLayout android:id="@+id/seekbar_holder" android:gravity="center"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_above="@id/recording_play_footer" android:layout_below="@id/recording_play_image">
+		<SeekBar android:id="@+id/recording_play_seekbar"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:padding="12dip" />
+	</LinearLayout>
+	<RelativeLayout android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:layout_below="@id/recording_play_header"
+		android:layout_above="@id/seekbar_holder" android:background="@drawable/popup_custom">
+		<LinearLayout android:id="@+id/recording_play_layout_date"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:orientation="horizontal" android:layout_alignParentBottom="true">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textColor="#FFF"
+				android:textSize="22sp" android:text="@string/date" />
+			<TextView android:id="@+id/recording_play_date_text"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_marginLeft="7px" android:textColor="#FFF"
+				android:textSize="18sp" />
+		</LinearLayout>
+		<LinearLayout android:id="@+id/recording_play_layout_duration"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:orientation="horizontal" android:layout_above="@id/recording_play_layout_date">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textColor="#FFF"
+				android:textSize="22sp" android:text="@string/duration" />
+			<TextView android:id="@+id/recording_play_duration_text"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_marginLeft="7px" android:textColor="#FFF"
+				android:textSize="18sp" />
+		</LinearLayout>
+		<LinearLayout android:id="@+id/recording_play_layout_latitude"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:orientation="horizontal" android:layout_above="@id/recording_play_layout_duration">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textColor="#FFF"
+				android:textSize="22sp" android:text="@string/latitude" />
+			<TextView android:id="@+id/recording_play_latitude_text"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_marginLeft="7px" android:textColor="#FFF"
+				android:textSize="18sp" />
+		</LinearLayout>
+		<LinearLayout android:id="@+id/recording_play_layout_longitude"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:orientation="horizontal" android:layout_above="@id/recording_play_layout_latitude">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:textColor="#FFF"
+				android:textSize="22sp" android:text="@string/longitude" />
+			<TextView android:id="@+id/recording_play_longitude_text"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_marginLeft="7px" android:textColor="#FFF"
+				android:textSize="18sp" />
+		</LinearLayout>
+		<LinearLayout android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:orientation="vertical"
+			android:layout_alignParentTop="true" android:layout_above="@id/recording_play_layout_duration">
+			<TextView android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:text="@string/description"
+				android:textColor="#FFF" android:textSize="22sp" />
+			<TextView android:id="@+id/recording_play_description_text"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:textColor="#FFF" android:textSize="18sp" />
+		</LinearLayout>
+	</RelativeLayout>
+</RelativeLayout>

@@ -15,17 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
+import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdDispatcher;
 import org.puredata.core.utils.PdListener;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -34,12 +29,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
@@ -52,20 +50,15 @@ import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 
 
 public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
-	public static final String SCENE = "SCENE";
-	public static final String RECDIR = "RECDIR";
-	public static final String RECTAG = "RECTAG"; // key for recording tag, e.g., for geolocation
-	public static final String RECSEP = "___";
-	private static final String TITLE = "name";
-	private static final String AUTHOR = "author";
+	public static final String RECORDING_PATH = "recording_path";
 	private static final String TAG = "Pd Scene Player";
 	private static final String RJ_IMAGE_ANDROID = "rj_image_android";
 	private static final String RJ_TEXT_ANDROID = "rj_text_android";
@@ -74,18 +67,25 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String MICVOLUME = "#micvolume";
 	private static final int SAMPLE_RATE = 22050;
 	private final Object lock = new Object();
+	private SceneDataBase db;
 	private ProgressDialog progress = null;
 	private SceneView sceneView;
 	private ToggleButton play;
 	private ToggleButton record;
 	private ImageButton info;
 	private SeekBar micVolume;
+	private int micValue;
 	private File sceneFolder;
 	private File recDir = null;
+	private String recFile = null;
+	private long recStart;
+	private long sceneId;
+	private String artist;
+	private String title;
+	private String description;
 	private PdService pdService = null;
 	private int patch = 0;
-	private String recTag = null;
-	private final Map<String, String> sceneInfo = new HashMap<String, String>();
+	
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
 		public void print(String s) {
@@ -106,7 +106,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				if (toast == null) {
 					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
 				}
-				toast.setText(TAG + ": " + msg);
+				toast.setText(msg);
 				toast.show();
 			}
 		});
@@ -185,24 +185,31 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		db = new SceneDataBase(this);
 		Intent intent = getIntent();
-		String scenePath = intent.getStringExtra(SCENE);
-		String recDirName = intent.getStringExtra(RECDIR);
-		recTag = intent.getStringExtra(RECTAG);
-		if (scenePath != null && recDirName != null) {
+		sceneId = intent.getLongExtra(SceneColumn.ID.getLabel(), -1);
+		if (sceneId >= 0) {
+			Cursor cursor = db.getScene(sceneId);
+			String scenePath = SceneDataBase.getString(cursor, SceneColumn.SCENE_DIRECTORY);
+			artist = SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST);
+			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
+			description = SceneDataBase.getString(cursor, SceneColumn.SCENE_INFO);
+			cursor.close();
+			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
 			progress.setCancelable(false);
 			progress.setIndeterminate(true);
 			progress.setMessage("Loading scene...");
 			progress.show();
 			sceneFolder = new File(scenePath);
-			recDir = new File(recDirName);
+			String recDirPath = intent.getStringExtra(RECORDING_PATH);
+			recDir = new File(recDirPath != null ? recDirPath : getResources().getString(R.string.recording_folder));
 			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs())) recDir = null;
 			initGui();
 			initSystemServices();
 			initPdService();
 		} else {
-			Log.e(TAG, "launch intent without scene path");
+			Log.e(TAG, "launch intent without scene ID");
 			finish();
 		}
 	}
@@ -273,6 +280,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	protected void onPause() {
+		getPreferences(MODE_PRIVATE).edit().putInt(MICVOLUME, micValue).commit();
 		dismissProgressDialog();
 		super.onPause();
 	}
@@ -281,15 +289,15 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	protected void onDestroy() {
 		super.onDestroy();
 		cleanup();
+		db.close();
 	}
 
 	private void initGui() {
-		readInfo();
 		setContentView(R.layout.scene_player);
 		TextView tv = (TextView) findViewById(R.id.sceneplayer_title);
-		tv.setText(sceneInfo.get(TITLE));
+		tv.setText(title);
 		tv = (TextView) findViewById(R.id.sceneplayer_artist);
-		tv.setText(sceneInfo.get(AUTHOR));
+		tv.setText(artist);
 		sceneView = (SceneView) findViewById(R.id.sceneplayer_pic);
 		sceneView.setOnTouchListener(this);
 		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
@@ -300,6 +308,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		info = (ImageButton) findViewById(R.id.sceneplayer_info);
 		info.setOnClickListener(this);
 		micVolume = (SeekBar) findViewById(R.id.mic_volume);
+		micVolume.setProgress(micValue);
 		micVolume.setOnSeekBarChangeListener(this);
 	}
 
@@ -371,19 +380,23 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			record.setChecked(false);
 			return;
 		}
-		String fileName = sceneFolder.getName();
-		fileName = fileName.substring(0, fileName.length()-3) + RECSEP + System.currentTimeMillis();
-		if (recTag != null) fileName += RECSEP + recTag;
-		String path = new File(recDir, fileName + ".wav").getAbsolutePath();
-		PdBase.sendMessage(TRANSPORT, "scene", path);
+		recStart = System.currentTimeMillis();
+		String fileName = "recording_" + recStart + ".wav";
+		recFile = new File(recDir, fileName).getAbsolutePath();
+		PdBase.sendMessage(TRANSPORT, "scene", recFile);
 		PdBase.sendMessage(TRANSPORT, "record", 1);
-		post("recording to " + path);
+		post("Recording...");
 	}
 
 	private void stopRecording() {
-		if (recDir == null) return;
+		if (recFile == null) return;
 		PdBase.sendMessage(TRANSPORT, "record", 0);
-		post("finished recording");
+		long duration = System.currentTimeMillis() - recStart;
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		db.addRecording(recFile, recStart, duration, location.getLongitude(), location.getLatitude(), sceneId);
+		recFile = null;
+		post("Finished recording");
 	}
 
 	private boolean initAudio(int nIn, int nOut) {
@@ -411,6 +424,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			if (patch == 0) {
 				try {
 					patch = PdBase.openPatch(new File(sceneFolder, "_main.pd"));
+					adjustMicVolume(micValue);
 				} catch (IOException e) {
 					Log.e(TAG, e.toString());
 					toast("Unable to open patch; exiting");
@@ -424,7 +438,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				}
 			}
 			pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon,
-					sceneInfo.get(TITLE) + " by " + sceneInfo.get(AUTHOR), "Return to scene.");
+					title + " by " + artist, "Return to scene.");
 			PdBase.sendMessage(TRANSPORT, "play", 1);
 		}
 	}
@@ -444,70 +458,30 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void showInfo() {
 		AlertDialog.Builder ad = new AlertDialog.Builder(this);
-		if (sceneInfo.isEmpty()) {
-			ad.setTitle("Oops");
-			ad.setMessage("Info not available...");
-		} else {
-			View header = View.inflate(this, R.layout.two_line_dialog_title, null);
-			((TextView) header.findViewById(android.R.id.text1)).setText(sceneInfo.get(TITLE));
-			((TextView) header.findViewById(android.R.id.text2)).setText(sceneInfo.get(AUTHOR));
-			File pic = new File(sceneFolder, "thumb.jpg");
-			if (!pic.exists()) pic = new File(sceneFolder, "image.jpg");
-			if (pic.exists()) {
-				ImageView sceneThumbnail = (ImageView) header.findViewById(android.R.id.selectedIcon);
-				sceneThumbnail.setImageDrawable(Drawable.createFromPath(pic.getAbsolutePath()));
-			}
-			ad.setCustomTitle(header);
-			ad.setMessage(sceneInfo.get("description"));
+		View header = View.inflate(this, R.layout.two_line_dialog_title, null);
+		((TextView) header.findViewById(android.R.id.text1)).setText(title);
+		((TextView) header.findViewById(android.R.id.text2)).setText(artist);
+		File pic = new File(sceneFolder, "thumb.jpg");
+		if (!pic.exists()) pic = new File(sceneFolder, "image.jpg");
+		if (pic.exists()) {
+			ImageView sceneThumbnail = (ImageView) header.findViewById(android.R.id.selectedIcon);
+			sceneThumbnail.setImageDrawable(Drawable.createFromPath(pic.getAbsolutePath()));
 		}
+		ad.setCustomTitle(header);
+		ad.setMessage(description);
 		ad.setNeutralButton(android.R.string.ok, null);
 		ad.setCancelable(true);
 		ad.show();
 	}
 
-	private void readInfo() {
-		try {
-			SAXParserFactory spf = SAXParserFactory.newInstance();
-			SAXParser sp = spf.newSAXParser();
-			sp.parse(new File(sceneFolder, "Info.plist"), new DefaultHandler() {
-				private String key = "", val = "";
-				private boolean expectKey;
-				@Override
-				public void startElement(String uri, String localName,
-						String qName, Attributes attributes) throws SAXException {
-					expectKey = localName.equalsIgnoreCase("key");
-					if (expectKey) {
-						key = val = "";
-					}
-				}
-
-				@Override
-				public void characters(char[] ch, int start, int length) throws SAXException {
-					String s = new String(ch, start, length);
-					if (expectKey) {
-						key += s;
-					} else {
-						val += s;
-					}
-				}
-
-				@Override
-				public void endElement(String uri, String localName, String qName) throws SAXException {
-					key = key.trim();
-					val = val.trim();
-					if (key.length() > 0) {
-						sceneInfo.put(key, val);
-					}
-				}
-			});
-		} catch (Exception e) {
-			sceneInfo.clear();
-		}
-	}
-
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-		float q = progress * 0.01f;
+		micValue = progress;
+		adjustMicVolume(progress);
+	}
+
+	public void adjustMicVolume(int vol) {
+		float q = vol * 0.01f;
 		float volume = q * q * q * q;  // fourth power of mic volume slider value; somewhere between linear and exponential
 		PdBase.sendFloat(MICVOLUME, volume);
 	}

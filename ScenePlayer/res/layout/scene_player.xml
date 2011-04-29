@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent"
 	android:layout_height="fill_parent" android:gravity="center">
-	<LinearLayout android:orientation="vertical"
+	<LinearLayout android:id="@+id/title_bar"
+		android:orientation="vertical" android:layout_alignParentTop="true"
 		android:layout_width="fill_parent" android:layout_height="65dip"
 		android:padding="0dip" android:background="@drawable/white_gradient_top">
 		<TextView android:id="@+id/sceneplayer_title"
@@ -17,13 +18,13 @@
 			android:paddingBottom="5dip" android:ellipsize="end"
 			android:singleLine="true" />
 	</LinearLayout>
-	<org.puredata.android.scenes.SceneView
+	<org.puredata.android.scenes.SceneView android:layout_below="@+id/title_bar"
 		android:id="@+id/sceneplayer_pic" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:background="#000" />
-	<LinearLayout android:layout_width="fill_parent"
-		android:gravity="center" android:layout_height="wrap_content"
-		android:padding="0dip" android:background="@drawable/white_gradient_bottom"
-		android:orientation="horizontal">
+	<LinearLayout android:layout_width="fill_parent" android:gravity="center"
+		android:layout_height="wrap_content" android:orientation="horizontal"
+		android:layout_alignParentBottom="true" android:id="@+id/transport_bar"
+		android:padding="0dip" android:background="@drawable/white_gradient_bottom">
 		<ToggleButton android:layout_weight="1"
 			android:id="@+id/sceneplayer_pause" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:checked="true"
@@ -39,7 +40,9 @@
 			android:src="@drawable/info_button" android:background="@drawable/all_transparent" />
 	</LinearLayout>
 	<LinearLayout android:orientation="horizontal"
-		android:layout_width="fill_parent" android:layout_height="wrap_content">
+		android:layout_above="@id/transport_bar" android:layout_below="@id/sceneplayer_pic"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:gravity="center">
 		<ImageView android:id="@+id/mic_icon" android:src="@drawable/mic_icon"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_alignParentBottom="true" android:paddingLeft="12dip"
@@ -48,4 +51,4 @@
 			android:layout_height="wrap_content" android:padding="12dip"
 			android:max="100" android:progress="100" />
 	</LinearLayout>
-</LinearLayout>
+</RelativeLayout>

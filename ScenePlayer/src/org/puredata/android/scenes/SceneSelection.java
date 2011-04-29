@@ -11,99 +11,147 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
-import org.puredata.android.utils.Properties;
-import org.puredata.core.PdBase;
-import org.puredata.core.utils.IoUtils;
+import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
-public class SceneSelection extends Activity implements OnItemClickListener {
+import com.lamerman.FileDialog;
 
+public class SceneSelection extends Activity implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
+
+	private static final String TAG = "Scene Selection";
+	private static final int FILE_SELECT_CODE = 1;
 	private ListView sceneView;
-	private final Map<String, String> scenes = new HashMap<String, String>();
-
+	private Button updateButton;
+	private SceneDataBase db;
+	private Cursor cursor = null;
+	private Toast toast = null;
+	
+	private void toast(final String msg) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (toast == null) {
+					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+				}
+				toast.setText(msg);
+				toast.show();
+			}
+		});
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initGui();
+		db = new SceneDataBase(this);
 	}
-
-	private void unpackResources() {
-		Resources res = getResources();
-		File libDir = getFilesDir();
-		try {
-			IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir, true);
-			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.externals_v7a : R.raw.externals), libDir, true);
-			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd"), true);
-			// many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
-		} catch (IOException e) {
-			Log.e("Scene Player", e.toString());
-		}
-		PdBase.addToSearchPath(libDir.getAbsolutePath());
-	}
-
+	
 	@Override
-	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
-		TextView item = (TextView) v;
-		String name = item.getText().toString();
-		Intent intent = new Intent(this, ScenePlayer.class);
-		intent.putExtra(ScenePlayer.SCENE, scenes.get(name));
-		intent.putExtra(ScenePlayer.RECDIR, "/sdcard/pd");
-		startActivity(intent);
+	protected void onResume() {
+		super.onResume();
+		updateList();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		cursor.close();
+		db.close();
 	}
 
 	private void initGui() {
 		setContentView(R.layout.scene_selection);
 		sceneView = (ListView) findViewById(R.id.scene_selection);
-		final ProgressDialog progress = new ProgressDialog(this);
-		progress.setMessage("Loading scenes.  Please wait...");
-		progress.setCancelable(false);
-		progress.setIndeterminate(true);
-		progress.show();
-		new Thread() {
-			@Override
-			public void run() {
-				unpackResources();
-				List<File> list = IoUtils.find(new File("/sdcard"), ".*\\.rj$");
-				for (File dir: list) {
-					if (dir.isDirectory()) {
-						scenes.put(dir.getName(), dir.getAbsolutePath());
-					}
-				}
-				ArrayList<String> keyList = new ArrayList<String>(scenes.keySet());
-				Collections.sort(keyList, new Comparator<String>() {
-					public int compare(String a, String b) {
-						return a.toLowerCase().compareTo(b.toLowerCase());
-					}
-				});
-				final ArrayAdapter<String> adapter = new ArrayAdapter<String>(SceneSelection.this, android.R.layout.simple_list_item_1, keyList);
-				sceneView.getHandler().post(new Runnable() {
-					@Override
-					public void run() {
-						sceneView.setAdapter(adapter);
-						progress.dismiss();
-					}
-				});
-			};
-		}.start();
+		updateButton = new Button(this);
+		updateButton.setText(getResources().getString(R.string.update_label));
+		sceneView.addFooterView(updateButton);
 		sceneView.setOnItemClickListener(this);
+		sceneView.setOnItemLongClickListener(this);
+		updateButton.setOnClickListener(this);
+	}
+
+	private void updateList() {
+		if (cursor != null) {
+			cursor.close();
+		}
+		cursor = db.getAllScenes();
+		SceneListCursorAdapter adapter = new SceneListCursorAdapter(SceneSelection.this, cursor);
+		sceneView.setAdapter(adapter);
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
+		Intent intent = new Intent(this, ScenePlayer.class);
+		intent.putExtra(SceneColumn.ID.getLabel(), id);
+		startActivity(intent);
+	}
+
+	@Override
+	public boolean onItemLongClick(AdapterView<?> arg0, View v, int position, final long id) {
+		AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+		dialog.setIcon(android.R.drawable.ic_dialog_alert);
+		dialog.setTitle(getResources().getString(R.string.delete_scene_title));
+		dialog.setMessage(getResources().getString(R.string.delete_scene_message));
+		dialog.setPositiveButton(getResources().getString(android.R.string.yes), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				try {
+					db.deleteScene(id);
+				} catch (IOException e) {
+					toast(getResources().getString(R.string.delete_scene_fail));
+				}
+				updateList();
+			}
+		});
+		dialog.setNegativeButton(getResources().getString(android.R.string.no), null);
+		dialog.show();
+		return true;
+	}
+
+	@Override
+	public void onClick(View v) {
+		if (v.equals(updateButton)) {
+			Intent intent = new Intent(this, FileDialog.class);
+			SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
+			String startPath = prefs.getString(FileDialog.START_PATH, "/sdcard");
+			intent.putExtra(FileDialog.START_PATH, startPath);
+			intent.putExtra(FileDialog.SELECT_PATTERN, ".*\\.rj");
+			intent.putExtra(FileDialog.ACCEPT_FOLDER, true);
+			intent.putExtra(FileDialog.ACCEPT_FILE, false);
+			startActivityForResult(intent, FILE_SELECT_CODE);
+		}
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE) {
+			String path = data.getStringExtra(FileDialog.RESULT_PATH);
+			File file = new File(path);
+			try {
+				db.addScene(file);
+				updateList();
+				SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
+				prefs.edit().putString(FileDialog.START_PATH, file.getParent()).commit();
+			} catch (IOException e) {
+				toast(getResources().getString(R.string.open_scene_fail) + " " + path);
+			}
+		}
 	}
 }

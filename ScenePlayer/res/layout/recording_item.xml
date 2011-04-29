@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+	<ImageView android:id="@+id/sceneIcon" android:layout_width="59dip"
+		android:layout_height="59dip" android:background="#FFF"
+		android:padding="2dip" android:layout_margin="5dip"
+		android:adjustViewBounds="false" android:scaleType="center" />
+	<LinearLayout android:orientation="vertical"
+		android:layout_width="fill_parent" android:layout_height="fill_parent">
+		<TextView android:id="@+id/sceneInfo" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:layout_weight="1"
+			android:textSize="24sp" android:textColor="#FFF" android:gravity="bottom"
+			android:paddingBottom="3dip" android:ellipsize="end"
+			android:singleLine="true" />
+		<LinearLayout android:orientation="horizontal"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<TextView android:id="@+id/durationInfo"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_weight="1" android:textSize="16sp" android:textColor="#BBB"
+				android:gravity="top" android:paddingBottom="4dip"
+				android:ellipsize="end" android:singleLine="true" />
+			<TextView android:id="@+id/timeInfo" android:layout_width="fill_parent"
+				android:layout_height="wrap_content" android:layout_weight="1"
+				android:textSize="16sp" android:textColor="#BBB" android:gravity="top"
+				android:paddingBottom="4dip" android:ellipsize="end"
+				android:singleLine="true" />
+		</LinearLayout>
+	</LinearLayout>
+</LinearLayout>
