@@ -127,6 +127,9 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		if (v.equals(updateButton)) {
 			Intent intent = new Intent(this, FileDialog.class);
 			intent.putExtra(FileDialog.START_PATH, "/sdcard");
+			intent.putExtra(FileDialog.SELECT_PATTERN, ".*\\.rj");
+			intent.putExtra(FileDialog.ACCEPT_FOLDER, true);
+			intent.putExtra(FileDialog.ACCEPT_FILE, false);
 			startActivityForResult(intent, FILE_SELECT_CODE);
 		}
 	}

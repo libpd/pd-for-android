@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -33,17 +33,22 @@ public class FileDialog extends ListActivity {
 
 	public static final String START_PATH = "START_PATH";
 	public static final String RESULT_PATH = "RESULT_PATH";
+	public static final String SELECT_PATTERN = "SELECT_PATTERN";
+	public static final String ACCEPT_FOLDER = "ACCEPT_FOLDER";
+	public static final String ACCEPT_FILE = "ACCEPT_FILE";
 
+	private Intent intent;
 	private List<String> item = null;
 	private List<String> path = null;
 	private String root = "/";
 	private TextView myPath;
 	private ArrayList<HashMap<String, Object>> mList;
 
-	private Button selectButton;
-
 	private String parentPath;
 	private String currentPath = root;
+	private boolean acceptFolder;
+	private boolean acceptFile;
+	private Pattern pattern;
 
 	private File selectedFile;
 	private HashMap<String, Integer> lastPositions = new HashMap<String, Integer>();
@@ -51,22 +56,16 @@ public class FileDialog extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setResult(RESULT_CANCELED, getIntent());
+		intent = getIntent();
+		setResult(RESULT_CANCELED, intent);
 		setContentView(R.layout.file_dialog_main);
 		myPath = (TextView) findViewById(R.id.path);
-		selectButton = (Button) findViewById(R.id.fdButtonSelect);
-		selectButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (selectedFile != null) {
-					getIntent().putExtra(RESULT_PATH, selectedFile.getPath());
-					setResult(RESULT_OK, getIntent());
-					finish();
-				}
-			}
-		});
-		String startPath = getIntent().getStringExtra(START_PATH);
+		String startPath = intent.getStringExtra(START_PATH);
 		selectedFile = new File(startPath);
+		acceptFolder = intent.getBooleanExtra(ACCEPT_FOLDER, false);
+		acceptFile = intent.getBooleanExtra(ACCEPT_FILE, true);
+		String regExp = intent.getStringExtra(SELECT_PATTERN);
+		pattern = regExp != null ? Pattern.compile(regExp) : null;
 		getDir(startPath);
 	}
 
@@ -105,7 +104,7 @@ public class FileDialog extends ListActivity {
 				String dirName = file.getName();
 				dirsMap.put(dirName, dirName);
 				dirsPathMap.put(dirName, file.getPath());
-			} else {
+			} else if (acceptFile && matches(file)) {
 				filesMap.put(file.getName(), file.getName());
 				filesPathMap.put(file.getName(), file.getPath());
 			}
@@ -128,6 +127,10 @@ public class FileDialog extends ListActivity {
 		setListAdapter(fileList);
 	}
 
+	private boolean matches(File file) {
+		return pattern == null || pattern.matcher(file.getName()).matches();
+	}
+
 	private void addItem(String fileName, int imageId) {
 		HashMap<String, Object> item = new HashMap<String, Object>();
 		item.put(ITEM_KEY, fileName);
@@ -139,6 +142,10 @@ public class FileDialog extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		selectedFile = new File(path.get(position));
 		if (selectedFile.isDirectory()) {
+			if (acceptFolder && pattern != null && matches(selectedFile)) {
+				setResult(selectedFile);
+				return;
+			}
 			if (selectedFile.canRead()) {
 				lastPositions.put(currentPath, position);
 				getDir(path.get(position));
@@ -156,7 +163,16 @@ public class FileDialog extends ListActivity {
 							}
 						}).show();
 			}
+		} else if (acceptFile && matches(selectedFile)) {
+			setResult(selectedFile);
+			return;
 		}
 		v.setSelected(true);
+	}
+
+	private void setResult(File file) {
+		intent.putExtra(RESULT_PATH, file.getPath());
+		setResult(RESULT_OK, getIntent());
+		finish();
 	}
 }
