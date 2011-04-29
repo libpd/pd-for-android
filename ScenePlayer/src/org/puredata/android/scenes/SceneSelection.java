@@ -16,8 +16,10 @@ import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -33,6 +35,7 @@ import com.lamerman.FileDialog;
 
 public class SceneSelection extends Activity implements OnItemClickListener, OnItemLongClickListener, OnClickListener {
 
+	private static final String TAG = "Scene Selection";
 	private static final int FILE_SELECT_CODE = 1;
 	private ListView sceneView;
 	private Button updateButton;
@@ -126,7 +129,9 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	public void onClick(View v) {
 		if (v.equals(updateButton)) {
 			Intent intent = new Intent(this, FileDialog.class);
-			intent.putExtra(FileDialog.START_PATH, "/sdcard");
+			SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
+			String startPath = prefs.getString(FileDialog.START_PATH, "/sdcard");
+			intent.putExtra(FileDialog.START_PATH, startPath);
 			intent.putExtra(FileDialog.SELECT_PATTERN, ".*\\.rj");
 			intent.putExtra(FileDialog.ACCEPT_FOLDER, true);
 			intent.putExtra(FileDialog.ACCEPT_FILE, false);
@@ -138,9 +143,12 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK && requestCode == FILE_SELECT_CODE) {
 			String path = data.getStringExtra(FileDialog.RESULT_PATH);
+			File file = new File(path);
 			try {
-				db.addScene(new File(path));
+				db.addScene(file);
 				updateList();
+				SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
+				prefs.edit().putString(FileDialog.START_PATH, file.getParent()).commit();
 			} catch (IOException e) {
 				toast(getResources().getString(R.string.open_scene_fail) + " " + path);
 			}
