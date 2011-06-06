@@ -9,6 +9,7 @@ package org.puredata.android.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
@@ -191,6 +192,18 @@ public class PdService extends Service {
 		void stopForeground();
 	}
 
+	// Another version support hack, this time adapted from
+	// http://tuntis.net/2011/03/06/setforeground-missing-in-android-3-0-services/.
+	// This one works around the disappearance of the setForeground method in Honeycomb.
+	private void invokeSetForeground(boolean foreground) {
+	    try {
+	        Method method = getClass().getMethod("setForeground", boolean.class);
+	        method.invoke(this, foreground);
+	    } catch (Exception e) {
+            Log.e(PD_SERVICE, e.toString());
+	    }
+	}
+
 	private class ForegroundCupcake implements ForegroundManager {
 		protected static final int NOTIFICATION_ID = 1;
 		private boolean hasForeground = false;
@@ -211,7 +224,7 @@ public class PdService extends Service {
 		}
 		
 		protected void versionedStart(Intent intent, int icon, String title, String description) {
-			setForeground(true);
+			invokeSetForeground(true);
 			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 			nm.notify(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
 		}
@@ -227,7 +240,7 @@ public class PdService extends Service {
 		protected void versionedStop() {
 			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 			nm.cancel(NOTIFICATION_ID);
-			setForeground(false);
+			invokeSetForeground(false);
 		}
 	}
 
