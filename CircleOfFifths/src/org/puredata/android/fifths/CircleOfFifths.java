@@ -105,7 +105,7 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 		CircleView circle = (CircleView) findViewById(R.id.circleview);
 		circle.setOwner(this);
 		int top = getPreferences(MODE_PRIVATE).getInt(TOP, 0);
-		circle.setTop(top);
+		circle.setTopSegment(top);
 		options = (RadioGroup) findViewById(R.id.options);
 		findViewById(R.id.domdim).setOnClickListener(this);
 		findViewById(R.id.majmin).setOnClickListener(this);

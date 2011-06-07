@@ -70,7 +70,7 @@ public final class CircleView extends View {
 		this.owner = owner;
 	}
 
-	public void setTop(int top) {
+	public void setTopSegment(int top) {
 		this.top = top;
 		invalidate();
 	}
