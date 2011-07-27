@@ -10,9 +10,12 @@
 package org.puredata.android.scenes;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
+import org.puredata.core.utils.IoUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,11 +28,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.lamerman.FileDialog;
 
@@ -132,9 +135,9 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 			SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
 			String startPath = prefs.getString(FileDialog.START_PATH, "/sdcard");
 			intent.putExtra(FileDialog.START_PATH, startPath);
-			intent.putExtra(FileDialog.SELECT_PATTERN, ".*\\.rj");
+			intent.putExtra(FileDialog.SELECT_PATTERN, ".*\\.(rj|rjz)");
 			intent.putExtra(FileDialog.ACCEPT_FOLDER, true);
-			intent.putExtra(FileDialog.ACCEPT_FILE, false);
+			intent.putExtra(FileDialog.ACCEPT_FILE, true);
 			startActivityForResult(intent, FILE_SELECT_CODE);
 		}
 	}
@@ -145,13 +148,30 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 			String path = data.getStringExtra(FileDialog.RESULT_PATH);
 			File file = new File(path);
 			try {
-				db.addScene(file);
-				updateList();
+				if (file.isDirectory()) {
+					addSceneDirectory(file);
+				} else {
+					addSceneDirectory(unpackRjz(new FileInputStream(file)));
+				}
 				SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
 				prefs.edit().putString(FileDialog.START_PATH, file.getParent()).commit();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				toast(getResources().getString(R.string.open_scene_fail) + " " + path);
 			}
 		}
+	}
+
+	private void addSceneDirectory(File file) throws IOException {
+		db.addScene(file);
+		updateList();
+	}
+
+	private File unpackRjz(FileInputStream in) throws IOException {
+		List<File> files = IoUtils.extractZipResource(in, getDir("scenes", Context.MODE_PRIVATE), true);
+		File file = files.get(0);
+		while (!file.isDirectory() && !file.getName().endsWith(".rj")) {
+			file = file.getParentFile();
+		}
+		return file;
 	}
 }
