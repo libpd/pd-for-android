@@ -12,6 +12,9 @@ package org.puredata.android.scenes;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
@@ -24,7 +27,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -64,6 +69,24 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		super.onCreate(savedInstanceState);
 		initGui();
 		db = new SceneDataBase(this);
+	}
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		Uri uri = intent.getData();
+		if (uri.getScheme().equals(("rjdj")) || uri.getScheme().equals("http")) {
+			try {
+				URL url = new URL("http:" + uri.toString().substring(5));
+				URLConnection connection = url.openConnection();
+				connection.connect();
+				InputStream in = connection.getInputStream();
+				addSceneDirectory(in);
+			} catch (Exception e) {
+				toast("Unable to open URI " + uri);
+				Log.e(getClass().getSimpleName(), e.toString());
+			}
+		}
 	}
 	
 	@Override
@@ -151,12 +174,13 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 				if (file.isDirectory()) {
 					addSceneDirectory(file);
 				} else {
-					addSceneDirectory(unpackRjz(new FileInputStream(file)));
+					addSceneDirectory(new FileInputStream(file));
 				}
 				SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
 				prefs.edit().putString(FileDialog.START_PATH, file.getParent()).commit();
 			} catch (Exception e) {
 				toast(getResources().getString(R.string.open_scene_fail) + " " + path);
+				Log.e(getClass().getSimpleName(), e.toString());
 			}
 		}
 	}
@@ -166,12 +190,12 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		updateList();
 	}
 
-	private File unpackRjz(FileInputStream in) throws IOException {
+	private void addSceneDirectory(InputStream in) throws IOException {
 		List<File> files = IoUtils.extractZipResource(in, getDir("scenes", Context.MODE_PRIVATE), true);
 		File file = files.get(0);
 		while (!file.isDirectory() && !file.getName().endsWith(".rj")) {
 			file = file.getParentFile();
 		}
-		return file;
+		addSceneDirectory(file);
 	}
 }
