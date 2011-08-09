@@ -29,7 +29,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -69,22 +68,25 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		super.onCreate(savedInstanceState);
 		initGui();
 		db = new SceneDataBase(this);
+		try {
+			// Many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
+			addSceneDirectory(getResources().openRawResource(R.raw.atsuke));
+		} catch (Exception e) {
+			// Do nothing.
+		}
 	}
 	
 	@Override
 	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
 		Uri uri = intent.getData();
 		if (uri.getScheme().equals(("rjdj")) || uri.getScheme().equals("http")) {
 			try {
 				URL url = new URL("http:" + uri.toString().substring(5));
 				URLConnection connection = url.openConnection();
 				connection.connect();
-				InputStream in = connection.getInputStream();
-				addSceneDirectory(in);
+				addSceneDirectory(connection.getInputStream());
 			} catch (Exception e) {
 				toast("Unable to open URI " + uri);
-				Log.e(getClass().getSimpleName(), e.toString());
 			}
 		}
 	}
@@ -180,7 +182,6 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 				prefs.edit().putString(FileDialog.START_PATH, file.getParent()).commit();
 			} catch (Exception e) {
 				toast(getResources().getString(R.string.open_scene_fail) + " " + path);
-				Log.e(getClass().getSimpleName(), e.toString());
 			}
 		}
 	}

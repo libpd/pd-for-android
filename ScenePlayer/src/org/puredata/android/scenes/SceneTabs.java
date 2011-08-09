@@ -52,8 +52,6 @@ public class SceneTabs extends TabActivity {
 		try {
 			IoUtils.extractZipResource(res.openRawResource(R.raw.abstractions), libDir, true);
 			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.externals_v7a : R.raw.externals), libDir, true);
-			IoUtils.extractZipResource(getResources().openRawResource(R.raw.atsuke), new File("/sdcard/pd"), true);
-			// many thanks to Frank Barknecht for providing Atsuke as a sample scene for inclusion in this package!
 		} catch (IOException e) {
 			Log.e("Scene Player", e.toString());
 		}
