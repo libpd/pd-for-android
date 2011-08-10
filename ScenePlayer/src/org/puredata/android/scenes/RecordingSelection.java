@@ -57,6 +57,7 @@ public class RecordingSelection extends Activity implements OnItemClickListener,
 	private void initGui() {
 		setContentView(R.layout.recording_selection);
 		recordingView = (ListView) findViewById(R.id.recording_selection);
+		recordingView.setEmptyView(findViewById(R.id.no_recordings));
 		recordingView.setOnItemClickListener(this);
 		recordingView.setOnItemLongClickListener(this);
 	}

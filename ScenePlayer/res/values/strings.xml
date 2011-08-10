@@ -29,5 +29,6 @@
 <string name="delete_scene_message">Delete scene and all associated files?</string>
 <string name="delete_recording_title">Delete recording</string>
 <string name="delete_recording_message">Delete recording?</string>
+<string name="no_recordings">No recordings</string>
 
 </resources>
