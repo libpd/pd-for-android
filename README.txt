@@ -2,8 +2,8 @@ Getting all dependencies:
 
   * After cloning git@gitorious.org:pdlib/pd-for-android.git, cd into the
     pd-for-android directory and say
-      git submodules init
-      git submodules update
+      git submodule init
+      git submodule update
     This step will download the C sources and low-level Java libraries.
 
 Some general hints regarding quirks of the Android SDK and Eclipse:
