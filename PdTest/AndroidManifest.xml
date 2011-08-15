@@ -22,7 +22,7 @@
 		</activity>
 		<service android:name="com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService" />
 	</application>
-	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="7" />
+	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
+    	<uses-permission android:name="android.permission.BLUETOOTH" />
 </manifest> 
