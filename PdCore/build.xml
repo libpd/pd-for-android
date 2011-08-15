@@ -64,4 +64,7 @@
     -->
     <setup />
 
+    <path id="android.libraries.src"><path refid="project.libraries.src" /></path>
+    <path id="android.libraries.jars"><path refid="project.libraries.jars" /></path>
+
 </project>
