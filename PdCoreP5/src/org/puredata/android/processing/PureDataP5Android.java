@@ -1,3 +1,10 @@
+/**
+ * 
+ * For information on usage and redistribution, and for a DISCLAIMER OF ALL
+ * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
+ * 
+ */
+
 package org.puredata.android.processing;
 
 import java.io.File;
@@ -9,6 +16,12 @@ import org.puredata.processing.PureDataP5Base;
 
 import processing.core.PApplet;
 
+
+/**
+ * An implementation of Android-specific functionality for Pd and Processing.
+ * 
+ * @author Peter Brinkmann (peter.brinkmann@gmail.com)
+ */
 public class PureDataP5Android extends PureDataP5Base {
 
 	private final PApplet parent;
