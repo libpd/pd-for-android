@@ -7,7 +7,10 @@
 
 package com.noisepages.nettoyeur.processing.sample;
 
-import org.puredata.android.processing.PureDataPApplet;
+import org.puredata.android.processing.PureDataP5Android;
+
+import processing.core.PApplet;
+
 
 
 /**
@@ -17,13 +20,16 @@ import org.puredata.android.processing.PureDataPApplet;
  * 
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
-public class PdP5Sample extends PureDataPApplet {
+public class PdP5Sample extends PApplet {
 
+	PureDataP5Android pd;
+	
 	public void setup() {
-		init(44100, 0, 2);
+		pd = new PureDataP5Android(this, 44100, 0, 2);
 		int zipId = com.noisepages.nettoyeur.processing.sample.R.raw.patch; // Processing masks R
-		pd().loadPatch(zipId, "test1.pd");
-//		pd().subscribe("foo");  // Uncomment if you want to receive messages sent to the receive symbol "foo" in Pd.
+		pd.unpackAndOpenPatch(zipId, "test1.pd");
+//		pd.subscribe("foo");  // Uncomment if you want to receive messages sent to the receive symbol "foo" in Pd.
+		pd.start();
 	}
 	
 	public void draw() {
@@ -32,8 +38,8 @@ public class PdP5Sample extends PureDataPApplet {
 		stroke(255, 0, 0);
 		ellipseMode(CENTER);
 		ellipse(mouseX, mouseY, 100, 100);
-		pd().sendFloat("pitch", (float)mouseX / (float)width); // Send float message to symbol "pitch" in Pd.
-		pd().sendFloat("volume", (float)mouseY / (float)height);
+		pd.sendFloat("pitch", (float)mouseX / (float)width); // Send float message to symbol "pitch" in Pd.
+		pd.sendFloat("volume", (float)mouseY / (float)height);
 	}
 	
 	/*
@@ -57,4 +63,9 @@ public class PdP5Sample extends PureDataPApplet {
 		// Handle symbol sym sent to symbol source in Pd
 	}
 	*/
+	
+	// boilerplate
+	public int sketchWidth() { return this.screenWidth; }
+	public int sketchHeight() { return this.screenHeight; }
+	public String sketchRenderer() { return PApplet.OPENGL; }
 }

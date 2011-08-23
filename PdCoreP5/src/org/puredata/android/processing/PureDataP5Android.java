@@ -47,7 +47,7 @@ public class PureDataP5Android extends PureDataP5Base {
 		PdAudio.stopAudio();
 	}
 	
-	public int loadPatch(int zipId, String patchName) {
+	public int unpackAndOpenPatch(int zipId, String patchName) {
 		File dir = parent.getFilesDir();
 		try {
 			IoUtils.extractZipResource(parent.getResources().openRawResource(zipId), dir, true);
