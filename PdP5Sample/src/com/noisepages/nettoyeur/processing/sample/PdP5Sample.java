@@ -13,6 +13,8 @@ import org.puredata.android.processing.PureDataPApplet;
 /**
  * A sample Processing applet using libpd, illustrating all major features.
  * 
+ * Based on RJ Marsan's YayProcessingPD (https://github.com/rjmarsan/YayProcessingPD).
+ * 
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
 public class PdP5Sample extends PureDataPApplet {
