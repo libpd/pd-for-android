@@ -25,6 +25,10 @@ public class PdAudio {
 	
 	private static AudioWrapper audioWrapper = null;
 
+	private PdAudio() {
+		// Do nothing; we just don't want instances of this class.
+	}
+	
 	/**
 	 * initialize Pure Data as well as {@link AudioWrapper} instance
 	 * 
