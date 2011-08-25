@@ -26,10 +26,17 @@ public class PureDataP5Android extends PureDataP5Base {
 
 	private final PApplet parent;
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param parent instance of PApplet
+	 * @param sampleRate desired sample rate
+	 * @param nIn desired number of input channels
+	 * @param nOut desired number of output channels
+	 */
 	public PureDataP5Android(PApplet parent, int sampleRate, int nIn, int nOut) {
 		super(parent);
 		this.parent = parent;
-		parent.registerDispose(this);
 		try {
 			PdAudio.initAudio(sampleRate, nIn, nOut, 8, true);
 		} catch (IOException e) {
@@ -47,6 +54,16 @@ public class PureDataP5Android extends PureDataP5Base {
 		PdAudio.stopAudio();
 	}
 	
+	/**
+	 * Unpacks a zip resource and opens a patch contained in it.
+	 * 
+	 * (Note: This method is experimental and may disappear without
+	 * warning if it turns out to be at odds with the Processing way.)
+	 * 
+	 * @param zipId Android id of zip resource, e.g., R.raw.patch
+	 * @param patchName main patch file, e.g., "drone.pd"
+	 * @return handle of patch, suitable for passing to closePatch
+	 */
 	public int unpackAndOpenPatch(int zipId, String patchName) {
 		File dir = parent.getFilesDir();
 		try {
