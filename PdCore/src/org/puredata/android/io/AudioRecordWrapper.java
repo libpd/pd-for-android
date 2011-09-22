@@ -51,11 +51,11 @@ public class AudioRecordWrapper {
 	}
 
 	public synchronized void start() {
-		rec.startRecording();
 		inputThread = new Thread() {
 			@Override
 			public void run() {
 				Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+				rec.startRecording();
 				short buf[] = new short[bufSizeShorts];
 				short auxBuf[] = new short[bufSizeShorts];
 				while (!Thread.interrupted()) {
@@ -73,6 +73,7 @@ public class AudioRecordWrapper {
 					buf = auxBuf;
 					auxBuf = tmp;
 				}
+				rec.stop();
 			};
 		};
 		inputThread.start();
@@ -87,7 +88,6 @@ public class AudioRecordWrapper {
 			// do nothing
 		}
 		inputThread = null;
-		rec.stop();
 	}
 
 	public synchronized void release() {

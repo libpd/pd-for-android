@@ -89,12 +89,12 @@ public abstract class AudioWrapper {
 	 */
 	public synchronized void start(Context context) {
 		avoidClickHack(context);
-		if (rec != null) rec.start();
-		track.play();
 		audioThread = new Thread() {
 			@Override
 			public void run() {
 				Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+				if (rec != null) rec.start();
+				track.play();
 				short inBuf[];
 				try {
 					inBuf = (rec != null) ? rec.take() : new short[inputSizeShorts];
@@ -113,6 +113,8 @@ public abstract class AudioWrapper {
 						}
 					}
 				}
+				if (rec != null) rec.stop();
+				track.stop();
 			}
 		};
 		audioThread.start();
@@ -122,7 +124,6 @@ public abstract class AudioWrapper {
 	 * Stop the audio thread as well as {@link AudioTrack} and {@link AudioRecord} objects
 	 */
 	public synchronized void stop() {
-		if (rec != null) rec.stop();
 		if (audioThread == null) return;
 		audioThread.interrupt();
 		try {
@@ -131,7 +132,6 @@ public abstract class AudioWrapper {
 			// do nothing
 		}
 		audioThread = null;
-		track.stop();
 	}
 
 	/**
