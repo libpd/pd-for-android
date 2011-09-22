@@ -146,10 +146,6 @@ public class PdService extends Service {
 	public synchronized void stopAudio() {
 		PdAudio.stopAudio();
 		fgManager.stopForeground();
-		sampleRate = 0;
-		inputChannels = 0;
-		outputChannels = 0;
-		bufferSizeMillis = 0.0f;
 	}
 
 	/**
@@ -159,9 +155,24 @@ public class PdService extends Service {
 		return PdAudio.isRunning();
 	}
 
+	/**
+	 * Releases all resources
+	 */
+	public synchronized void release() {
+		stopAudio();
+		PdAudio.release();
+		PdBase.release();
+	}
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
+	}
+	
+	@Override
+	public boolean onUnbind(Intent intent) {
+		release();
+		return false;
 	}
 
 	@Override
@@ -181,8 +192,7 @@ public class PdService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		stopAudio();
-		PdBase.release();
+		release();
 	}
 
 	// Hack to support multiple versions of the Android API, based on an idea

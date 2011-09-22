@@ -76,8 +76,7 @@ public class PdAudio {
 	 */
 	public synchronized static void stopAudio() {
 		if (!isRunning()) return;
-		audioWrapper.release();
-		audioWrapper = null;
+		audioWrapper.stop();
 	}
 	
 	/**
@@ -85,5 +84,14 @@ public class PdAudio {
 	 */
 	public synchronized static boolean isRunning() {
 		return audioWrapper != null && audioWrapper.isRunning();
+	}
+	
+	/**
+	 * Release resources held by audio wrapper
+	 */
+	public synchronized static void release() {
+		if (audioWrapper == null) return;
+		audioWrapper.release();
+		audioWrapper = null;
 	}
 }

@@ -346,11 +346,13 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				patch = 0;
 			}
 			dispatcher.release();
-			PdBase.release();
-			try {
-				unbindService(serviceConnection);
-			} catch (IllegalArgumentException e) {
-				// already unbound
+			if (pdService != null) {
+				pdService.release();
+				try {
+					unbindService(serviceConnection);
+				} catch (IllegalArgumentException e) {
+					// already unbound
+				}
 				pdService = null;
 			}
 		}

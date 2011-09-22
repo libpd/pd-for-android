@@ -127,7 +127,7 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 
 	private void cleanup() {
 		// make sure to release all resources
-		PdAudio.stopAudio();
+		PdAudio.release();
 		PdBase.release();
 	}
 
