@@ -20,7 +20,6 @@ import org.puredata.core.utils.IoUtils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -57,35 +56,24 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initGui();
-		initPd();
+		try {
+			initPd();
+		} catch (IOException e) {
+			toast(e.toString());
+			finish();
+		}
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
-			toast("required sample rate not available; exiting");
-			finish();
-			return;
-		}
-		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
-		if (nOut == 0) {
-			toast("audio output not available; exiting");
-			finish();
-			return;
-		}
-		try {
-			PdAudio.initAudio(SAMPLE_RATE, 0, nOut, 1, true);
-			PdAudio.startAudio(this);
-		} catch (IOException e) {
-			Log.e(TAG, e.toString());
-		}
+	protected void onStart() {
+		super.onStart();
+		PdAudio.startAudio(this);
 	}
 	
 	@Override
-	protected void onPause() {
+	protected void onStop() {
 		PdAudio.stopAudio();
-		super.onPause();
+		super.onStop();
 	}
 	
 	@Override
@@ -94,12 +82,6 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 		super.onDestroy();
 	}
 	
-	@Override
-	public void finish() {
-		cleanup();
-		super.finish();
-	}
-
 	private void initGui() {
 		setContentView(R.layout.main);
 		CircleView circle = (CircleView) findViewById(R.id.circleview);
@@ -113,16 +95,20 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 		findViewById(R.id.susp).setOnClickListener(this);
 	}
 
-	private void initPd() {
+	private void initPd() throws IOException {
+		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
+			throw new IOException("required sample rate not available");
+		}
+		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
+		if (nOut == 0) {
+			throw new IOException("audio output not available");
+		}
+		PdAudio.initAudio(SAMPLE_RATE, 0, nOut, 1, true);
+		
 		File dir = getFilesDir();
 		File patchFile = new File(dir, "chords.pd");
-		try {
-			IoUtils.extractZipResource(getResources().openRawResource(R.raw.patch), dir, true);
-			PdBase.openPatch(patchFile.getAbsolutePath());
-		} catch (IOException e) {
-			Log.e(TAG, e.toString() + "; exiting now");
-			finish();
-		}
+		IoUtils.extractZipResource(getResources().openRawResource(R.raw.patch), dir, true);
+		PdBase.openPatch(patchFile.getAbsolutePath());
 	}
 
 	private void cleanup() {

@@ -196,13 +196,6 @@ public class VoiceORama extends Activity implements OnTouchListener, SharedPrefe
 			// already unbound
 			pdService = null;
 		}
-		PdBase.release();
-	}
-
-	@Override
-	public void finish() {
-		cleanup();
-		super.finish();
 	}
 
 	@Override

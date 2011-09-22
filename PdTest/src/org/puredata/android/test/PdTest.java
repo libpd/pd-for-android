@@ -246,7 +246,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	}
 
 	private void cleanup() {
-		PdBase.release();
 		try {
 			unbindService(pdConnection);
 		} catch (IllegalArgumentException e) {
@@ -259,12 +258,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			// already unbound
 			midiService = null;
 		}
-	}
-
-	@Override
-	public void finish() {
-		cleanup();
-		super.finish();
 	}
 
 	@Override

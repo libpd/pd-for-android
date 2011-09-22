@@ -330,12 +330,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		if (progress!= null) progress.dismiss();
 	}
 
-	@Override
-	public void finish() {
-		cleanup();
-		super.finish();
-	}
-
 	private void cleanup() {
 		synchronized (lock) {
 			// make sure to release all resources
@@ -347,7 +341,6 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			}
 			dispatcher.release();
 			if (pdService != null) {
-				pdService.release();
 				try {
 					unbindService(serviceConnection);
 				} catch (IllegalArgumentException e) {

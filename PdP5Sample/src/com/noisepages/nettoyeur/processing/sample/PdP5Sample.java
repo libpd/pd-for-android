@@ -42,10 +42,9 @@ public class PdP5Sample extends PApplet {
 		pd.sendFloat("volume", (float)mouseY / (float)height);
 	}
 	
-	@Override
 	public void stop() {
-		super.stop();
 		pd.release();
+		super.stop();
 	}
 	
 	/*
