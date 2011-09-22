@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.puredata.android.io.PdAudio;
+import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.processing.PureDataP5Base;
 
@@ -52,6 +53,18 @@ public class PureDataP5Android extends PureDataP5Base {
 	@Override
 	public void stop() {
 		PdAudio.stopAudio();
+	}
+	
+	public void release() {
+		stop();
+		PdAudio.release();
+		PdBase.release();
+	}
+	
+	@Override
+	public void dispose() {
+		release();
+		super.dispose();
 	}
 	
 	/**

@@ -42,6 +42,12 @@ public class PdP5Sample extends PApplet {
 		pd.sendFloat("volume", (float)mouseY / (float)height);
 	}
 	
+	@Override
+	public void stop() {
+		super.stop();
+		pd.release();
+	}
+	
 	/*
 	// Implement methods like the following if you want to receive messages from Pd.
 	// You'll also need to subscribe to receive symbols you're interested if you want
