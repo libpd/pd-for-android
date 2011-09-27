@@ -15,18 +15,12 @@
 #X obj 11 151 r test;
 #X obj 87 152 loadbang;
 #X obj 87 174 metro 1000;
-#X obj 87 195 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+#X obj 87 195 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 87 239 realtime;
 #X obj 87 262 print PD_RUNS;
 #X obj 87 216 sel 0;
 #X obj 132 217 sel 1;
-#X obj 189 148 notein;
-#X obj 189 190 print MIDI;
-#X obj 193 260 noteout;
-#X msg 185 209 60;
-#X obj 190 235 makenote 30 500;
-#X obj 189 169 pack f f f;
 #X connect 1 0 0 1;
 #X connect 2 0 1 0;
 #X connect 3 0 0 0;
@@ -44,14 +38,6 @@
 #X connect 15 0 16 0;
 #X connect 16 0 19 0;
 #X connect 16 0 20 0;
-#X connect 16 0 24 0;
 #X connect 17 0 18 0;
 #X connect 19 0 17 0;
 #X connect 20 0 17 1;
-#X connect 21 0 26 0;
-#X connect 21 1 26 1;
-#X connect 21 2 26 2;
-#X connect 24 0 25 0;
-#X connect 25 0 23 0;
-#X connect 25 1 23 1;
-#X connect 26 0 22 0;

@@ -13,14 +13,7 @@
 		<service android:name="org.puredata.android.service.PdService" />
 		<activity android:label="Pure Data Preferences"
 			android:name="org.puredata.android.service.PdPreferences"
-			android:screenOrientation="portrait">
-		</activity>
-        <activity android:name="com.noisepages.nettoyeur.bluetooth.DeviceListActivity"
-                  android:label="@string/select_device"
-                  android:theme="@android:style/Theme.Dialog"
-                  android:screenOrientation="portrait" >
-		</activity>
-		<service android:name="com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService" />
+			android:screenOrientation="portrait" />
 	</application>
 	<uses-sdk android:minSdkVersion="3" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />

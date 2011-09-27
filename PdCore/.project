@@ -2,9 +2,7 @@
 <projectDescription>
 	<name>PdCore</name>
 	<comment></comment>
-	<projects>
-		<project>BluetoothMidi</project>
-	</projects>
+	<projects></projects>
 	<buildSpec>
 		<buildCommand>
 			<name>com.android.ide.eclipse.adt.ResourceManagerBuilder</name>
@@ -31,11 +29,4 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>BluetoothMidi_src</name>
-			<type>2</type>
-			<locationURI>_android_BluetoothMidi_1f8182cf/src</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

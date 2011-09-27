@@ -21,14 +21,12 @@ import java.util.Scanner;
 
 import org.puredata.android.service.PdPreferences;
 import org.puredata.android.service.PdService;
-import org.puredata.android.utils.BluetoothMidiBridge;
 import org.puredata.core.PdBase;
 import org.puredata.core.PdReceiver;
 import org.puredata.core.utils.IoUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -48,27 +46,19 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
-
-import com.noisepages.nettoyeur.bluetooth.BluetoothSppConnection;
-import com.noisepages.nettoyeur.bluetooth.BluetoothSppObserver;
-import com.noisepages.nettoyeur.bluetooth.DeviceListActivity;
-import com.noisepages.nettoyeur.bluetooth.midi.BluetoothMidiService;
+import android.widget.Toast;
 
 public class PdTest extends Activity implements OnClickListener, OnEditorActionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String TAG = "Pd Test";
-	private static final int CONNECT = 1;
 
 	private CheckBox left, right, mic;
 	private EditText msg;
 	private Button prefs;
-	private Button midi;
 	private TextView logs;
 
 	private PdService pdService = null;
-	private BluetoothMidiService midiService = null;
 
 	private Toast toast = null;
 	
@@ -131,45 +121,11 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		}
 	};
 
-	private final BluetoothSppObserver btObserver = new BluetoothSppObserver() {	
-		@Override
-		public void onDeviceConnected(BluetoothDevice device) {
-			post("bt device connected:" + device);
-		}
-
-		@Override
-		public void onConnectionLost() {
-			post("connection to bt device lost");
-		}
-
-		@Override
-		public void onConnectionFailed() {
-			post("connection to bt device failed");
-		}
-	};
-
 	private final ServiceConnection pdConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			pdService = ((PdService.PdBinder)service).getService();
 			initPd();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			// this method will never be called
-		}
-	};
-
-	private final ServiceConnection midiConnection = new ServiceConnection() {
-		@Override
-		public void onServiceConnected(ComponentName name, IBinder service) {
-			midiService = ((BluetoothMidiService.BluetoothMidiBinder)service).getService();
-			try {
-				BluetoothMidiBridge.establishMidiBridge(midiService, btObserver);
-			} catch (IOException e) {
-				midiService = null;
-			}
 		}
 
 		@Override
@@ -185,7 +141,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		initGui();
 		bindService(new Intent(this, PdService.class), pdConnection, BIND_AUTO_CREATE);
-		bindService(new Intent(this, BluetoothMidiService.class), midiConnection, BIND_AUTO_CREATE);		
 	};
 
 	@Override
@@ -211,8 +166,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		msg.setOnEditorActionListener(this);
 		prefs = (Button) findViewById(R.id.pref_button);
 		prefs.setOnClickListener(this);
-		midi = (Button) findViewById(R.id.midi_button);
-		midi.setOnClickListener(this);
 		logs = (TextView) findViewById(R.id.log_box);
 		logs.setMovementMethod(new ScrollingMovementMethod());
 	}
@@ -251,12 +204,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		} catch (IllegalArgumentException e) {
 			// already unbound
 			pdService = null;
-		}
-		try {
-			unbindService(midiConnection);
-		} catch (IllegalArgumentException e) {
-			// already unbound
-			midiService = null;
 		}
 	}
 
@@ -299,14 +246,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		case R.id.pref_button:
 			startActivity(new Intent(this, PdPreferences.class));
 			break;
-		case R.id.midi_button:
-			if (midiService != null) {
-				if (midiService.getState() == BluetoothSppConnection.State.NONE) {
-					startActivityForResult(new Intent(this, DeviceListActivity.class), CONNECT);
-				} else {
-					midiService.stop();
-				}
-			}
 		default:
 			break;
 		}
@@ -362,21 +301,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 				PdBase.sendList(dest, list.toArray());
 				break;
 			}
-		}
-	}
-
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case CONNECT:
-			if (resultCode == Activity.RESULT_OK) {
-				String address = data.getExtras().getString(DeviceListActivity.DEVICE_ADDRESS);
-				try {
-					midiService.connect(address);
-				} catch (IOException e) {
-					toast(e.getMessage());
-				}                
-			}
-			break;
 		}
 	}
 }

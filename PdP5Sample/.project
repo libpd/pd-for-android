@@ -32,11 +32,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>BluetoothMidi_src</name>
-			<type>2</type>
-			<locationURI>_android_BluetoothMidi_1f8182cf/src</locationURI>
-		</link>
-		<link>
 			<name>PdCoreP5_src</name>
 			<type>2</type>
 			<locationURI>_android_PdCoreP5_98f364f8/src</locationURI>
