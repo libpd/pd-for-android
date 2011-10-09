@@ -193,6 +193,10 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 
 	private void addSceneDirectory(InputStream in) throws IOException {
 		List<File> files = IoUtils.extractZipResource(in, getDir("scenes", Context.MODE_PRIVATE), true);
+		if (files.isEmpty()) {
+			toast("Received no files from stream.");
+			return;
+		}
 		File file = files.get(0);
 		while (!file.isDirectory() && !file.getName().endsWith(".rj")) {
 			file = file.getParentFile();
