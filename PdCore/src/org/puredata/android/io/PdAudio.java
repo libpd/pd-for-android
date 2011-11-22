@@ -40,20 +40,20 @@ public class PdAudio {
 	 * @param restart         flag indicating whether the audio thread should be stopped if it is currently running
 	 * @throws IOException    if the audio parameters are not supported by the device
 	 */
-	public synchronized static void initAudio(int sampleRate, int inChannels, int outChannels, int ticksPerBuffer, boolean restart)
+	public synchronized static void initAudio(int sampleRate, int inChannels, int outChannels, final int ticksPerBuffer, boolean restart)
 			throws IOException {
 		if (isRunning() && !restart) return;
 		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
 			throw new IOException("bad audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
 		}
 		stopAudio();
-		PdBase.openAudio(inChannels, outChannels, sampleRate, ticksPerBuffer);
+		PdBase.openAudio(inChannels, outChannels, sampleRate);
 		int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
 			@Override
 			protected int process(short[] inBuffer, short[] outBuffer) {
 				Arrays.fill(outBuffer, (short) 0);
-				return PdBase.process(inBuffer, outBuffer);
+				return PdBase.process(ticksPerBuffer, inBuffer, outBuffer);
 			}
 		};
 	}

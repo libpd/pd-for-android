@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="lib" path="/PdCoreP5/libs/processing-core.jar"/>
 	<classpathentry kind="src" path="PdCoreP5_src"/>
 	<classpathentry kind="src" path="PdCore_src"/>
 	<classpathentry kind="src" path="PdCore_jni_libpd_java"/>
-	<classpathentry kind="lib" path="/PdCoreP5/libs/processing-core.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
