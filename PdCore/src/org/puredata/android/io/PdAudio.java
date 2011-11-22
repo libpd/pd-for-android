@@ -87,6 +87,16 @@ public class PdAudio {
 	}
 	
 	/**
+	 * @return the audio session ID, for Gingerbread and later
+	 */
+	public synchronized static int getAudioSessionId() {
+		if (audioWrapper == null) {
+			throw new IllegalStateException("audio not initialized");
+		}
+		return audioWrapper.getAudioSessionId();
+	}
+	
+	/**
 	 * Release resources held by audio wrapper
 	 */
 	public synchronized static void release() {

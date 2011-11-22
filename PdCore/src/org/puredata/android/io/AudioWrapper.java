@@ -10,6 +10,7 @@ package org.puredata.android.io;
 import java.io.IOException;
 
 import org.puredata.android.service.R;
+import org.puredata.android.utils.Properties;
 
 import android.content.Context;
 import android.media.AudioFormat;
@@ -149,6 +150,24 @@ public abstract class AudioWrapper {
 	 */
 	public synchronized boolean isRunning() {
 		return audioThread != null && audioThread.getState() != Thread.State.TERMINATED;
+	}
+	
+	/**
+	 * @return the audio session ID, for Gingerbread and later
+	 */
+	public synchronized int getAudioSessionId() {
+		int version = Properties.version;
+		if (version >= 9) {
+			return AudioSessionHandler.getAudioSessionId(track);  // Lazy class loading trick.
+		} else {
+			throw new UnsupportedOperationException("audio sessions not supported in Android " + version);
+		}
+	}
+	
+	private static class AudioSessionHandler {
+		private static int getAudioSessionId(AudioTrack track) {
+			return track.getAudioSessionId();
+		}
 	}
 
 	// weird little hack; eliminates the nasty click when AudioTrack (dis)engages by playing

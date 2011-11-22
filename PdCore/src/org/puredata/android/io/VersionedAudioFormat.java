@@ -57,7 +57,7 @@ public final class VersionedAudioFormat {
 	private static class FormatCupcake {
 		
 		static {
-			Log.i("Pd Version", "loading class for Donut");
+			Log.i("Pd Version", "loading class for Cupcake");
 		}
 		
 		static int getInFormat(int inChannels) {
