@@ -195,6 +195,13 @@ public class PdService extends Service {
 		release();
 	}
 
+	/**
+	 * @return the current audio session ID, if available
+	 */
+	public int getAudioSessionId() {
+		return PdAudio.getAudioSessionId();
+	}
+	
 	// Hack to support multiple versions of the Android API, based on an idea
 	// from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 	private interface ForegroundManager {
