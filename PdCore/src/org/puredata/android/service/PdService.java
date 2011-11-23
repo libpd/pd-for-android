@@ -196,7 +196,7 @@ public class PdService extends Service {
 	}
 
 	/**
-	 * @return the current audio session ID, if available
+	 * @return the current audio session ID, for Gingerbread and later; will throw an exception on older versions
 	 */
 	public int getAudioSessionId() {
 		return PdAudio.getAudioSessionId();

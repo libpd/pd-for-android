@@ -87,7 +87,7 @@ public class PdAudio {
 	}
 	
 	/**
-	 * @return the audio session ID, for Gingerbread and later
+	 * @return the audio session ID, for Gingerbread and later; will throw an exception on older versions
 	 */
 	public synchronized static int getAudioSessionId() {
 		if (audioWrapper == null) {
