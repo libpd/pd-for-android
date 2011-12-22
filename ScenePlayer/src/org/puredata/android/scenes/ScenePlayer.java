@@ -45,6 +45,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.ImageButton;
@@ -293,6 +294,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void initGui() {
+		int flags = WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+		getWindow().setFlags(flags, flags);
 		setContentView(R.layout.scene_player);
 		TextView tv = (TextView) findViewById(R.id.sceneplayer_title);
 		tv.setText(title);
