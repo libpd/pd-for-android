@@ -435,7 +435,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					// do nothing
 				}
 			}
-			pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.notification_icon,
+			pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.sceneplayer_notify,
 					title + " by " + artist, "Return to scene.");
 			PdBase.sendMessage(TRANSPORT, "play", 1);
 		}
