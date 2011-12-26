@@ -18,9 +18,9 @@ import java.util.Map;
 import org.puredata.android.scenes.SceneDataBase.SceneColumn;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
+import org.puredata.core.PdListener;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.core.utils.PdDispatcher;
-import org.puredata.core.utils.PdListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -45,9 +45,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -118,7 +118,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		private final Map<String, Overlay> overlays = new HashMap<String, Overlay>();
 
 		@Override
-		public void receiveList(Object... args) {
+		public void receiveList(String source, Object... args) {
 			String key = (String) args[0];
 			String cmd = (String) args[1];
 			if (overlays.containsKey(key)) {
