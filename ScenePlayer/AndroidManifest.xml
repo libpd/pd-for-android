@@ -27,7 +27,8 @@
 		<activity android:name="com.lamerman.FileDialog"
 			android:label="File Dialog" android:screenOrientation="portrait" />
 		<activity android:name=".ScenePlayer" android:launchMode="singleTask"
-			android:label="@string/app_name" android:screenOrientation="portrait" />
+			android:label="@string/app_name" android:screenOrientation="portrait"
+			android:theme="@style/DisableSoundEffects"/>
 		<service android:name="org.puredata.android.service.PdService" />
 	</application>
 	<uses-sdk android:minSdkVersion="8" android:targetSdkVersion="10"/>
