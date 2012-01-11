@@ -79,13 +79,18 @@ public class FileDialog extends ListActivity {
 	}
 
 	private void getDirImpl(String dirPath) {
+		File f = new File(dirPath);
+		File[] files = f.listFiles();
+		if (files == null) {
+			dirPath = "/";
+			f = new File(dirPath);
+			files = f.listFiles();
+		}
 		myPath.setText(getText(R.string.location) + ": " + dirPath);
 		currentPath = dirPath;
 		item = new ArrayList<String>();
 		path = new ArrayList<String>();
 		mList = new ArrayList<HashMap<String, Object>>();
-		File f = new File(dirPath);
-		File[] files = f.listFiles();
 		if (!dirPath.equals(root)) {
 			item.add(root);
 			addItem(root, R.drawable.folder);
