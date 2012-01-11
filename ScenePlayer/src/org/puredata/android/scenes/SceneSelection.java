@@ -29,6 +29,9 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -184,6 +187,34 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 				toast(getResources().getString(R.string.open_scene_fail) + " " + path);
 			}
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.selection_menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		AlertDialog.Builder ad = new AlertDialog.Builder(this);
+		switch (item.getItemId()) {
+		case R.id.selection_about_item:
+			ad.setTitle(R.string.selection_about_title);
+			ad.setMessage(R.string.selection_about_msg);
+			break;
+		case R.id.selection_help_item:
+			ad.setTitle(R.string.selection_help_title);
+			ad.setMessage(R.string.selection_help_msg);
+			break;
+		default:
+			break;
+		}
+		ad.setNeutralButton(android.R.string.ok, null);
+		ad.setCancelable(true);
+		ad.show();
+		return true;
 	}
 
 	private void addSceneDirectory(File file) throws IOException {

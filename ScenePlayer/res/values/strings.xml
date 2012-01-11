@@ -6,6 +6,15 @@
   <string name="startrec">Record</string>
   <string name="stoprec">Recording</string>
   <string name="update_label">Add scene</string>
+  <string name="selection_about_title">About</string>
+  <string name="selection_about_msg">ScenePlayer\nCopyright 2010 Peter Brinkmann\n(peter.brinkmann@gmail.com)\nhttp://nettoyeur.noisepages.com/</string>
+  <string name="selection_help_title">Help</string>
+  <string name="selection_help_msg">ScenePlayer is a partial Android port of the awesome RjDj app (http://rjdj.me/).
+ If you want to install more scenes, search the web for RjDj scenes (Martin Brinkmann, Chris McCormick, and Berenger Recoules are among the artists who
+ have made some of their scenes available for free) and copy them to your SD card.  Then you can add them to your list of scenes.
+ 
+ WARNING: Apps cannot access the SD card while it is mounted as external storage on your computer.  Make sure to disconnect your Android device from your
+ computer before adding scenes.</string>
 
   <string name="location">Location</string>
   <string name="cant_read_folder">Unable to read folder</string>

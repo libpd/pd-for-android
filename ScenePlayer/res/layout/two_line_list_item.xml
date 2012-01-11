@@ -10,7 +10,7 @@
       android:padding="2dip"
       android:layout_margin="5dip"
       android:adjustViewBounds="false"
-      android:scaleType="center" />
+      android:scaleType="fitCenter" />
   <LinearLayout
       android:orientation="vertical"
       android:layout_width="fill_parent"
