@@ -49,6 +49,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	private static final int FILE_SELECT_CODE = 1;
 	private ListView sceneView;
 	private Button updateButton;
+	private Button downloadButton;
 	private SceneDataBase db;
 	private Cursor cursor = null;
 	private Toast toast = null;
@@ -112,10 +113,14 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		sceneView = (ListView) findViewById(R.id.scene_selection);
 		updateButton = new Button(this);
 		updateButton.setText(getResources().getString(R.string.update_label));
+        downloadButton = new Button(this);
+        downloadButton.setText(getResources().getString(R.string.download_label));
 		sceneView.addFooterView(updateButton);
+		sceneView.addFooterView(downloadButton);
 		sceneView.setOnItemClickListener(this);
 		sceneView.setOnItemLongClickListener(this);
 		updateButton.setOnClickListener(this);
+        downloadButton.setOnClickListener(this);
 	}
 
 	private void updateList() {
@@ -167,6 +172,10 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 			intent.putExtra(FileDialog.ACCEPT_FOLDER, true);
 			intent.putExtra(FileDialog.ACCEPT_FILE, true);
 			startActivityForResult(intent, FILE_SELECT_CODE);
+		} else if (v.equals(downloadButton)) {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(getResources().getString(R.string.download_url)));
+			startActivity(intent);
 		}
 	}
 	

@@ -20,7 +20,7 @@
 	</LinearLayout>
 	<org.puredata.android.scenes.SceneView android:layout_below="@+id/title_bar"
 		android:id="@+id/sceneplayer_pic" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:background="#000" />
+		android:layout_height="wrap_content" android:background="#000" />
 	<LinearLayout android:layout_width="fill_parent" android:gravity="center"
 		android:layout_height="wrap_content" android:orientation="horizontal"
 		android:layout_alignParentBottom="true" android:id="@+id/transport_bar"

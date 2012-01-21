@@ -5,7 +5,9 @@
   <string name="paused">Play</string>
   <string name="startrec">Record</string>
   <string name="stoprec">Recording</string>
-  <string name="update_label">Add scene</string>
+  <string name="update_label">Install scene from SD card</string>
+  <string name="download_label">Download scene from the web</string>
+  <string name="download_url">http://shop.oreilly.com/product/0636920022503.do</string>
   <string name="selection_about_title">About</string>
   <string name="selection_about_msg">ScenePlayer\nCopyright 2010 Peter Brinkmann\n(peter.brinkmann@gmail.com)\nhttp://nettoyeur.noisepages.com/</string>
   <string name="selection_help_title">Help</string>
