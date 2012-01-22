@@ -116,7 +116,7 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
         downloadButton = new Button(this);
         downloadButton.setText(getResources().getString(R.string.download_label));
 		sceneView.addFooterView(updateButton);
-		sceneView.addFooterView(downloadButton);
+//		sceneView.addFooterView(downloadButton);
 		sceneView.setOnItemClickListener(this);
 		sceneView.setOnItemLongClickListener(this);
 		updateButton.setOnClickListener(this);
