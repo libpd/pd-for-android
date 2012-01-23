@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.puredata.android.scenes" android:versionCode="2"
-	android:versionName="0.2">
+	package="org.puredata.android.scenes" android:versionCode="3"
+	android:versionName="0.3">
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
 	<application android:icon="@drawable/sceneplayer" android:label="@string/app_name"
 		android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:debuggable="false">
@@ -22,7 +22,7 @@
 			android:label="@string/app_name" android:screenOrientation="portrait" />
 		<activity android:name=".RecordingSelection"
 			android:label="@string/app_name" android:screenOrientation="portrait" />
-		<activity android:name=".RecordingPlayer"
+		<activity android:name=".RecordingPlayer" android:theme="@style/FullScreen.DisableSoundEffects"
 			android:label="@string/app_name" android:screenOrientation="portrait" />
 		<activity android:name="com.lamerman.FileDialog"
 			android:label="File Dialog" android:screenOrientation="portrait" />
