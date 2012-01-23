@@ -42,7 +42,8 @@
 		android:layout_below="@id/recording_play_header" android:scaleType="fitCenter"/>
 	<TableLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
         android:layout_below="@id/recording_play_header" android:layout_above="@id/recording_play_seekbar"
-        android:background="@drawable/popup_custom">
+        android:background="@drawable/popup_custom" android:layout_marginTop="30dip" android:layout_marginBottom="24dip"
+        android:layout_marginLeft="6dip" android:layout_marginRight="6dip">
 		<TableRow>
 			<TextView android:layout_width="wrap_content"
 				android:layout_height="wrap_content" android:textColor="#FFF"
