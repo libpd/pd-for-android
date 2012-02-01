@@ -418,7 +418,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private void startAudio() {
 		synchronized (lock) {
 			if (pdService == null) return;
-			if (!initAudio(2, 2) && !initAudio(1, 2)) {
+			if (!initAudio(1, 2)) {  // only trying one input channel to avoid failures on Samsung Galaxy Tab
 				if (!initAudio(0, 2)) {
 					toast("Unable to initialize audio interface");
 					finish();
