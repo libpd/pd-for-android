@@ -20,16 +20,18 @@ public class TextOverlay extends Overlay {
 	private final Paint paint;
 	
 	public TextOverlay(String text) {
-		setText(text);
+		this.text = text;
 		paint = new Paint();
 	}
 	
 	public void setText(String text) {
 		this.text = text;
+		invalidate();
 	}
 	
 	public void setSize(float size) {
 		paint.setTextSize(size);
+		invalidate();
 	}
 	
 	@Override
