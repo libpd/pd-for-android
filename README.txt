@@ -1,6 +1,6 @@
 Getting all dependencies:
 
-  * After cloning git@gitorious.org:pdlib/pd-for-android.git, cd into the
+  * After cloning git@github.com:libpd/pd-for-android.git, cd into the
     pd-for-android directory and say
       git submodule init
       git submodule update
