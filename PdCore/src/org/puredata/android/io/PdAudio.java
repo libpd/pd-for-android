@@ -59,7 +59,6 @@ public class PdAudio {
 		}
 		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate);
-		PdBase.computeAudio(true);
 		if (!PdBase.implementsAudio()) {
 			int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 			audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
@@ -80,6 +79,7 @@ public class PdAudio {
 	 * @param context  current application context
 	 */
 	public synchronized static void startAudio(Context context) {
+		PdBase.computeAudio(true);
 		if (PdBase.implementsAudio()) {
 			PdBase.startAudio();
 			pollRunner.run();
@@ -87,7 +87,6 @@ public class PdAudio {
 			if (audioWrapper == null) {
 				throw new IllegalStateException("audio not initialized");
 			}
-			PdBase.computeAudio(true);
 			audioWrapper.start(context);
 		}
 	}
