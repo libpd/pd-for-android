@@ -59,6 +59,7 @@ public class PdAudio {
 		}
 		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate);
+		PdBase.computeAudio(true);
 		if (!PdBase.implementsAudio()) {
 			int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 			audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
