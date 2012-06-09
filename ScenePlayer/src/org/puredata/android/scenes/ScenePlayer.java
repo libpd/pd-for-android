@@ -11,7 +11,6 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,15 +119,17 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 		@Override
 		public void receiveList(String source, Object... args) {
-			Log.i("ScenePlayer", Arrays.toString(args));
+			if (args.length < 2 || !(args[0] instanceof String) || !(args[1] instanceof String)) return;
 			String key = (String) args[0];
 			String cmd = (String) args[1];
 			if (overlays.containsKey(key)) {
 				Overlay overlay = overlays.get(key);
 				if (cmd.equals("visible")) {
+					if (args.length < 3 || !(args[2] instanceof Float))	return;
 					boolean flag = ((Float) args[2]).floatValue() > 0.5f;
 					overlay.setVisible(flag);
 				} else if (cmd.equals("move")) {
+					if (args.length < 4 || !(args[2] instanceof Float) || !(args[3] instanceof Float)) return;
 					float x = ((Float) args[2]).floatValue();
 					float y = ((Float) args[3]).floatValue();
 					overlay.setPosition(x, y);
@@ -136,17 +137,21 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					if (overlay instanceof TextOverlay) {
 						TextOverlay textOverlay = (TextOverlay) overlay;
 						if (cmd.equals("text")) {
+							if (args.length < 3 || !(args[2] instanceof String)) return;
 							textOverlay.setText((String) args[2]);
 						} else if (cmd.equals("size")) {
+							if (args.length < 3 || !(args[2] instanceof Float)) return;
 							textOverlay.setSize(((Float) args[2]).floatValue());
 						}
 					} else {
+						if (args.length < 3 || !(args[2] instanceof Float)) return;
 						ImageOverlay imgOverlay = (ImageOverlay) overlay;
 						float val = ((Float) args[2]).floatValue();
 						if (cmd.equals("ref")) {
 							boolean flag = val > 0.5f;
 							imgOverlay.setCentered(flag);
 						} else if (cmd.equals("scale")) {
+							if (args.length < 4 || !(args[3] instanceof Float)) return;
 							float sy = ((Float) args[3]).floatValue();
 							imgOverlay.setScale(val, sy);
 						} else if (cmd.equals("rotate")) {
@@ -157,6 +162,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					}
 				}
 			} else {
+				if (args.length < 3 || !(args[2] instanceof String)) return;
 				String arg = (String) args[2];
 				Overlay overlay;
 				if (cmd.equals("load")) {
