@@ -11,6 +11,7 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +120,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 		@Override
 		public void receiveList(String source, Object... args) {
+			Log.i("ScenePlayer", Arrays.toString(args));
 			String key = (String) args[0];
 			String cmd = (String) args[1];
 			if (overlays.containsKey(key)) {

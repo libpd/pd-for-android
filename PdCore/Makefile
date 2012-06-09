@@ -1,5 +1,10 @@
 .PHONY: all
 
+# temporary hack...
+opensl: all
+	mv libs/armeabi/libpdnativeopensl.so libs/armeabi/libpdnative.so
+	mv libs/armeabi-v7a/libpdnativeopensl.so libs/armeabi-v7a/libpdnative.so
+
 all:
 	ndk-build
 	mv libs/armeabi-v7a/libchoice.so res/raw/choice.pd_linux

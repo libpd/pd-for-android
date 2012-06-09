@@ -22,69 +22,91 @@ import android.util.Log;
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
 public class PdUiDispatcher extends PdDispatcher {
-	
+
 	private final static String TAG = PdUiDispatcher.class.getSimpleName();
 	private final Handler handler;
-	
+	private final Thread target;
+
 	/**
 	 * Constructor; invoke from the main UI thread
 	 */
 	public PdUiDispatcher() {
 		handler = new Handler();
+		target = Thread.currentThread();
 	}
 
 	@Override
 	public void print(String s) {
 		Log.i(TAG, "print: " + s);
 	}
-	
+
 	@Override
 	public synchronized void receiveBang(final String source) {
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				PdUiDispatcher.super.receiveBang(source);
-			}
-		});
+		if (Thread.currentThread().equals(target)) {
+			PdUiDispatcher.super.receiveBang(source);
+		} else {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					PdUiDispatcher.super.receiveBang(source);
+				}
+			});
+		}
 	}
 
 	@Override
 	public synchronized void receiveFloat(final String source, final float x) {
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				PdUiDispatcher.super.receiveFloat(source, x);
-			}
-		});
+		if (Thread.currentThread().equals(target)) {
+			PdUiDispatcher.super.receiveFloat(source, x);
+		} else {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					PdUiDispatcher.super.receiveFloat(source, x);
+				}
+			});
+		}
 	}
 
 	@Override
 	public synchronized void receiveSymbol(final String source, final String symbol) {
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				PdUiDispatcher.super.receiveSymbol(source, symbol);
-			}
-		});
+		if (Thread.currentThread().equals(target)) {
+			PdUiDispatcher.super.receiveSymbol(source, symbol);
+		} else {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					PdUiDispatcher.super.receiveSymbol(source, symbol);
+				}
+			});
+		}
 	}
-	
+
 	@Override
 	public synchronized void receiveList(final String source, final Object... args) {
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				PdUiDispatcher.super.receiveList(source, args);
-			}
-		});
+		if (Thread.currentThread().equals(target)) {
+			PdUiDispatcher.super.receiveList(source, args);
+		} else {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					PdUiDispatcher.super.receiveList(source, args);
+				}
+			});
+		}
 	}
-	
+
 	@Override
 	public synchronized void receiveMessage(final String source, final String symbol, final Object... args) {
-		handler.post(new Runnable() {
-			@Override
-			public void run() {
-				PdUiDispatcher.super.receiveMessage(source, symbol, args);
-			}
-		});
+		if (Thread.currentThread().equals(target)) {
+			PdUiDispatcher.super.receiveMessage(source, symbol, args);
+		} else {
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					PdUiDispatcher.super.receiveMessage(source, symbol, args);
+				}
+			});
+		}
 	}
 }

@@ -10,9 +10,12 @@ package org.puredata.android.io;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.apache.http.MethodNotSupportedException;
 import org.puredata.core.PdBase;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 /**
  * 
@@ -22,15 +25,23 @@ import android.content.Context;
  *
  */
 public class PdAudio {
-	
+
 	private static AudioWrapper audioWrapper = null;
+	private static final Handler handler = new Handler(Looper.getMainLooper());
+	private static final Runnable pollRunner = new Runnable() {
+		@Override
+		public void run() {
+			PdBase.pollMessageQueue();
+			handler.postDelayed(this, 20);
+		}
+	};
 
 	private PdAudio() {
 		// Do nothing; we just don't want instances of this class.
 	}
-	
+
 	/**
-	 * initialize Pure Data as well as {@link AudioWrapper} instance
+	 * Initializes Pure Data as well as audio components.
 	 * 
 	 * @param sampleRate
 	 * @param inChannels      number of input channels
@@ -48,60 +59,87 @@ public class PdAudio {
 		}
 		stopAudio();
 		PdBase.openAudio(inChannels, outChannels, sampleRate);
-		int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
-		audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
-			@Override
-			protected int process(short[] inBuffer, short[] outBuffer) {
-				Arrays.fill(outBuffer, (short) 0);
-				return PdBase.process(ticksPerBuffer, inBuffer, outBuffer);
-			}
-		};
+		if (!PdBase.implementsAudio()) {
+			int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
+			audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
+				@Override
+				protected int process(short[] inBuffer, short[] outBuffer) {
+					Arrays.fill(outBuffer, (short) 0);
+					int err = PdBase.process(ticksPerBuffer, inBuffer, outBuffer);
+					PdBase.pollMessageQueue();
+					return err;
+				}
+			};
+		}
 	}
-	
+
 	/**
-	 * Start audio wrapper
+	 * Starts the audio components.
 	 * 
 	 * @param context  current application context
 	 */
 	public synchronized static void startAudio(Context context) {
-		if (audioWrapper == null) {
-			throw new IllegalStateException("audio not initialized");
+		if (PdBase.implementsAudio()) {
+			PdBase.startAudio();
+			pollRunner.run();
+		} else {
+			if (audioWrapper == null) {
+				throw new IllegalStateException("audio not initialized");
+			}
+			PdBase.computeAudio(true);
+			audioWrapper.start(context);
 		}
-		PdBase.computeAudio(true);
-		audioWrapper.start(context);
 	}
 
 	/**
-	 * Stop audio wrapper
+	 * Stops the audio components.
 	 */
 	public synchronized static void stopAudio() {
-		if (!isRunning()) return;
-		audioWrapper.stop();
+		if (PdBase.implementsAudio()) {
+			handler.removeCallbacks(pollRunner);
+			PdBase.pauseAudio();
+		} else {
+			if (!isRunning()) return;
+			audioWrapper.stop();
+		}
 	}
-	
+
 	/**
 	 * @return true if and only if the audio wrapper is running
 	 */
 	public synchronized static boolean isRunning() {
-		return audioWrapper != null && audioWrapper.isRunning();
+		if (PdBase.implementsAudio()) {
+			return PdBase.isRunning();
+		} else {
+			return audioWrapper != null && audioWrapper.isRunning();
+		}
 	}
-	
+
 	/**
 	 * @return the audio session ID, for Gingerbread and later; will throw an exception on older versions
+	 * @throws MethodNotSupportedException if the underlying implementation does not support audio sessions
 	 */
-	public synchronized static int getAudioSessionId() {
+	public synchronized static int getAudioSessionId() throws MethodNotSupportedException {
+		if (PdBase.implementsAudio()) {
+			throw new MethodNotSupportedException("no session ID for OpenSL");
+		}
 		if (audioWrapper == null) {
 			throw new IllegalStateException("audio not initialized");
 		}
 		return audioWrapper.getAudioSessionId();
 	}
-	
+
 	/**
-	 * Release resources held by audio wrapper
+	 * Releases resources held by the audio components.
 	 */
 	public synchronized static void release() {
-		if (audioWrapper == null) return;
-		audioWrapper.release();
-		audioWrapper = null;
+		stopAudio();
+		if (PdBase.implementsAudio()) {
+			PdBase.closeAudio();
+		} else {
+			if (audioWrapper == null) return;
+			audioWrapper.release();
+			audioWrapper = null;
+		}
 	}
 }
