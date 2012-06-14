@@ -47,6 +47,7 @@ public class PdService extends Service {
 	}
 	private final PdBinder binder = new PdBinder();
 	private static final boolean hasEclair = Properties.version >= 5;
+	private static boolean externalsInstalled = false;
 	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 
 	private static final String PD_SERVICE = "PD Service";
@@ -164,12 +165,12 @@ public class PdService extends Service {
 		PdAudio.release();
 		PdBase.release();
 	}
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
 	}
-	
+
 	@Override
 	public boolean onUnbind(Intent intent) {
 		release();
@@ -182,12 +183,15 @@ public class PdService extends Service {
 		Resources res = getResources();
 		File dir = getFilesDir();
 		try {
-			IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, false);
-			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, false);
+			if (!externalsInstalled) {
+				IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, true);
+				IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, true);
+				PdBase.addToSearchPath(dir.getAbsolutePath());
+				externalsInstalled = true;
+			}
 		} catch (IOException e) {
 			Log.e(PD_SERVICE, "unable to unpack abstractions/extras:" + e.toString());
 		}
-		PdBase.addToSearchPath(dir.getAbsolutePath());
 	};
 
 	@Override
@@ -203,7 +207,7 @@ public class PdService extends Service {
 	public int getAudioSessionId() throws MethodNotSupportedException {
 		return PdAudio.getAudioSessionId();
 	}
-	
+
 	// Hack to support multiple versions of the Android API, based on an idea
 	// from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 	private interface ForegroundManager {
@@ -215,12 +219,12 @@ public class PdService extends Service {
 	// http://tuntis.net/2011/03/06/setforeground-missing-in-android-3-0-services/.
 	// This one works around the disappearance of the setForeground method in Honeycomb.
 	private void invokeSetForeground(boolean foreground) {
-	    try {
-	        Method method = getClass().getMethod("setForeground", boolean.class);
-	        method.invoke(this, foreground);
-	    } catch (Exception e) {
-            Log.e(PD_SERVICE, e.toString());
-	    }
+		try {
+			Method method = getClass().getMethod("setForeground", boolean.class);
+			method.invoke(this, foreground);
+		} catch (Exception e) {
+			Log.e(PD_SERVICE, e.toString());
+		}
 	}
 
 	private class ForegroundCupcake implements ForegroundManager {
@@ -241,7 +245,7 @@ public class PdService extends Service {
 			versionedStart(intent, icon, title, description);
 			hasForeground = true;
 		}
-		
+
 		protected void versionedStart(Intent intent, int icon, String title, String description) {
 			invokeSetForeground(true);
 			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -255,7 +259,7 @@ public class PdService extends Service {
 				hasForeground = false;
 			}
 		}
-		
+
 		protected void versionedStop() {
 			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 			nm.cancel(NOTIFICATION_ID);
