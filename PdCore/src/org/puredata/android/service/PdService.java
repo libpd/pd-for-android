@@ -182,8 +182,8 @@ public class PdService extends Service {
 		Resources res = getResources();
 		File dir = getFilesDir();
 		try {
-			IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, true);
-			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, true);
+			IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, false);
+			IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, false);
 		} catch (IOException e) {
 			Log.e(PD_SERVICE, "unable to unpack abstractions/extras:" + e.toString());
 		}
