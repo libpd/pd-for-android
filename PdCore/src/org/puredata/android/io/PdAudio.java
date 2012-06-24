@@ -116,20 +116,6 @@ public class PdAudio {
 	}
 
 	/**
-	 * @return the audio session ID, for Gingerbread and later; will throw an exception on older versions
-	 * @throws MethodNotSupportedException if the underlying implementation does not support audio sessions
-	 */
-	public synchronized static int getAudioSessionId() throws MethodNotSupportedException {
-		if (PdBase.implementsAudio()) {
-			throw new MethodNotSupportedException("no session ID for OpenSL");
-		}
-		if (audioWrapper == null) {
-			throw new IllegalStateException("audio not initialized");
-		}
-		return audioWrapper.getAudioSessionId();
-	}
-
-	/**
 	 * Releases resources held by the audio components.
 	 */
 	public synchronized static void release() {

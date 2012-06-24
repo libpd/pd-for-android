@@ -200,14 +200,6 @@ public class PdService extends Service {
 		release();
 	}
 
-	/**
-	 * @return the current audio session ID, for Gingerbread and later; will throw an exception on older versions
-	 * @throws MethodNotSupportedException 
-	 */
-	public int getAudioSessionId() throws MethodNotSupportedException {
-		return PdAudio.getAudioSessionId();
-	}
-
 	// Hack to support multiple versions of the Android API, based on an idea
 	// from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
 	private interface ForegroundManager {
