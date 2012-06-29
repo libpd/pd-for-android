@@ -10,7 +10,6 @@ package org.puredata.android.io;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.apache.http.MethodNotSupportedException;
 import org.puredata.core.PdBase;
 
 import android.content.Context;

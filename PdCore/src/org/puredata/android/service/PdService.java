@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import org.apache.http.MethodNotSupportedException;
 import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
 import org.puredata.android.utils.Properties;
