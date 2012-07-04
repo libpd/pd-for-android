@@ -46,7 +46,7 @@ public class PdService extends Service {
 	}
 	private final PdBinder binder = new PdBinder();
 	private static final boolean hasEclair = Properties.version >= 5;
-	private static boolean externalsInstalled = false;
+	private static boolean abstractionsInstalled = false;
 	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 
 	private static final String PD_SERVICE = "PD Service";
@@ -179,19 +179,18 @@ public class PdService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Resources res = getResources();
-		File dir = getFilesDir();
-		try {
-			if (!externalsInstalled) {
-				IoUtils.extractZipResource(res.openRawResource(R.raw.extra_abs), dir, true);
-				IoUtils.extractZipResource(res.openRawResource(Properties.hasArmeabiV7a ? R.raw.extra_ext_v7a : R.raw.extra_ext), dir, true);
+		if (!abstractionsInstalled) {
+			try {
+				File dir = getFilesDir();
+				IoUtils.extractZipResource(getResources().openRawResource(R.raw.extra_abs), dir, true);
+				abstractionsInstalled = true;
 				PdBase.addToSearchPath(dir.getAbsolutePath());
-				externalsInstalled = true;
+				PdBase.addToSearchPath("/data/data/" + getPackageName() + "/lib");  // Location of standard externals.
+			} catch (IOException e) {
+				Log.e(PD_SERVICE, "unable to unpack abstractions:" + e.toString());
 			}
-		} catch (IOException e) {
-			Log.e(PD_SERVICE, "unable to unpack abstractions/extras:" + e.toString());
 		}
-	};
+	}
 
 	@Override
 	public void onDestroy() {
