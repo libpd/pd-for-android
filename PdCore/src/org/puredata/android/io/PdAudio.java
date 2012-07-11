@@ -46,7 +46,8 @@ public class PdAudio {
 	 * @param inChannels      number of input channels
 	 * @param outChannels     number of output channels
 	 * @param ticksPerBuffer  number of Pure Data ticks (i.e., blocks of 64 samples) per buffer; choose 1 for minimal latency,
-	 *                            or more if performance is a concern
+	 *                            or more if performance is a concern; for Java audio only (Android 2.2 or earlier),
+	 *                            ignored by OpenSL components
 	 * @param restart         flag indicating whether the audio thread should be stopped if it is currently running
 	 * @throws IOException    if the audio parameters are not supported by the device
 	 */

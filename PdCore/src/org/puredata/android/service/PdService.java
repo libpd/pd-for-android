@@ -90,7 +90,8 @@ public class PdService extends Service {
 	 * @param srate   sample rate
 	 * @param nic     number of input channels
 	 * @param noc     number of output channels
-	 * @param millis  audio buffer size in milliseconds
+	 * @param millis  audio buffer size in milliseconds; for Java audio only (Android 2.2 or earlier),
+	 *                will be ignored by OpenSL components
 	 * @throws IOException  if the audio parameters are not supported by the device
 	 */
 	public synchronized void initAudio(int srate, int nic, int noc, float millis) throws IOException {
