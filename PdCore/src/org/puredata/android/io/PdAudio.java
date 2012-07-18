@@ -54,11 +54,11 @@ public class PdAudio {
 	public synchronized static void initAudio(int sampleRate, int inChannels, int outChannels, final int ticksPerBuffer, boolean restart)
 			throws IOException {
 		if (isRunning() && !restart) return;
-		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
+		stopAudio();
+		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0 ||
+				PdBase.openAudio(inChannels, outChannels, sampleRate) != 0) {
 			throw new IOException("bad audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
 		}
-		stopAudio();
-		PdBase.openAudio(inChannels, outChannels, sampleRate);
 		if (!PdBase.implementsAudio()) {
 			int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 			audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
@@ -98,6 +98,12 @@ public class PdAudio {
 		if (PdBase.implementsAudio()) {
 			handler.removeCallbacks(pollRunner);
 			PdBase.pauseAudio();
+			handler.post(new Runnable() {
+				@Override
+				public void run() {
+					PdBase.pollMessageQueue();  // Flush pending messages.
+				}
+			});
 		} else {
 			if (!isRunning()) return;
 			audioWrapper.stop();
