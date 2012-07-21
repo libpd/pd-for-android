@@ -25,7 +25,7 @@ public class AudioParameters {
 	private static final int COMMON_RATE = 8000; // 8kHz seems to work everywhere, including the simulator
 	private static final int MAX_CHANNELS = 8;
 	private static int sampleRate = 0, inputChannels = 0, outputChannels = 0;
-	private static float bufsizeMillis = 100.0f; // conservative choice...
+	private static float bufsizeMillis = 50.0f; // conservative choice...
 
 	static {
 		init();
@@ -47,7 +47,7 @@ public class AudioParameters {
 	public static int suggestOutputChannels() { return outputChannels; }
 	
 	/**
-	 * @return suggested buffer size in milliseconds; suggests 100ms, i.e., a fairly conservative choice
+	 * @return suggested buffer size in milliseconds, chosen conservatively
 	 */
 	public static float suggestBufferSizeMillis() { return bufsizeMillis; }
 

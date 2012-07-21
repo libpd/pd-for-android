@@ -100,15 +100,36 @@ public class PdService extends Service {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (srate < 0) {
 			String s = prefs.getString(res.getString(R.string.pref_key_srate), null);
-			srate = (s == null) ? AudioParameters.suggestSampleRate() : Integer.parseInt(s);
+			if (s != null) {
+				srate = Integer.parseInt(s);
+			} else {
+				srate = PdBase.suggestSampleRate();
+				if (srate < 0) {
+					srate = AudioParameters.suggestSampleRate();
+				}
+			}
 		}
 		if (nic < 0) {
 			String s = prefs.getString(res.getString(R.string.pref_key_inchannels), null);
-			nic = (s == null) ? AudioParameters.suggestInputChannels() : Integer.parseInt(s);
+			if (s != null) {
+				nic = Integer.parseInt(s);
+			} else {
+				nic = PdBase.suggestInputChannels();
+				if (nic < 0) {
+					nic = AudioParameters.suggestInputChannels();
+				}
+			}
 		}
 		if (noc < 0) {
 			String s = prefs.getString(res.getString(R.string.pref_key_outchannels), null);
-			noc = (s == null) ? AudioParameters.suggestOutputChannels() : Integer.parseInt(s);
+			if (s != null) {
+				noc = Integer.parseInt(s);
+			} else {
+				noc = PdBase.suggestOutputChannels();
+				if (noc < 0) {
+					noc = AudioParameters.suggestOutputChannels();
+				}
+			}
 		}
 		if (millis < 0) {
 			String s = prefs.getString(res.getString(R.string.pref_key_bufsize_millis), null);

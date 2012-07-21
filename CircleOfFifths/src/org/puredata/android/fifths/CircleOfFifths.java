@@ -33,7 +33,7 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 
 	private static final String TAG = "Pd Circle Of Fifths";
 	private static final String TOP = "top";
-	private static final int SAMPLE_RATE = 44100;
+	private static final int MIN_SAMPLE_RATE = 44100;
 	private RadioGroup options;
 	private int option = 0;
 
@@ -96,14 +96,8 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	}
 
 	private void initPd() throws IOException {
-		if (AudioParameters.suggestSampleRate() < SAMPLE_RATE) {
-			throw new IOException("required sample rate not available");
-		}
-		int nOut = Math.min(AudioParameters.suggestOutputChannels(), 2);
-		if (nOut == 0) {
-			throw new IOException("audio output not available");
-		}
-		PdAudio.initAudio(SAMPLE_RATE, 0, nOut, 1, true);
+		int srate = Math.max(MIN_SAMPLE_RATE, Math.max(PdBase.suggestSampleRate(), AudioParameters.suggestSampleRate()));
+		PdAudio.initAudio(srate, 0, 2, 1, true);
 		
 		File dir = getFilesDir();
 		File patchFile = new File(dir, "chords.pd");
