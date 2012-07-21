@@ -55,11 +55,13 @@ public class PdAudio {
 			throws IOException {
 		if (isRunning() && !restart) return;
 		stopAudio();
-		if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0 ||
-				PdBase.openAudio(inChannels, outChannels, sampleRate) != 0) {
-			throw new IOException("bad audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
+		if (PdBase.openAudio(inChannels, outChannels, sampleRate) != 0) {
+			throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
 		}
 		if (!PdBase.implementsAudio()) {
+			if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
+				throw new IOException("bad Java audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
+			}
 			int bufferSizePerChannel = ticksPerBuffer * PdBase.blockSize();
 			audioWrapper = new AudioWrapper(sampleRate, inChannels, outChannels, bufferSizePerChannel) {
 				@Override
