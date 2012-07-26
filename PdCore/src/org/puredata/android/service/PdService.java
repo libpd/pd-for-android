@@ -132,8 +132,7 @@ public class PdService extends Service {
 			}
 		}
 		if (millis < 0) {
-			String s = prefs.getString(res.getString(R.string.pref_key_bufsize_millis), null);
-			millis = (s == null) ? AudioParameters.suggestBufferSizeMillis() : Float.parseFloat(s);
+			millis = AudioParameters.suggestBufferSizeMillis();
 		}
 		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize()) + 1;
 		PdAudio.initAudio(srate, nic, noc, tpb, true);

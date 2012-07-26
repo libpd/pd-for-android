@@ -55,7 +55,6 @@ public class PdPreferences extends PreferenceActivity {
 			editor.putString(res.getString(R.string.pref_key_inchannels), "" + ((nic > 0) ? nic : AudioParameters.suggestInputChannels()));
 			int noc = PdBase.suggestOutputChannels();
 			editor.putString(res.getString(R.string.pref_key_outchannels), "" + ((noc > 0) ? noc : AudioParameters.suggestOutputChannels()));
-			editor.putString(res.getString(R.string.pref_key_bufsize_millis), "" + AudioParameters.suggestBufferSizeMillis());
 			editor.commit();
 		}
 	}
