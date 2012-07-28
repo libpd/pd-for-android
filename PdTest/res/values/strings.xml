@@ -12,5 +12,6 @@
 		developed by Miller Puckette and company at IRCAM. Android port by
 		Peter Brinkmann, Peter Kirn, Hans-Christoph Steiner, and others.
 	</string>
+	<string name="play_button_text">Play/Pause</string>
 
 </resources>
