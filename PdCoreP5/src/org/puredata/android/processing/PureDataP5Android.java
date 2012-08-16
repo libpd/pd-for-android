@@ -13,7 +13,7 @@ import java.io.IOException;
 import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
-import org.puredata.processing.PureDataP5Base;
+import org.puredata.processing.PureDataP5;
 
 import processing.core.PApplet;
 
@@ -23,7 +23,7 @@ import processing.core.PApplet;
  * 
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
-public class PureDataP5Android extends PureDataP5Base {
+public class PureDataP5Android extends PureDataP5 {
 
 	private final PApplet parent;
 	
@@ -36,35 +36,8 @@ public class PureDataP5Android extends PureDataP5Base {
 	 * @param nOut desired number of output channels
 	 */
 	public PureDataP5Android(PApplet parent, int sampleRate, int nIn, int nOut) {
-		super(parent);
+		super(parent, sampleRate, nIn, nOut);
 		this.parent = parent;
-		try {
-			PdAudio.initAudio(sampleRate, nIn, nOut, 8, true);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	@Override
-	public void start() {
-		PdAudio.startAudio(parent);
-	}
-	
-	@Override
-	public void stop() {
-		PdAudio.stopAudio();
-	}
-	
-	public void release() {
-		stop();
-		PdAudio.release();
-		PdBase.release();
-	}
-	
-	@Override
-	public void dispose() {
-		release();
-		super.dispose();
 	}
 	
 	/**
