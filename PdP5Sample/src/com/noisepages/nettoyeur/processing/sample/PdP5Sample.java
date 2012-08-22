@@ -70,7 +70,7 @@ public class PdP5Sample extends PApplet {
 	*/
 	
 	// boilerplate
-	public int sketchWidth() { return this.screenWidth; }
-	public int sketchHeight() { return this.screenHeight; }
+	public int sketchWidth() { return this.displayWidth; }
+	public int sketchHeight() { return this.displayHeight; }
 	public String sketchRenderer() { return PApplet.OPENGL; }
 }
