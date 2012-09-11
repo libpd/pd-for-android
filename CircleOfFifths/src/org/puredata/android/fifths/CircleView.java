@@ -9,6 +9,7 @@
 
 package org.puredata.android.fifths;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -18,10 +19,10 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.graphics.Path.FillType;
+import android.graphics.RectF;
 import android.graphics.Shader.TileMode;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -132,6 +133,7 @@ public final class CircleView extends View {
 		return (mode == MeasureSpec.UNSPECIFIED) ? 320 : size;
 	}
 
+	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.translate(xCenter, yCenter);
