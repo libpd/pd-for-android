@@ -33,8 +33,8 @@ public final class CircleView extends View {
 	private static final String[] notesSharp = { "C", "C\u266f", "D", "D\u266f", "E", "F", "F\u266f", "G", "G\u266f", "A", "A\u266f", "B" };
 	private static final String[] notesFlat  = { "C", "D\u266d", "D", "E\u266d", "E", "F", "G\u266d", "G", "A\u266d", "A", "B\u266d", "B" };
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
-	private static final float R0 = 0.25f;
-	private static final float R2 = 0.92f;
+	private static final float R0 = 25;
+	private static final float R2 = 92;
 	private static final float R1 = FloatMath.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
 	
 	private CircleOfFifths owner;
@@ -81,7 +81,7 @@ public final class CircleView extends View {
 		RectF r0 = new RectF(-R0, -R0, R0, R0);
 		RectF r1 = new RectF(-R1, -R1, R1, R1);
 		RectF r2 = new RectF(-R2, -R2, R2, R2);
-		outerFrame = new RectF(-1, -1, 1, 1);
+		outerFrame = new RectF(-100, -100, 100, 100);
 		float dy = R0 / 1.8f;
 		float dx = dy * 1.38f;
 		innerFrame = new RectF(-dx, -dy, dx, dy);
@@ -110,7 +110,7 @@ public final class CircleView extends View {
 		labelPaint.setColor(Color.BLACK);
 		labelPaint.setTextAlign(Paint.Align.CENTER);
 		labelPaint.setTypeface(Typeface.MONOSPACE);
-		labelPaint.setTextSize(0.16f);
+		labelPaint.setTextSize(16);
 
 		Resources res = getResources();
 		keySigs = new Bitmap[] {
@@ -140,7 +140,7 @@ public final class CircleView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.translate(xCenter, yCenter);
-		canvas.scale(xCenter, yCenter);
+		canvas.scale(xCenter * 0.01f, yCenter * 0.01f);
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.rotate(-top * 30);
 		canvas.drawBitmap(wheel, null, outerFrame, null);
@@ -188,9 +188,9 @@ public final class CircleView extends View {
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		xCenter = w / 2;
-		xNorm = 1 / xCenter;
+		xNorm = 100 / xCenter;
 		yCenter = h / 2;
-		yNorm = 1 / yCenter;
+		yNorm = 100 / yCenter;
 		drawBitmaps(w, h);
 	}
 
@@ -205,7 +205,7 @@ public final class CircleView extends View {
 		grid  = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas();
 		canvas.translate(xCenter, yCenter);
-		canvas.scale(xCenter, yCenter);
+		canvas.scale(xCenter * 0.01f, yCenter * 0.01f);
 		
 		Paint shades[] = new Paint[4];
 		for (int i = 0; i < 4; i++) {
@@ -217,16 +217,16 @@ public final class CircleView extends View {
 		Paint centerShade = new Paint(shades[0]);
 		centerShade.setColor(Color.argb(0xff, 0x78, 0x78, 0x78));
 		Paint shadowPaint = new Paint();
-		shadowPaint.setShader(new LinearGradient(0, -1, 0, 1, 
+		shadowPaint.setShader(new LinearGradient(0, -100, 0, 100, 
 				new int[] { 0x00ffffff, 0x77000000 }, null, TileMode.CLAMP));
 		Paint gridPaint = new Paint();
 		gridPaint.setAntiAlias(true);
-		gridPaint.setStrokeWidth(0.016f);
+		gridPaint.setStrokeWidth(1.6f);
 		gridPaint.setStyle(Paint.Style.STROKE);
 		gridPaint.setColor(Color.DKGRAY);
 		
 		canvas.setBitmap(shadow);
-		canvas.drawCircle(0, 0, 1, shadowPaint);
+		canvas.drawCircle(0, 0, 100, shadowPaint);
 		
 		canvas.setBitmap(wheel);
 		canvas.drawCircle(0, 0, R0, centerShade);
@@ -242,10 +242,10 @@ public final class CircleView extends View {
 		canvas.drawCircle(0, 0, R0, gridPaint);
 		canvas.drawCircle(0, 0, R1, gridPaint);
 		canvas.drawCircle(0, 0, R2, gridPaint);
-		canvas.drawCircle(0, 0, 1, gridPaint);
+		canvas.drawCircle(0, 0, 100, gridPaint);
 		canvas.rotate(15);
 		for (int i = 0; i < 12; i++) {
-			canvas.drawLine(0, R0, 0, 1, gridPaint);
+			canvas.drawLine(0, R0, 0, 100, gridPaint);
 			canvas.rotate(30);
 		}
 	}
