@@ -9,7 +9,6 @@
 
 package org.puredata.android.fifths;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -24,6 +23,7 @@ import android.graphics.RectF;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -35,7 +35,7 @@ public final class CircleView extends View {
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
 	private static final float R0 = 0.25f;
 	private static final float R2 = 0.92f;
-	private static final float R1 = (float) Math.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
+	private static final float R1 = FloatMath.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
 	
 	private CircleOfFifths owner;
 	private int top = 0;
@@ -46,6 +46,7 @@ public final class CircleView extends View {
 	private Bitmap wheel = null;
 	private Bitmap grid = null;
 	private Bitmap shadow = null;
+	private RectF innerFrame, outerFrame;
 	private final Path minorField = new Path();
 	private final Path majorField = new Path();
 	private final Path rimField = new Path();
@@ -80,7 +81,10 @@ public final class CircleView extends View {
 		RectF r0 = new RectF(-R0, -R0, R0, R0);
 		RectF r1 = new RectF(-R1, -R1, R1, R1);
 		RectF r2 = new RectF(-R2, -R2, R2, R2);
-		RectF r = new RectF(-1, -1, 1, 1);
+		outerFrame = new RectF(-1, -1, 1, 1);
+		float dy = R0 / 1.8f;
+		float dx = dy * 1.38f;
+		innerFrame = new RectF(-dx, -dy, dx, dy);
 		float phi = 255, dphi = 30;
 		
 		minorField.arcTo(r1, phi, dphi, true);
@@ -93,7 +97,7 @@ public final class CircleView extends View {
 		majorField.close();
 		majorField.setFillType(FillType.WINDING);
 		
-		rimField.arcTo(r, phi, dphi, true);
+		rimField.arcTo(outerFrame, phi, dphi, true);
 		rimField.arcTo(r2, phi+dphi, -dphi);
 		rimField.close();
 		rimField.setFillType(FillType.WINDING);
@@ -133,19 +137,16 @@ public final class CircleView extends View {
 		return (mode == MeasureSpec.UNSPECIFIED) ? 320 : size;
 	}
 
-	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onDraw(Canvas canvas) {
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter, yCenter);
 		canvas.save(Canvas.MATRIX_SAVE_FLAG);
 		canvas.rotate(-top * 30);
-		canvas.drawBitmap(wheel, null, new RectF(-1, -1, 1, 1), null);
+		canvas.drawBitmap(wheel, null, outerFrame, null);
 		canvas.restore();
 		int c = (top * 7) % 12;
-		float dy = R0 / 1.8f;
-		float dx = dy * 1.38f;
-		canvas.drawBitmap(keySigs[c], null, new RectF(-dx, -dy, dx, dy), null);
+		canvas.drawBitmap(keySigs[c], null, innerFrame, null);
 		int s0 = shifts[c];
 		for (int i = 0; i < 12; i++) {
 			if (i == selectedSegment) {
@@ -169,8 +170,8 @@ public final class CircleView extends View {
 			c = (c + 10) % 12;
 			canvas.rotate(30);
 		}
-		canvas.drawBitmap(grid, null, new RectF(-1, -1, 1, 1), null);
-		canvas.drawBitmap(shadow, null, new RectF(-1, -1, 1, 1), null);
+		canvas.drawBitmap(grid, null, outerFrame, null);
+		canvas.drawBitmap(shadow, null, outerFrame, null);
 	}
 
 	private void drawLabel(Canvas canvas, String label, float r) {
