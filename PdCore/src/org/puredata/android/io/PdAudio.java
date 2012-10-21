@@ -9,6 +9,8 @@ package org.puredata.android.io;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.puredata.core.PdBase;
 
@@ -55,7 +57,9 @@ public class PdAudio {
 			throws IOException {
 		if (isRunning() && !restart) return;
 		stopAudio();
-		if (PdBase.openAudio(inChannels, outChannels, sampleRate) != 0) {
+		Map<String, String> options = new HashMap<String, String>();
+		// options.put("opensl.buffer_size", "512");
+		if (PdBase.openAudio(inChannels, outChannels, sampleRate, options) != 0) {
 			throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
 		}
 		if (!PdBase.implementsAudio()) {
