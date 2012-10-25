@@ -59,7 +59,7 @@ public class PdAudio {
 		stopAudio();
 		Map<String, String> options = new HashMap<String, String>();
 		options.put("opensl.input_buffer_size", "1024");
-		options.put("opensl.output_buffer_size", "512");
+		options.put("opensl.output_buffer_size", "1024");
 		if (PdBase.openAudio(inChannels, outChannels, sampleRate, options) != 0) {
 			throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
 		}
