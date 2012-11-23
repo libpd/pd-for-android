@@ -134,7 +134,7 @@ public class PdService extends Service {
 			}
 		}
 		if (millis < 0) {
-			millis = AudioParameters.suggestBufferSizeMillis();
+			millis = 50.0f;  // conservative choice
 		}
 		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize()) + 1;
 		PdAudio.initAudio(srate, nic, noc, tpb, true);
@@ -202,6 +202,7 @@ public class PdService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		AudioParameters.init(this);
 		if (!abstractionsInstalled) {
 			try {
 				File dir = getFilesDir();
