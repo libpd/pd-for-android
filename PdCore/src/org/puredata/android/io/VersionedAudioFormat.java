@@ -60,6 +60,7 @@ public final class VersionedAudioFormat {
 			Log.i("Pd Version", "loading class for Cupcake");
 		}
 		
+		@SuppressWarnings("deprecation")
 		static int getInFormat(int inChannels) {
 			switch (inChannels) {
 			case 1: return AudioFormat.CHANNEL_CONFIGURATION_MONO;
@@ -68,6 +69,7 @@ public final class VersionedAudioFormat {
 			}
 		}
 
+		@SuppressWarnings("deprecation")
 		static int getOutFormat(int outChannels) {
 			switch (outChannels) {
 			case 1: return AudioFormat.CHANNEL_CONFIGURATION_MONO;

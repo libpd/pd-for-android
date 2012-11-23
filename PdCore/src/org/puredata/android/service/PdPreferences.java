@@ -27,6 +27,7 @@ import android.preference.PreferenceManager;
  */
 public class PdPreferences extends PreferenceActivity {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

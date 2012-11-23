@@ -17,6 +17,7 @@ import org.puredata.android.utils.Properties;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -26,6 +27,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -242,6 +244,7 @@ public class PdService extends Service {
 		protected static final int NOTIFICATION_ID = 1;
 		private boolean hasForeground = false;
 
+		@SuppressWarnings("deprecation")
 		protected Notification makeNotification(Intent intent, int icon, String title, String description) {
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 			Notification notification = new Notification(icon, title, System.currentTimeMillis());
@@ -278,6 +281,7 @@ public class PdService extends Service {
 		}
 	}
 
+	@TargetApi(Build.VERSION_CODES.ECLAIR)
 	private class ForegroundEclair extends ForegroundCupcake {
 		@Override
 		protected void versionedStart(Intent intent, int icon, String title, String description) {
