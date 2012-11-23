@@ -10,8 +10,6 @@ package org.puredata.android.processing;
 import java.io.File;
 import java.io.IOException;
 
-import org.puredata.android.io.PdAudio;
-import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 import org.puredata.processing.PureDataP5;
 
