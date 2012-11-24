@@ -22,7 +22,8 @@ import android.util.Log;
 /**
  * 
  * AudioParameters sniffs out the number of audio input and output channels as well as
- * supported sample rates.
+ * supported sample rates. For Android 2.3 and later, it also recommends buffer sizes and
+ * checks whether the device claims low-latency features for audio.
  * 
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  *
@@ -32,6 +33,12 @@ public class AudioParameters {
 	private static final String TAG = "AudioParameters";
 	private static AudioParametersImpl impl = null;
 
+	/**
+	 * If you want this class to provide parameters that enable low-latency features, you need to call this method with the current context (i.e., service
+	 * or activity) before you invoke any other methods of this class.
+	 * 
+	 * @param context activity or service that calls this method
+	 */
 	public static synchronized void init(Context context) {
 		if (impl != null) return;
 		if (Properties.version > 16 && context != null) {
