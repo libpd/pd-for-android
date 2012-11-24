@@ -42,7 +42,7 @@ public class AudioParameters {
 	public static synchronized void init(Context context) {
 		if (impl != null) return;
 		if (Properties.version > 16 && context != null) {
-			impl = Android42OpenSLParameters.getParameters(context);
+			impl = JellyBeanMR1OpenSLParameters.getParameters(context);
 		} else if (Properties.version > 16) {
 			Log.w("AudioParameters", "Initializing audio parameters with null context on Android 4.2 or later --- low-latency track will not be available!");
 			impl = new BasicOpenSLParameters(512, 512);
@@ -252,17 +252,17 @@ public class AudioParameters {
 	}
 
 	@TargetApi(17)  // Using lazy class loading trick to hide new features from old devices.
-	private static class Android42OpenSLParameters extends JellyBeanOpenSLParameters {
+	private static class JellyBeanMR1OpenSLParameters extends JellyBeanOpenSLParameters {
 		private final int sampleRate;
 		
-		Android42OpenSLParameters(int sampleRate, int inputBufferSize, int outputBufferSize, int nativeBufferSize, boolean lowLatency) {
+		JellyBeanMR1OpenSLParameters(int sampleRate, int inputBufferSize, int outputBufferSize, int nativeBufferSize, boolean lowLatency) {
 			super(inputBufferSize, outputBufferSize, nativeBufferSize, lowLatency);
 			this.sampleRate = sampleRate;
 		}
 		
 		@Override public int suggestSampleRate() { return sampleRate; }
 		
-		static Android42OpenSLParameters getParameters(Context context) {
+		static JellyBeanMR1OpenSLParameters getParameters(Context context) {
 			PackageManager pm = context.getPackageManager();
 			boolean lowLatency = pm.hasSystemFeature(PackageManager.FEATURE_AUDIO_LOW_LATENCY);
 			AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -275,7 +275,7 @@ public class AudioParameters {
 			} catch (Exception e) {
 				Log.e(TAG, "Missing or malformed audio property: " + e.toString());
 			}
-			return new Android42OpenSLParameters(sr, 512, 512, bs, lowLatency);
+			return new JellyBeanMR1OpenSLParameters(sr, 512, 512, bs, lowLatency);
 		}
 	}
 }

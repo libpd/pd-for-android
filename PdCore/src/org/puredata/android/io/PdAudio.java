@@ -17,6 +17,7 @@ import org.puredata.core.PdBase;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * 
@@ -60,6 +61,7 @@ public class PdAudio {
 		Map<String, String> options = new HashMap<String, String>();
 		options.put("opensl.input_buffer_size", Integer.toString(AudioParameters.suggestInputBufferSize(sampleRate)));
 		options.put("opensl.output_buffer_size", Integer.toString(AudioParameters.suggestOutputBufferSize(sampleRate)));
+		Log.i("PdAudio", "OpenSL options: " + options);
 		if (PdBase.openAudio(inChannels, outChannels, sampleRate, options) != 0) {
 			throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
 		}
