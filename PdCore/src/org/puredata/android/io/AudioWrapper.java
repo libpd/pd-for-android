@@ -12,12 +12,14 @@ import java.io.IOException;
 import org.puredata.android.service.R;
 import org.puredata.android.utils.Properties;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Process;
 import android.util.Log;
 
@@ -164,6 +166,7 @@ public abstract class AudioWrapper {
 		}
 	}
 	
+	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 	private static class AudioSessionHandler {
 		private static int getAudioSessionId(AudioTrack track) {
 			return track.getAudioSessionId();
