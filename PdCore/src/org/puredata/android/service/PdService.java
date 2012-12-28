@@ -43,6 +43,7 @@ public class PdService extends Service {
 
 	public class PdBinder extends Binder {
 		public PdService getService() {
+			AudioParameters.init(PdService.this);
 			return PdService.this;
 		}
 	}
