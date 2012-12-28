@@ -42,20 +42,4 @@
 		<item>6</item>
 		<item>8</item>
 	</string-array>
-	
-	
-	<string-array name="bufsize_labels">
-		<item>10ms</item>
-		<item>50ms</item>
-		<item>100ms</item>
-		<item>150ms</item>
-		<item>200ms</item>
-	</string-array>
-	<string-array name="bufsize_values">
-		<item>10.0</item>
-		<item>50.0</item>
-		<item>100.0</item>
-		<item>150.0</item>
-		<item>200.0</item>
-	</string-array>
 </resources>

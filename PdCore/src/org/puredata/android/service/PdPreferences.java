@@ -8,6 +8,7 @@
 package org.puredata.android.service;
 
 import org.puredata.android.io.AudioParameters;
+import org.puredata.core.PdBase;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -26,6 +27,7 @@ import android.preference.PreferenceManager;
  */
 public class PdPreferences extends PreferenceActivity {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,7 +41,7 @@ public class PdPreferences extends PreferenceActivity {
 	}
 	
 	/**
-	 * If no preferences are available, initialize preferences with defaults suggested by {@link AudioParameters}
+	 * If no preferences are available, initialize preferences with defaults suggested by {@link PdBase} or {@link AudioParameters}, in that order.
 	 * 
 	 * @param context  current application context
 	 */
@@ -48,10 +50,12 @@ public class PdPreferences extends PreferenceActivity {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!prefs.contains(res.getString(R.string.pref_key_srate))) {
 			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString(res.getString(R.string.pref_key_srate), "" + AudioParameters.suggestSampleRate());
-			editor.putString(res.getString(R.string.pref_key_inchannels), "" + AudioParameters.suggestInputChannels());
-			editor.putString(res.getString(R.string.pref_key_outchannels), "" + AudioParameters.suggestOutputChannels());
-			editor.putString(res.getString(R.string.pref_key_bufsize_millis), "" + AudioParameters.suggestBufferSizeMillis());
+			int srate = PdBase.suggestSampleRate();
+			editor.putString(res.getString(R.string.pref_key_srate), "" + ((srate > 0) ? srate : AudioParameters.suggestSampleRate()));
+			int nic = PdBase.suggestInputChannels();
+			editor.putString(res.getString(R.string.pref_key_inchannels), "" + ((nic > 0) ? nic : AudioParameters.suggestInputChannels()));
+			int noc = PdBase.suggestOutputChannels();
+			editor.putString(res.getString(R.string.pref_key_outchannels), "" + ((noc > 0) ? noc : AudioParameters.suggestOutputChannels()));
 			editor.commit();
 		}
 	}

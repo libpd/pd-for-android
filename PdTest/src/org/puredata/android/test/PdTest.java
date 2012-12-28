@@ -53,6 +53,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	private static final String TAG = "Pd Test";
 
+	private Button play;
 	private CheckBox left, right, mic;
 	private EditText msg;
 	private Button prefs;
@@ -151,11 +152,15 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		startAudio();
+		if (pdService.isRunning()) {
+			startAudio();
+		}
 	}
 
 	private void initGui() {
 		setContentView(R.layout.main);
+		play = (Button) findViewById(R.id.play_button);
+		play.setOnClickListener(this);
 		left = (CheckBox) findViewById(R.id.left_box);
 		left.setOnClickListener(this);
 		right = (CheckBox) findViewById(R.id.right_box);
@@ -179,7 +184,6 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			InputStream in = res.openRawResource(R.raw.test);
 			patchFile = IoUtils.extractResource(in, "test.pd", getCacheDir());
 			PdBase.openPatch(patchFile);
-			startAudio();
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
 			finish();
@@ -198,6 +202,10 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		}
 	}
 
+	private void stopAudio() {
+		pdService.stopAudio();
+	}
+	
 	private void cleanup() {
 		try {
 			unbindService(pdConnection);
@@ -234,6 +242,12 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
+		case R.id.play_button:
+			if (pdService.isRunning()) {
+				stopAudio();
+			} else {
+				startAudio();
+			}
 		case R.id.left_box:
 			PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
 			break;
