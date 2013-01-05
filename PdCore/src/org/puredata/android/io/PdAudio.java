@@ -33,7 +33,8 @@ public class PdAudio {
 	private static final Runnable pollRunner = new Runnable() {
 		@Override
 		public void run() {
-			PdBase.pollMessageQueue();
+			PdBase.pollMidiQueue();
+			PdBase.pollPdMessageQueue();
 			handler.postDelayed(this, 20);
 		}
 	};
@@ -75,7 +76,8 @@ public class PdAudio {
 				protected int process(short[] inBuffer, short[] outBuffer) {
 					Arrays.fill(outBuffer, (short) 0);
 					int err = PdBase.process(ticksPerBuffer, inBuffer, outBuffer);
-					PdBase.pollMessageQueue();
+					PdBase.pollMidiQueue();
+					PdBase.pollPdMessageQueue();
 					return err;
 				}
 			};
@@ -110,7 +112,8 @@ public class PdAudio {
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
-					PdBase.pollMessageQueue();  // Flush pending messages.
+					PdBase.pollMidiQueue();  // Flush pending messages.
+					PdBase.pollPdMessageQueue();
 				}
 			});
 		} else {
