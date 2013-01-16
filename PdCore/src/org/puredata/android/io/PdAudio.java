@@ -92,8 +92,8 @@ public class PdAudio {
 	public synchronized static void startAudio(Context context) {
 		PdBase.computeAudio(true);
 		if (PdBase.implementsAudio()) {
+			handler.post(pollRunner);
 			PdBase.startAudio();
-			pollRunner.run();
 		} else {
 			if (audioWrapper == null) {
 				throw new IllegalStateException("audio not initialized");
@@ -107,8 +107,8 @@ public class PdAudio {
 	 */
 	public synchronized static void stopAudio() {
 		if (PdBase.implementsAudio()) {
-			handler.removeCallbacks(pollRunner);
 			PdBase.pauseAudio();
+			handler.removeCallbacks(pollRunner);
 			handler.post(new Runnable() {
 				@Override
 				public void run() {
