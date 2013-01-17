@@ -35,7 +35,7 @@ public class PdAudio {
 		public void run() {
 			PdBase.pollMidiQueue();
 			PdBase.pollPdMessageQueue();
-			handler.postDelayed(this, 20);
+			handler.postDelayed(this, 5);
 		}
 	};
 
