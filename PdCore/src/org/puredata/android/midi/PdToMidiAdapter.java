@@ -12,11 +12,11 @@ import org.puredata.core.PdMidiReceiver;
 import com.noisepages.nettoyeur.midi.MidiReceiver;
 
 /**
- * Simple class for connecting MIDI output from Pd to input for AndroidMidi.
+ * Adapter class for connecting MIDI output from Pd to input for AndroidMidi.
  * 
  * @author Peter Brinkmann (peter.brinkmann@gmail.com)
  */
-public class PdToMidiConnector implements PdMidiReceiver {
+public class PdToMidiAdapter implements PdMidiReceiver {
 
 	private final MidiReceiver receiver;
 	
@@ -26,7 +26,7 @@ public class PdToMidiConnector implements PdMidiReceiver {
 	 * 
 	 * @param receiver to forward MIDI messages to
 	 */
-	public PdToMidiConnector(MidiReceiver receiver) {
+	public PdToMidiAdapter(MidiReceiver receiver) {
 		this.receiver = receiver;
 	}
 	
