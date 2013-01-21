@@ -2,7 +2,7 @@ Getting all dependencies:
 
   * First, clone Pd for Android:
       git clone git://github.com/libpd/pd-for-android.git
-    Then, install the libpd submodule:
+    Then, install the libpd and MIDI submodules:
       cd pd-for-android
       git submodule init
       git submodule update
