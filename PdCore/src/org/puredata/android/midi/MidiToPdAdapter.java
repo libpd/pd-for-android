@@ -19,7 +19,7 @@ import com.noisepages.nettoyeur.midi.MidiReceiver;
 public class MidiToPdAdapter implements MidiReceiver {
 
 	@Override
-	public void onRawByte(int value) {
+	public void onRawByte(byte value) {
 		PdBase.sendMidiByte(0, value);
 	}
 

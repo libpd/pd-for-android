@@ -52,7 +52,7 @@ public class PdToMidiAdapter implements PdMidiReceiver {
 	
 	@Override
 	public void receiveMidiByte(int port, int value) {
-		receiver.onRawByte(value);
+		receiver.onRawByte((byte) value);
 	}
 	
 	@Override
