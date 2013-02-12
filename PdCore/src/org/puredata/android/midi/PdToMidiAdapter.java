@@ -64,4 +64,14 @@ public class PdToMidiAdapter implements PdMidiReceiver {
 	public void receiveAftertouch(int channel, int value) {
 		receiver.onAftertouch(channel, value);
 	}
+
+	@Override
+	public boolean beginBlock() {
+		return receiver.beginBlock();
+	}
+
+	@Override
+	public void endBlock() {
+		receiver.endBlock();
+	}
 }
