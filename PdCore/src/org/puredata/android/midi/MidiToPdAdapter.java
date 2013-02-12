@@ -57,4 +57,12 @@ public class MidiToPdAdapter implements MidiReceiver {
 	public void onAftertouch(int channel, int velocity) {
 		PdBase.sendAftertouch(channel, velocity);
 	}
+
+	@Override
+	public boolean beginBlock() {
+		return false;
+	}
+
+	@Override
+	public void endBlock() {}
 }
