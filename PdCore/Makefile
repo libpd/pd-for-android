@@ -8,6 +8,4 @@ all:
 	cp libs/armeabi/libexpr.so libs/armeabi/libfexpr_tilde.so
 	cp libs/x86/libexpr.so libs/x86/libexpr_tilde.so
 	cp libs/x86/libexpr.so libs/x86/libfexpr_tilde.so
-	cp libs/mips/libexpr.so libs/mips/libexpr_tilde.so
-	cp libs/mips/libexpr.so libs/mips/libfexpr_tilde.so
 
