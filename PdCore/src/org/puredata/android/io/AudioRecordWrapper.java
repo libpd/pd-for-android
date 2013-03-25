@@ -85,7 +85,7 @@ public class AudioRecordWrapper {
 		try {
 			inputThread.join();
 		} catch (InterruptedException e) {
-			// do nothing
+			Thread.currentThread().interrupt();  // Preserve interrupt flag for caller.
 		}
 		inputThread = null;
 	}

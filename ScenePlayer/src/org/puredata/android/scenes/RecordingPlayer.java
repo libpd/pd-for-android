@@ -242,7 +242,7 @@ public class RecordingPlayer extends Activity implements OnSeekBarChangeListener
 			try {
 				updateThread.join();
 			} catch (InterruptedException e) {
-				// Don't care.
+				Thread.currentThread().interrupt();  // Preserve interrupt flag for caller.
 			}
 			updateThread = null;
 		}

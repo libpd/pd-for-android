@@ -448,7 +448,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// do nothing
+					Thread.currentThread().interrupt();  // Preserve interrupt flag for caller.
 				}
 			}
 			pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.sceneplayer_notify,

@@ -132,7 +132,7 @@ public abstract class AudioWrapper {
 		try {
 			audioThread.join();
 		} catch (InterruptedException e) {
-			// do nothing
+			Thread.currentThread().interrupt();  // Preserve interrupt flag for caller.
 		}
 		audioThread = null;
 	}
