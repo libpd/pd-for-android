@@ -469,6 +469,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 			// make sure to release all resources
 			stopRecording();
 			stopAudio();
+			unregisterReceiver(receiver);
 			if (patch != 0) {
 				PdBase.closePatch(patch);
 				patch = 0;
