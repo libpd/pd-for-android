@@ -11,6 +11,7 @@ package org.puredata.android.scenes;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +26,13 @@ import org.puredata.core.utils.PdDispatcher;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -38,6 +43,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
@@ -56,8 +62,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-
-public class ScenePlayer extends Activity implements SensorEventListener, OnTouchListener, OnClickListener, OnSeekBarChangeListener {
+public class ScenePlayer extends Activity implements SensorEventListener,
+		OnTouchListener, OnClickListener, OnSeekBarChangeListener {
 
 	public static final String RECORDING_PATH = "recording_path";
 	private static final String TAG = "Pd Scene Player";
@@ -66,6 +72,7 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private static final String TRANSPORT = "#transport";
 	private static final String ACCELERATE = "#accelerate";
 	private static final String MICVOLUME = "#micvolume";
+	private static final String BLUETOOTH = "#bluetooth";
 	private static final int SAMPLE_RATE = 22050;
 	private final Object lock = new Object();
 	private SceneDataBase db;
@@ -86,7 +93,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private String description;
 	private PdService pdService = null;
 	private int patch = 0;
-	
+	private BluetoothAdapter bluetooth;
+	private int readingRandomValue;
+	private final int interval = 1500;
+
 	private final PdDispatcher dispatcher = new PdDispatcher() {
 		@Override
 		public void print(String s) {
@@ -99,13 +109,14 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private Toast toast = null;
-	
+
 	private void toast(final String msg) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (toast == null) {
-					toast = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_SHORT);
+					toast = Toast.makeText(getApplicationContext(), "",
+							Toast.LENGTH_SHORT);
 				}
 				toast.setText(msg);
 				toast.show();
@@ -119,17 +130,22 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 		@Override
 		public void receiveList(String source, Object... args) {
-			if (args.length < 2 || !(args[0] instanceof String) || !(args[1] instanceof String)) return;
+			if (args.length < 2 || !(args[0] instanceof String)
+					|| !(args[1] instanceof String))
+				return;
 			String key = (String) args[0];
 			String cmd = (String) args[1];
 			if (overlays.containsKey(key)) {
 				Overlay overlay = overlays.get(key);
 				if (cmd.equals("visible")) {
-					if (args.length < 3 || !(args[2] instanceof Float))	return;
+					if (args.length < 3 || !(args[2] instanceof Float))
+						return;
 					boolean flag = ((Float) args[2]).floatValue() > 0.5f;
 					overlay.setVisible(flag);
 				} else if (cmd.equals("move")) {
-					if (args.length < 4 || !(args[2] instanceof Float) || !(args[3] instanceof Float)) return;
+					if (args.length < 4 || !(args[2] instanceof Float)
+							|| !(args[3] instanceof Float))
+						return;
 					float x = ((Float) args[2]).floatValue();
 					float y = ((Float) args[3]).floatValue();
 					overlay.setPosition(x, y);
@@ -137,21 +153,25 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					if (overlay instanceof TextOverlay) {
 						TextOverlay textOverlay = (TextOverlay) overlay;
 						if (cmd.equals("text")) {
-							if (args.length < 3 || !(args[2] instanceof String)) return;
+							if (args.length < 3 || !(args[2] instanceof String))
+								return;
 							textOverlay.setText((String) args[2]);
 						} else if (cmd.equals("size")) {
-							if (args.length < 3 || !(args[2] instanceof Float)) return;
+							if (args.length < 3 || !(args[2] instanceof Float))
+								return;
 							textOverlay.setSize(((Float) args[2]).floatValue());
 						}
 					} else {
-						if (args.length < 3 || !(args[2] instanceof Float)) return;
+						if (args.length < 3 || !(args[2] instanceof Float))
+							return;
 						ImageOverlay imgOverlay = (ImageOverlay) overlay;
 						float val = ((Float) args[2]).floatValue();
 						if (cmd.equals("ref")) {
 							boolean flag = val > 0.5f;
 							imgOverlay.setCentered(flag);
 						} else if (cmd.equals("scale")) {
-							if (args.length < 4 || !(args[3] instanceof Float)) return;
+							if (args.length < 4 || !(args[3] instanceof Float))
+								return;
 							float sy = ((Float) args[3]).floatValue();
 							imgOverlay.setScale(val, sy);
 						} else if (cmd.equals("rotate")) {
@@ -162,14 +182,17 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					}
 				}
 			} else {
-				if (args.length < 3 || !(args[2] instanceof String)) return;
+				if (args.length < 3 || !(args[2] instanceof String))
+					return;
 				String arg = (String) args[2];
 				Overlay overlay;
 				if (cmd.equals("load")) {
-					overlay = new ImageOverlay(new File(sceneFolder, arg).getAbsolutePath());
+					overlay = new ImageOverlay(
+							new File(sceneFolder, arg).getAbsolutePath());
 				} else if (cmd.equals("text")) {
 					overlay = new TextOverlay(arg);
-				} else return;
+				} else
+					return;
 				sceneView.addOverlay(overlay);
 				overlays.put(key, overlay);
 			}
@@ -179,8 +202,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	private final ServiceConnection serviceConnection = new ServiceConnection() {
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
-			synchronized(lock) {
-				pdService = ((PdService.PdBinder)service).getService();
+			synchronized (lock) {
+				pdService = ((PdService.PdBinder) service).getService();
 				initPd();
 			}
 		}
@@ -199,10 +222,12 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		sceneId = intent.getLongExtra(SceneColumn.ID.getLabel(), -1);
 		if (sceneId >= 0) {
 			Cursor cursor = db.getScene(sceneId);
-			String scenePath = SceneDataBase.getString(cursor, SceneColumn.SCENE_DIRECTORY);
+			String scenePath = SceneDataBase.getString(cursor,
+					SceneColumn.SCENE_DIRECTORY);
 			artist = SceneDataBase.getString(cursor, SceneColumn.SCENE_ARTIST);
 			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
-			description = SceneDataBase.getString(cursor, SceneColumn.SCENE_INFO);
+			description = SceneDataBase.getString(cursor,
+					SceneColumn.SCENE_INFO);
 			cursor.close();
 			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
@@ -212,9 +237,12 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			progress.show();
 			sceneFolder = new File(scenePath);
 			String recDirPath = intent.getStringExtra(RECORDING_PATH);
-			recDir = new File(recDirPath != null ? recDirPath : getResources().getString(R.string.recording_folder));
-			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs())) recDir = null;
+			recDir = new File(recDirPath != null ? recDirPath : getResources()
+					.getString(R.string.recording_folder));
+			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs()))
+				recDir = null;
 			initGui();
+			initBluetooth();
 			initSystemServices();
 			initPdService();
 		} else {
@@ -228,20 +256,102 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 			@Override
 			public void run() {
 				fixScene();
-				bindService(new Intent(ScenePlayer.this, PdService.class), serviceConnection, BIND_AUTO_CREATE);
+				bindService(new Intent(ScenePlayer.this, PdService.class),
+						serviceConnection, BIND_AUTO_CREATE);
 			}
 		}.start();
 	}
 
+	private void initBluetooth() {
+		bluetooth = BluetoothAdapter.getDefaultAdapter();
+		IntentFilter filter = new IntentFilter(
+				BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+		filter.addAction(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(receiver, filter);
+
+		bluetooth.startDiscovery();
+	}
+
+	private BroadcastReceiver receiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			(new SearchRoutine(intent)).execute(0);
+		}
+	};
+
+	public class SearchRoutine extends AsyncTask<Integer, Integer, Integer> {
+
+		Intent intent;
+
+		// CONSTRUCTOR
+		public SearchRoutine(Intent intent) {
+			this.intent = intent;
+		}
+
+		@Override
+		protected Integer doInBackground(Integer... params) {
+
+			String action = intent.getAction();
+
+			if (action.equals(BluetoothDevice.ACTION_FOUND)) {
+				// New device found! Get the BluetoothDevice object from the
+				// Intent
+				BluetoothDevice device = intent
+						.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+				// Extracting address and rssi
+				String address = device.getAddress();
+				Integer rssi = (int) intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,
+						Short.MIN_VALUE);
+
+				Log.d(TAG, "Address: " + address + ". RSSI: " + rssi
+						+ ". Time: " + (new Date()).getTime());
+
+				// Send the reading to Pd
+				PdBase.sendMessage(BLUETOOTH, address,
+						rssi);
+
+				// Wait to check if new discovery is needed
+				final int currentRandomValue = (int) (100 * Math.random());
+				readingRandomValue = currentRandomValue;
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							Thread.sleep(interval);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						// If there was no new reading in the interval start new
+						// Bluetooth search
+						if (readingRandomValue == currentRandomValue) {
+							bluetooth.cancelDiscovery();
+						}
+					}
+				}).start();
+
+			} else if (action
+					.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
+				bluetooth.startDiscovery();
+			}
+
+			return null;
+		}
+	}
+
 	private void initSystemServices() {
 		SensorManager sm = (SensorManager) getSystemService(SENSOR_SERVICE);
-		sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
+		sm.registerListener(this,
+				sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+				SensorManager.SENSOR_DELAY_GAME);
 		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		telephonyManager.listen(new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
 				synchronized (lock) {
-					if (pdService == null) return;
+					if (pdService == null)
+						return;
 					if (state == TelephonyManager.CALL_STATE_IDLE) {
 						if (play.isChecked() && !pdService.isRunning()) {
 							startAudio();
@@ -257,23 +367,31 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void fixScene() {
-		// weird little hack to avoid having our rj_image.pd and such masked by files in the scene
-		for (String s: new String[] {"rj_image.pd", "rj_text.pd", "soundinput.pd", "soundoutput.pd"}) {
+		// weird little hack to avoid having our rj_image.pd and such masked by
+		// files in the scene
+		for (String s : new String[] { "rj_image.pd", "rj_text.pd",
+				"soundinput.pd", "soundoutput.pd" }) {
 			List<File> list = IoUtils.find(sceneFolder, s);
-			for (File file: list) file.delete();
+			for (File file : list)
+				file.delete();
 		}
 	}
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		final float q = 1.0f / SensorManager.GRAVITY_EARTH;  // convert acceleration units from m/s^2 to g
-		PdBase.sendList(ACCELERATE, event.values[0] * q, -event.values[1] * q, -event.values[2] * q);
+		final float q = 1.0f / SensorManager.GRAVITY_EARTH; // convert
+															// acceleration
+															// units from m/s^2
+															// to g
+		PdBase.sendList(ACCELERATE, event.values[0] * q, -event.values[1] * q,
+				-event.values[2] * q);
 		/**
-		 * Explanation:  Observation of RjDj patches suggests that the z-axis points
-		 * downward on iPhones.  Since I'm pretty sure that the coordinate system is
-		 * supposed to be right-handed and that the x-axis points right, I've concluded
-		 * that the way to convert between Android and iPhone accelerometer values is to
-		 * flip the sign of the y and z coordinates.
+		 * Explanation: Observation of RjDj patches suggests that the z-axis
+		 * points downward on iPhones. Since I'm pretty sure that the coordinate
+		 * system is supposed to be right-handed and that the x-axis points
+		 * right, I've concluded that the way to convert between Android and
+		 * iPhone accelerometer values is to flip the sign of the y and z
+		 * coordinates.
 		 */
 	}
 
@@ -284,12 +402,15 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		return (v == sceneView) && VersionedTouch.evaluateTouch(event, sceneView.getWidth(), sceneView.getHeight());
+		return (v == sceneView)
+				&& VersionedTouch.evaluateTouch(event, sceneView.getWidth(),
+						sceneView.getHeight());
 	}
 
 	@Override
 	protected void onPause() {
-		getPreferences(MODE_PRIVATE).edit().putInt(MICVOLUME, micValue).commit();
+		getPreferences(MODE_PRIVATE).edit().putInt(MICVOLUME, micValue)
+				.commit();
 		dismissProgressDialog();
 		super.onPause();
 	}
@@ -311,7 +432,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		tv.setText(artist);
 		sceneView = (SceneView) findViewById(R.id.sceneplayer_pic);
 		sceneView.setOnTouchListener(this);
-		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder, "image.jpg").getAbsolutePath()));
+		sceneView.setImageBitmap(BitmapFactory.decodeFile(new File(sceneFolder,
+				"image.jpg").getAbsolutePath()));
 		play = (ToggleButton) findViewById(R.id.sceneplayer_pause);
 		play.setOnClickListener(this);
 		record = (ToggleButton) findViewById(R.id.sceneplayer_record);
@@ -338,7 +460,8 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void dismissProgressDialog() {
-		if (progress!= null) progress.dismiss();
+		if (progress != null)
+			progress.dismiss();
 	}
 
 	private void cleanup() {
@@ -395,27 +518,33 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	private void stopRecording() {
-		if (recFile == null) return;
+		if (recFile == null)
+			return;
 		PdBase.sendMessage(TRANSPORT, "record", 0);
 		long duration = System.currentTimeMillis() - recStart;
-        double longitude = 0.0;
-        double latitude = 0.0;
+		double longitude = 0.0;
+		double latitude = 0.0;
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager != null) {  // Paranoid?  Maybe...
-		    Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-            	longitude = location.getLongitude();
-            	latitude = location.getLatitude();
-            }
-        }
-		db.addRecording(recFile, recStart, duration, longitude, latitude, sceneId);
+		if (locationManager != null) { // Paranoid? Maybe...
+			Location location = locationManager
+					.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			if (location != null) {
+				longitude = location.getLongitude();
+				latitude = location.getLatitude();
+			}
+		}
+		db.addRecording(recFile, recStart, duration, longitude, latitude,
+				sceneId);
 		recFile = null;
 		post("Finished recording");
 	}
 
 	private boolean initAudio(int nIn, int nOut) {
 		try {
-			pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1);   // negative values default to PdService preferences
+			pdService.initAudio(SAMPLE_RATE, nIn, nOut, -1); // negative values
+																// default to
+																// PdService
+																// preferences
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());
 			return false;
@@ -425,8 +554,10 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 
 	private void startAudio() {
 		synchronized (lock) {
-			if (pdService == null) return;
-			if (!initAudio(1, 2)) {  // only trying one input channel to avoid failures on Samsung Galaxy Tab
+			if (pdService == null)
+				return;
+			if (!initAudio(1, 2)) { // only trying one input channel to avoid
+									// failures on Samsung Galaxy Tab
 				if (!initAudio(0, 2)) {
 					toast("Unable to initialize audio interface");
 					finish();
@@ -448,18 +579,21 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();  // Preserve interrupt flag for caller.
+					Thread.currentThread().interrupt(); // Preserve interrupt
+														// flag for caller.
 				}
 			}
-			pdService.startAudio(new Intent(this, ScenePlayer.class), R.drawable.sceneplayer_notify,
-					title + " by " + artist, "Return to scene.");
+			pdService.startAudio(new Intent(this, ScenePlayer.class),
+					R.drawable.sceneplayer_notify, title + " by " + artist,
+					"Return to scene.");
 			PdBase.sendMessage(TRANSPORT, "play", 1);
 		}
 	}
 
 	private void stopAudio() {
 		synchronized (lock) {
-			if (pdService == null) return;
+			if (pdService == null)
+				return;
 			PdBase.sendMessage(TRANSPORT, "play", 0);
 			try {
 				Thread.sleep(50);
@@ -476,10 +610,13 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		((TextView) header.findViewById(android.R.id.text1)).setText(title);
 		((TextView) header.findViewById(android.R.id.text2)).setText(artist);
 		File pic = new File(sceneFolder, "thumb.jpg");
-		if (!pic.exists()) pic = new File(sceneFolder, "image.jpg");
+		if (!pic.exists())
+			pic = new File(sceneFolder, "image.jpg");
 		if (pic.exists()) {
-			ImageView sceneThumbnail = (ImageView) header.findViewById(android.R.id.selectedIcon);
-			sceneThumbnail.setImageDrawable(Drawable.createFromPath(pic.getAbsolutePath()));
+			ImageView sceneThumbnail = (ImageView) header
+					.findViewById(android.R.id.selectedIcon);
+			sceneThumbnail.setImageDrawable(Drawable.createFromPath(pic
+					.getAbsolutePath()));
 		}
 		ad.setCustomTitle(header);
 		ad.setMessage(description);
@@ -489,14 +626,17 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 	}
 
 	@Override
-	public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
 		micValue = progress;
 		adjustMicVolume(progress);
 	}
 
 	public void adjustMicVolume(int vol) {
 		float q = vol * 0.01f;
-		float volume = q * q * q * q;  // fourth power of mic volume slider value; somewhere between linear and exponential
+		float volume = q * q * q * q; // fourth power of mic volume slider
+										// value; somewhere between linear and
+										// exponential
 		PdBase.sendFloat(MICVOLUME, volume);
 	}
 
