@@ -42,6 +42,7 @@ public class SceneDataBase {
 		SCENE_ARTIST("author", "text not null, "),
 		SCENE_TITLE("name", "text not null, "),
 		SCENE_INFO("description", "text not null, "),
+		SCENE_BLUETOOTH("bluetooth", "text, "),
 		SCENE_CATEGORY("category", "text, "),
 		SCENE_ID("sceneId", "text, "),
 		SCENE_DIRECTORY("directory", "text unique not null");

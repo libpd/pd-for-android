@@ -91,6 +91,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 	private String artist;
 	private String title;
 	private String description;
+	private String usesBluetooth;
 	private PdService pdService = null;
 	private int patch = 0;
 	private BluetoothAdapter bluetooth;
@@ -228,6 +229,8 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 			title = SceneDataBase.getString(cursor, SceneColumn.SCENE_TITLE);
 			description = SceneDataBase.getString(cursor,
 					SceneColumn.SCENE_INFO);
+			usesBluetooth = SceneDataBase.getString(cursor,
+					SceneColumn.SCENE_BLUETOOTH);
 			cursor.close();
 			micValue = getPreferences(MODE_PRIVATE).getInt(MICVOLUME, 100);
 			progress = new ProgressDialog(this);
@@ -242,7 +245,12 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 			if (recDir.isFile() || (!recDir.exists() && !recDir.mkdirs()))
 				recDir = null;
 			initGui();
-			initBluetooth();
+			if (usesBluetooth != null && usesBluetooth.equals("true")) {
+				initBluetooth();
+				bluetooth.startDiscovery();
+			} else {
+				// TODO toast for Bluetooth
+			}
 			initSystemServices();
 			initPdService();
 		} else {
@@ -268,8 +276,6 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 				BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
 		registerReceiver(receiver, filter);
-
-		bluetooth.startDiscovery();
 	}
 
 	private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -300,15 +306,14 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 						.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				// Extracting address and rssi
 				String address = device.getAddress();
-				Integer rssi = (int) intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,
-						Short.MIN_VALUE);
+				Integer rssi = (int) intent.getShortExtra(
+						BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
 
 				Log.d(TAG, "Address: " + address + ". RSSI: " + rssi
 						+ ". Time: " + (new Date()).getTime());
 
 				// Send the reading to Pd
-				PdBase.sendMessage(BLUETOOTH, address,
-						rssi);
+				PdBase.sendMessage(BLUETOOTH, address, rssi);
 
 				// Wait to check if new discovery is needed
 				final int currentRandomValue = (int) (100 * Math.random());
@@ -469,7 +474,9 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 			// make sure to release all resources
 			stopRecording();
 			stopAudio();
-			unregisterReceiver(receiver);
+			if (usesBluetooth != null && usesBluetooth.equals("true")) {
+				unregisterReceiver(receiver);
+			}
 			if (patch != 0) {
 				PdBase.closePatch(patch);
 				patch = 0;
