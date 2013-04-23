@@ -247,9 +247,15 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 			initGui();
 			if (usesBluetooth != null && usesBluetooth.equals("true")) {
 				initBluetooth();
-				bluetooth.startDiscovery();
-			} else {
-				// TODO toast for Bluetooth
+				if (bluetooth == null) {
+					// TODO toast for no Bluetooth
+					Log.d(TAG, "toast for no Bluetooth");
+				} else if (bluetooth.isEnabled() == false) {
+					// TODO toast for Bluetooth
+					Log.d(TAG, "toast for Bluetooth");
+				} else {
+					bluetooth.startDiscovery();
+				}
 			}
 			initSystemServices();
 			initPdService();
@@ -275,6 +281,7 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 		IntentFilter filter = new IntentFilter(
 				BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 		filter.addAction(BluetoothDevice.ACTION_FOUND);
+		filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
 		registerReceiver(receiver, filter);
 	}
 
@@ -339,6 +346,22 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 			} else if (action
 					.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)) {
 				bluetooth.startDiscovery();
+			} else if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)
+					&& bluetooth != null && !bluetooth.isEnabled()) {
+
+				int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+						BluetoothAdapter.ERROR);
+				switch (state) {
+				case BluetoothAdapter.STATE_TURNING_OFF:
+					// TODO toast for Bluetooth
+					Log.d(TAG, "toast for Bluetooth");
+					break;
+				case BluetoothAdapter.STATE_TURNING_ON:
+					// TODO toast for Bluetooth turned on
+					Log.d(TAG, "toast for Bluetooth turned on");
+					bluetooth.startDiscovery();
+					break;
+				}
 			}
 
 			return null;
