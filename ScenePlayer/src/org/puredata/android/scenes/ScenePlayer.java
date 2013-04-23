@@ -249,10 +249,10 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 				initBluetooth();
 				if (bluetooth == null) {
 					// TODO toast for no Bluetooth
-					Log.d(TAG, "toast for no Bluetooth");
+					toast(getResources().getString(R.string.bluetooth_unavailable));
 				} else if (bluetooth.isEnabled() == false) {
 					// TODO toast for Bluetooth
-					Log.d(TAG, "toast for Bluetooth");
+					toast(getResources().getString(R.string.bluetooth_turn_on));
 				} else {
 					bluetooth.startDiscovery();
 				}
@@ -354,11 +354,11 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 				switch (state) {
 				case BluetoothAdapter.STATE_TURNING_OFF:
 					// TODO toast for Bluetooth
-					Log.d(TAG, "toast for Bluetooth");
+					toast(getResources().getString(R.string.bluetooth_turn_on));
 					break;
 				case BluetoothAdapter.STATE_TURNING_ON:
 					// TODO toast for Bluetooth turned on
-					Log.d(TAG, "toast for Bluetooth turned on");
+					toast(getResources().getString(R.string.bluetooth_is_turning_on));
 					bluetooth.startDiscovery();
 					break;
 				}
