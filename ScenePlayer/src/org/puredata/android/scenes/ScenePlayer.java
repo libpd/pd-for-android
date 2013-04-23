@@ -316,9 +316,6 @@ public class ScenePlayer extends Activity implements SensorEventListener,
 				Integer rssi = (int) intent.getShortExtra(
 						BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE);
 
-				Log.d(TAG, "Address: " + address + ". RSSI: " + rssi
-						+ ". Time: " + (new Date()).getTime());
-
 				// Send the reading to Pd
 				PdBase.sendMessage(BLUETOOTH, address, rssi);
 
