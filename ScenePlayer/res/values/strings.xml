@@ -1,45 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">ScenePlayer</string>
-  <string name="playing">Playing</string>
-  <string name="paused">Play</string>
-  <string name="startrec">Record</string>
-  <string name="stoprec">Recording</string>
-  <string name="update_label">Install scene from SD card</string>
-  <string name="download_label">Download scene from the web</string>
-  <string name="download_url">http://shop.oreilly.com/product/0636920022503.do</string>
-  <string name="selection_about_title">About</string>
-  <string name="selection_about_msg">ScenePlayer\nCopyright 2010 Peter Brinkmann\n(peter.brinkmann@gmail.com)\nhttp://nettoyeur.noisepages.com/</string>
-  <string name="selection_help_title">Help</string>
-  <string name="selection_help_msg">ScenePlayer is a partial Android port of the awesome RjDj app (http://rjdj.me/).
+
+    <string name="app_name">ScenePlayer</string>
+    <string name="playing">Playing</string>
+    <string name="paused">Play</string>
+    <string name="startrec">Record</string>
+    <string name="stoprec">Recording</string>
+    <string name="update_label">Install scene from SD card</string>
+    <string name="download_label">Download scene from the web</string>
+    <string name="download_url">http://shop.oreilly.com/product/0636920022503.do</string>
+    <string name="selection_about_title">About</string>
+    <string name="selection_about_msg">ScenePlayer\nCopyright 2010 Peter Brinkmann\n(peter.brinkmann@gmail.com)\nhttp://nettoyeur.noisepages.com/</string>
+    <string name="selection_help_title">Help</string>
+    <string name="selection_help_msg">ScenePlayer is a partial Android port of the awesome RjDj app (http://rjdj.me/).
  If you want to install more scenes, search the web for RjDj scenes (Martin Brinkmann, Chris McCormick, and Berenger Recoules are among the artists who
  have made some of their scenes available for free) and copy them to your SD card.  Then you can add them to your list of scenes.
  
  WARNING: Apps cannot access the SD card while it is mounted as external storage on your computer.  Make sure to disconnect your Android device from your
  computer before adding scenes.</string>
-
-  <string name="location">Location</string>
-  <string name="cant_read_folder">Unable to read folder</string>
-  <string name="select">Select</string>
-  <string name="no_data">No Data</string>
-  <string name="delete_scene_fail">Unable to delete scene</string>
-  <string name="open_scene_fail">Unable to open scene</string>
-  <string name="delete_recording_fail">Unable to delete recording</string>
-<string name="date_format">yyyy-MM-dd hh:mm</string>
-<string name="duration_format">mm:ss</string>
-<string name="recording_folder">/sdcard/pd</string>
-<string name="date">Date</string>
-<string name="duration">Duration</string>
-<string name="description">Description</string>
-<string name="edit_description">Edit description:</string>
-<string name="longitude">Longitude</string>
-<string name="latitude">Latitude</string>
-<string name="open_recording_fail">Unable to open audio file</string>
-<string name="no_such_recording">No such recording</string>
-<string name="delete_scene_title">Delete scene</string>
-<string name="delete_scene_message">Delete scene and all associated files?</string>
-<string name="delete_recording_title">Delete recording</string>
-<string name="delete_recording_message">Delete recording?</string>
-<string name="no_recordings">No recordings</string>
+    <string name="location">Location</string>
+    <string name="cant_read_folder">Unable to read folder</string>
+    <string name="select">Select</string>
+    <string name="no_data">No Data</string>
+    <string name="delete_scene_fail">Unable to delete scene</string>
+    <string name="open_scene_fail">Unable to open scene</string>
+    <string name="delete_recording_fail">Unable to delete recording</string>
+    <string name="date_format">yyyy-MM-dd hh:mm</string>
+    <string name="duration_format">mm:ss</string>
+    <string name="recording_folder">/sdcard/pd</string>
+    <string name="date">Date</string>
+    <string name="duration">Duration</string>
+    <string name="description">Description</string>
+    <string name="edit_description">Edit description:</string>
+    <string name="longitude">Longitude</string>
+    <string name="latitude">Latitude</string>
+    <string name="open_recording_fail">Unable to open audio file</string>
+    <string name="no_such_recording">No such recording</string>
+    <string name="delete_scene_title">Delete scene</string>
+    <string name="delete_scene_message">Delete scene and all associated files?</string>
+    <string name="delete_recording_title">Delete recording</string>
+    <string name="delete_recording_message">Delete recording?</string>
+    <string name="no_recordings">No recordings</string>
+    <string name="bluetooth_turn_on">This scene depends on Bluetooth. Turn it on</string>
+    <string name="bluetooth_unavailable">Sorry, this scene depends on Bluetooth which is unavailbel in your device</string>
+    <string name="bluetooth_is_turning_on">Bluetooth is turning on. Enjoy this Bluetooth aware scene</string>
 
 </resources>
