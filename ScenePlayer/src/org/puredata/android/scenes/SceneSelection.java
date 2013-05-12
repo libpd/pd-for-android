@@ -28,7 +28,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -82,16 +84,22 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	
 	@Override
 	protected void onNewIntent(Intent intent) {
-		Uri uri = intent.getData();
+		final Uri uri = intent.getData();
 		if (uri.getScheme().equals(("rjdj")) || uri.getScheme().equals("http")) {
-			try {
-				URL url = new URL("http:" + uri.toString().substring(5));
-				URLConnection connection = url.openConnection();
-				connection.connect();
-				addSceneDirectory(connection.getInputStream());
-			} catch (Exception e) {
-				toast("Unable to open URI " + uri);
-			}
+			new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					try {
+						URL url = new URL("http:" + uri.toString().substring(5));
+						URLConnection connection = url.openConnection();
+						connection.connect();
+						addSceneDirectory(connection.getInputStream());
+					} catch (Exception e) {
+						toast("Unable to open URI " + uri);
+					}
+					return null;
+				}
+			}.execute();
 		}
 	}
 	
@@ -166,7 +174,8 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 		if (v.equals(updateButton)) {
 			Intent intent = new Intent(this, FileDialog.class);
 			SharedPreferences prefs = getSharedPreferences(TAG, Context.MODE_PRIVATE);
-			String startPath = prefs.getString(FileDialog.START_PATH, "/sdcard");
+			String startPath = prefs.getString(FileDialog.START_PATH,
+					Environment.getExternalStorageDirectory().getPath());
 			intent.putExtra(FileDialog.START_PATH, startPath);
 			intent.putExtra(FileDialog.SELECT_PATTERN, ".*\\.(rj|rjz)");
 			intent.putExtra(FileDialog.ACCEPT_FOLDER, true);
@@ -228,7 +237,12 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 
 	private void addSceneDirectory(File file) throws IOException {
 		db.addScene(file);
-		updateList();
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				updateList();
+			}
+		});
 	}
 
 	private void addSceneDirectory(InputStream in) throws IOException {
