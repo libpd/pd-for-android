@@ -44,12 +44,12 @@ public class AudioParameters {
 		if (Properties.version > 16 && context != null) {
 			impl = JellyBeanMR1OpenSLParameters.getParameters(context);
 		} else if (Properties.version > 16) {
-			Log.w("AudioParameters", "Initializing audio parameters with null context on Android 4.2 or later --- low-latency track will not be available!");
-			impl = new BasicOpenSLParameters(512, 512);
+			Log.w("AudioParameters", "Initializing audio parameters with null context on Android 4.2 or later.");
+			impl = new BasicOpenSLParameters(64, 64);
 		} else if (Properties.version == 16) {
 			impl = JellyBeanOpenSLParameters.getParameters();
 		} else if (Properties.version > 8) {
-			impl = new BasicOpenSLParameters(1024, 1024);
+			impl = new BasicOpenSLParameters(64, 64);
 		} else {
 			impl = new JavaAudioParameters();
 		}
@@ -209,7 +209,7 @@ public class AudioParameters {
 
 		@Override public boolean supportsLowLatency() { return false; }
 		@Override public int suggestSampleRate() { return 44100; }
-		@Override public int suggestInputChannels() { return 2; }
+		@Override public int suggestInputChannels() { return 1; }
 		@Override public int suggestOutputChannels() { return 2; }
 		@Override public int suggestInputBufferSize(int sampleRate) { return inputBufferSize; }
 		@Override public int suggestOutputBufferSize(int sampleRate) { return outputBufferSize; }
@@ -237,7 +237,7 @@ public class AudioParameters {
 
 		static JellyBeanOpenSLParameters getParameters() {
 			boolean lowLatency = Build.MODEL.equals("Galaxy Nexus");
-			return new JellyBeanOpenSLParameters(512, 512, lowLatency ? 384 : 512, lowLatency);  // 384 is the magic number for GN + JB (Android 4.1).
+			return new JellyBeanOpenSLParameters(64, 64, lowLatency ? 384 : 64, lowLatency);  // 384 is the magic number for GN + JB (Android 4.1).
 		}
 		
 		@Override
@@ -267,7 +267,7 @@ public class AudioParameters {
 			boolean lowLatency = pm.hasSystemFeature(PackageManager.FEATURE_AUDIO_LOW_LATENCY);
 			AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 			int sr = 44100;
-			int bs = 512;
+			int bs = 64;
 			try {
 				sr = Integer.parseInt(am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE));
 				bs = Integer.parseInt(am.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER));
@@ -275,7 +275,7 @@ public class AudioParameters {
 			} catch (Exception e) {
 				Log.e(TAG, "Missing or malformed audio property: " + e.toString());
 			}
-			return new JellyBeanMR1OpenSLParameters(sr, 512, 512, bs, lowLatency);
+			return new JellyBeanMR1OpenSLParameters(sr, 64, 64, bs, lowLatency);
 		}
 	}
 }
