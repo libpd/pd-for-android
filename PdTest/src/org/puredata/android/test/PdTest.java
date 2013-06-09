@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import org.puredata.android.io.AudioParameters;
 import org.puredata.android.service.PdPreferences;
 import org.puredata.android.service.PdService;
 import org.puredata.core.PdBase;
@@ -138,6 +139,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	@Override
 	protected void onCreate(android.os.Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		AudioParameters.init(this);
 		PdPreferences.initPreferences(getApplicationContext());
 		PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).registerOnSharedPreferenceChangeListener(this);
 		initGui();
@@ -289,7 +291,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		List<Object> list = new ArrayList<Object>();
 		while (sc.hasNext()) {
 			if (sc.hasNextInt()) {
-				list.add(new Float(sc.nextInt()));
+				list.add(Float.valueOf(sc.nextInt()));
 			} else if (sc.hasNextFloat()) {
 				list.add(sc.nextFloat());
 			} else {

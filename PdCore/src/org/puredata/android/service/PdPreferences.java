@@ -31,6 +31,7 @@ public class PdPreferences extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		AudioParameters.init(this);
 		initPreferences(getApplicationContext());
 		addPreferencesFromResource(R.xml.preferences);	
 	}
