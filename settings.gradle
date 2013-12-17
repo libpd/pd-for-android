@@ -1,0 +1,1 @@
+include ':PdCore', ':midi:AndroidMidi', ':CircleOfFifths', ':ScenePlayer', ':Voice-O-Rama'
