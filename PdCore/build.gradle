@@ -3,22 +3,25 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.4'
+        classpath 'com.android.tools.build:gradle:0.6+'
     }
 }
+
 apply plugin: 'android-library'
 
-dependencies {
+repositories {
+    mavenCentral()
 }
 
 android {
-    compileSdkVersion 17
-    buildToolsVersion "17"
+    compileSdkVersion 19
+    buildToolsVersion "19.0.0"
 
     defaultConfig {
-        minSdkVersion 3
-        targetSdkVersion 3
+        minSdkVersion 8
+        targetSdkVersion 8
     }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -31,5 +34,24 @@ android {
         }
 
         instrumentTest.setRoot('tests')
-    }
+    }	
 }
+
+dependencies {
+    compile project(':midi:AndroidMidi')
+    compile files("$buildDir/native-libs/native-libs.jar")
+}
+
+task nativeLibsToJar(type: Zip) {
+    destinationDir file("$buildDir/native-libs")
+    baseName 'native-libs'
+    extension 'jar'
+    from fileTree(dir: 'libs', include: '**/*.so')
+    into 'lib/'
+}
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn(nativeLibsToJar)
+}
+
+
