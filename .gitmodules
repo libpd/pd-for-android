@@ -3,4 +3,4 @@
 	url = git://github.com/libpd/libpd.git
 [submodule "midi"]
 	path = midi
-	url = git://github.com/nettoyeurny/btmidi.git
+	url = git://github.com/tkirshboim/btmidi.git
