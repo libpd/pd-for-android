@@ -23,6 +23,7 @@ android {
             resources.srcDirs = ['src','jni/libpd/java']
             aidl.srcDirs = ['src','jni/libpd/java']
             renderscript.srcDirs = ['src','jni/libpd/java']
+            jniLibs.srcDirs = ['src','libs']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
