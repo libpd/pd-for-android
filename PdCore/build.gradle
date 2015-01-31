@@ -5,25 +5,29 @@ dependencies {
     compile project(':midi:AndroidMidi')
 }
 
+group = 'org.puredata.android.service'
+archivesBaseName="PdCore"
+version = '1.0'
+
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    buildToolsVersion '21.1.2'
 
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 21
         versionCode 1
-        versionName "1.0"
+        versionName version
     }
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src','jni/libpd/java']
-            resources.srcDirs = ['src','jni/libpd/java']
-            aidl.srcDirs = ['src','jni/libpd/java']
-            renderscript.srcDirs = ['src','jni/libpd/java']
-            jniLibs.srcDirs = ['src','libs']
+            java.srcDirs = ['src', 'jni/libpd/java']
+            resources.srcDirs = ['src', 'jni/libpd/java']
+            aidl.srcDirs = ['src', 'jni/libpd/java']
+            renderscript.srcDirs = ['src', 'jni/libpd/java']
+            jniLibs.srcDirs = ['src', 'libs']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
@@ -39,5 +43,15 @@ android {
         // by a similar customization.
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+    }
+
+    libraryVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.aar')) {
+                def fileName = "${archivesBaseName}-${version}.aar"
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
     }
 }
