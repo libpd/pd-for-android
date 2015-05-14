@@ -35,3 +35,6 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+# NetBeans project files
+/.nb-gradle/
