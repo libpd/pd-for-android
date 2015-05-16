@@ -2,7 +2,7 @@
 
 ### Using the terminal
 
-1. Clone this repository : git clone https://github.com/tkirshboim/pd-for-android
+1. Clone this repository
 2. Go to the repository folder : `cd pd-for-android`
 3. run `git submodule update --init --recursive` to initialize and udpate the git submodules
 4. Go to the PdCore fodler : `cd PdCore`
