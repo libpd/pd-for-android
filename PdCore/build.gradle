@@ -49,14 +49,15 @@ android {
                 '-j', Runtime.runtime.availableProcessors(),
                 'all',
                 'NDK_DEBUG=1'
+    }
 
-        // copy libexpr.so to libexpr_tilde.so and libfexpr_tilde.so
-        doLast {
-            def src = 'libexpr.so'
-            file('libs').eachDir() { dir ->
-                copy { from(dir) into(dir) include(src) rename(src, 'libexpr_tilde.so') }
-                copy { from(dir) into(dir) include(src) rename(src, 'libfexpr_tilde.so') }
-            }
+    // After ndk-build, copy libexpr.so to libexpr_tilde.so and libfexpr_tilde.so
+    buildNative.doLast {
+        def src = 'libexpr.so'
+        file('libs').eachDir() { dir ->
+            println "Cloning $src in $dir"
+            copy { from(dir) into(dir) include(src) rename(src, 'libexpr_tilde.so') }
+            copy { from(dir) into(dir) include(src) rename(src, 'libfexpr_tilde.so') }
         }
     }
 
@@ -85,7 +86,8 @@ android {
 def getNdkBuildExecutablePath() {
     File ndkDir = android.ndkDirectory
     if (ndkDir == null) {
-        throw new Exception('NDK directory is not configured.')
+        throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
+            'local.properties file or with an ANDROID_NDK_HOME environment variable.')
     }
     def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
