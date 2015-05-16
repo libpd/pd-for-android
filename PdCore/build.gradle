@@ -14,7 +14,7 @@ android {
     buildToolsVersion '21.1.2'
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 10
         targetSdkVersion 21
         versionCode 1
         versionName version
@@ -24,10 +24,8 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src', 'jni/libpd/java']
-            resources.srcDirs = ['src', 'jni/libpd/java']
-            aidl.srcDirs = ['src', 'jni/libpd/java']
-            renderscript.srcDirs = ['src', 'jni/libpd/java']
-            jniLibs.srcDirs = ['src', 'libs']
+            jniLibs.srcDir 'libs' //set .so files location to libs
+            jni.srcDirs = [] //disable automatic ndk-build call
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
@@ -45,6 +43,33 @@ android {
         release.setRoot('build-types/release')
     }
 
+    task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
+        commandLine getNdkBuildExecutablePath(),
+                '-C', file('jni').absolutePath,
+                '-j', Runtime.runtime.availableProcessors(),
+                'all',
+                'NDK_DEBUG=1'
+
+        // copy libexpr.so to libexpr_tilde.so and libfexpr_tilde.so
+        doLast {
+            def src = 'libexpr.so'
+            file('libs').eachDir() { dir ->
+                copy { from(dir) into(dir) include(src) rename(src, 'libexpr_tilde.so') }
+                copy { from(dir) into(dir) include(src) rename(src, 'libfexpr_tilde.so') }
+            }
+        }
+    }
+
+    task cleanNative(type: Exec, description: 'Clean JNI object files') {
+        commandLine getNdkBuildExecutablePath(), '-C', file('jni').absolutePath, 'clean'
+    }
+
+    clean.dependsOn 'cleanNative'
+
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn buildNative
+    }
+
     libraryVariants.all { variant ->
         variant.outputs.each { output ->
             def outputFile = output.outputFile
@@ -54,4 +79,18 @@ android {
             }
         }
     }
+
+}
+
+def getNdkBuildExecutablePath() {
+    File ndkDir = android.ndkDirectory
+    if (ndkDir == null) {
+        throw new Exception('NDK directory is not configured.')
+    }
+    def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
+    def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
+    if (!ndkBuildFile.exists()) {
+        throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
+    }
+    ndkBuildFile.absolutePath
 }
