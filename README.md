@@ -9,8 +9,8 @@
 5. Assemble the release: `gradle assembleRelease`
 6. Now you have your PdCore .aar file in the folder /build/outputs/aar
 
-Installation of the Android SDK and NDK is required. The NDK location will be determined by the
-ndk.dir property in the local.properties file or the ANDROID_NDK_HOME environment variable.
+Installation of the Android SDK and NDK is required. Define the NDK location by adding a
+ndk.dir property to the local.properties file or with the ANDROID_NDK_HOME environment variable.
 
 If you have trouble with your gradle setup or setting your ANDROID_HOME and ANDROID_NDK_HOME
 environment variables (step 5), you can alternatively open Android Studio, import a Non-Android
