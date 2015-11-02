@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
@@ -43,7 +43,7 @@ android {
         release.setRoot('build-types/release')
     }
 
-    task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
+    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
         commandLine getNdkBuildExecutablePath(),
                 '-C', file('jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors(),
@@ -61,19 +61,19 @@ android {
         }
     }
 
-    task cleanNative(type: Exec, description: 'Clean JNI object files') {
+    tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
         commandLine getNdkBuildExecutablePath(), '-C', file('jni').absolutePath, 'clean'
     }
 
     clean.dependsOn 'cleanNative'
 
     tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn buildNative
+        compileTask -> compileTask.dependsOn 'buildNative'
     }
 
     libraryVariants.all { variant ->
         variant.outputs.each { output ->
-            def outputFile = output.outputFile
+            File outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.aar')) {
                 def fileName = "${archivesBaseName}-${version}.aar"
                 output.outputFile = new File(outputFile.parent, fileName)

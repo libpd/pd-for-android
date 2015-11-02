@@ -39,4 +39,4 @@ proguard/
 .idea/
 
 # NetBeans project files
-/.nb-gradle/
+.nb-gradle/

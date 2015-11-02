@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:rjdj="http://schemas.android.com/apk/res/me.rjdj.rjdjroid"
-	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
 	<LinearLayout android:id="@+id/recording_play_header"
 		android:orientation="vertical" android:layout_width="fill_parent"
 		android:layout_height="wrap_content" android:padding="0px"
