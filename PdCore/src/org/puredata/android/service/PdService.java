@@ -30,6 +30,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 /**
@@ -245,12 +246,18 @@ public class PdService extends Service {
 		protected static final int NOTIFICATION_ID = 1;
 		private boolean hasForeground = false;
 
-		@SuppressWarnings("deprecation")
 		protected Notification makeNotification(Intent intent, int icon, String title, String description) {
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-			Notification notification = new Notification(icon, title, System.currentTimeMillis());
-			notification.setLatestEventInfo(PdService.this, title, description, pi);
-			notification.flags |= Notification.FLAG_ONGOING_EVENT;
+			Notification notification = new NotificationCompat.Builder(PdService.this)
+					.setSmallIcon(icon)
+					.setContentTitle(title)
+					.setTicker(title)
+					.setContentText(description)
+					.setOngoing(true)
+					.setContentIntent(pi)
+					.setWhen(System.currentTimeMillis())
+					.build();
+
 			return notification;
 		}
 

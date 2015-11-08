@@ -6,13 +6,13 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "org.puredata.android.fifths"
         minSdkVersion 10
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 3
         versionName "0.3"
     }
