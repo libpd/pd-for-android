@@ -30,6 +30,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 /**
@@ -247,7 +248,7 @@ public class PdService extends Service {
 
 		protected Notification makeNotification(Intent intent, int icon, String title, String description) {
 			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-			Notification notification = new Notification.Builder(PdService.this)
+			Notification notification = new NotificationCompat.Builder(PdService.this)
 					.setSmallIcon(icon)
 					.setContentTitle(title)
 					.setTicker(title)
