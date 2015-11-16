@@ -1,3 +1,5 @@
+[![Join the chat at https://gitter.im/libpd/pd-for-android](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/libpd/pd-for-android?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## How to create an .aar file of pd-for-android
 
 ### Using the terminal
