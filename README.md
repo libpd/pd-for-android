@@ -1,4 +1,6 @@
-[![Join the chat at https://gitter.im/libpd/pd-for-android](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/libpd/pd-for-android?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+[![Circle CI](https://circleci.com/gh/libpd/pd-for-android/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/libpd/pd-for-android/tree/master)
+[![Join the chat at https://gitter.im/libpd/pd-for-android](http://img.shields.io/badge/chat-online-brightgreen.svg)](https://gitter.im/libpd/pd-for-android)
 
 ## How to create an .aar file of pd-for-android
 
