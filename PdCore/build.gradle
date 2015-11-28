@@ -5,10 +5,11 @@ apply from: 'fat-aar.gradle'
 
 version = '1.0.0-rc2'
 group = 'org.puredata.android'
+archivesBaseName = 'pd-core'
 
 dependencies {
     embedded project(':midi:AndroidMidi')
-    embedded 'com.android.support:support-v4:23.1.0'
+    compile 'com.android.support:support-v4:23.1.0'
 }
 
 android {
@@ -162,6 +163,7 @@ bintray {
     pkg {
         repo = "maven"
         name = "pd-for-android"
+        userOrg = 'pd-for-android'
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["BSD New"]
