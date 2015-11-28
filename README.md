@@ -15,7 +15,7 @@ allprojects {
 }
 ```
 
-Add 'pd-core' as a compile dependency to your app:
+Add the dependency to your app:
 
 ```gradle
 dependencies {
