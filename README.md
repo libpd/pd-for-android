@@ -1,4 +1,4 @@
-
+[![Release](https://img.shields.io/github/tag/libpd/pd-for-android.svg?label=JitPack)](https://jitpack.io/#libpd/pd-for-android/v1.0.0-rc3)
 [![Circle CI](https://circleci.com/gh/libpd/pd-for-android/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/libpd/pd-for-android/tree/master)
 [![Join the chat at https://gitter.im/libpd/pd-for-android](http://img.shields.io/badge/chat-online-brightgreen.svg)](https://gitter.im/libpd/pd-for-android)
 
