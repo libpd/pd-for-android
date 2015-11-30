@@ -12,7 +12,6 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        maven { url "http://dl.bintray.com/pd-for-android/maven" } // remove once AndroidMidi is published on JCenter
     }
 }
 
