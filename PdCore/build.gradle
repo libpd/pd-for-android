@@ -151,7 +151,7 @@ artifacts {
 }
 
 bintray {
-    if(project.hasProperty("bintray.user") && project.hasProperty("bintray.apikey")) {
+    if (project.hasProperty("bintray.user") && project.hasProperty("bintray.apikey")) {
         user = project.property("bintray.user")
         key = project.property("bintray.apikey")
     } else {
