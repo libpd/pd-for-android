@@ -19,6 +19,9 @@ gdb.setup
 # files for the dex VM
 *.dex
 
+# shared object binaries
+*.so
+
 # Java class files
 *.class
 
