@@ -11,10 +11,6 @@ dependencies {
     compile 'com.android.support:support-v4:23.1.0'
 }
 
-group = 'org.puredata.android.service'
-archivesBaseName="PdCore"
-version = '1.0'
-
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.1'
@@ -93,7 +89,7 @@ def getNdkBuildExecutablePath() {
     File ndkDir = android.ndkDirectory
     if (ndkDir == null) {
         throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
-            'local.properties file or with an ANDROID_NDK_HOME environment variable.')
+                'local.properties file or with an ANDROID_NDK_HOME environment variable.')
     }
     def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
@@ -102,7 +98,6 @@ def getNdkBuildExecutablePath() {
     }
     ndkBuildFile.absolutePath
 }
-
 
 def siteUrl = 'https://github.com/libpd/pd-for-android'
 def gitUrl = 'https://github.com/libpd/pd-for-android.git'
