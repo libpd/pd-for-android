@@ -1,13 +1,15 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+version = '1.0.0-rc3'
+group = 'org.puredata.android'
+archivesBaseName = 'pd-core'
 
 dependencies {
-    compile 'com.github.nettoyeurny:btmidi:9bc54ccbe1'
+    compile 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
     compile 'com.android.support:support-v4:23.1.0'
 }
-
-group = 'org.puredata.android.service'
-archivesBaseName="PdCore"
-version = '1.0'
 
 android {
     compileSdkVersion 23
@@ -87,7 +89,7 @@ def getNdkBuildExecutablePath() {
     File ndkDir = android.ndkDirectory
     if (ndkDir == null) {
         throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
-            'local.properties file or with an ANDROID_NDK_HOME environment variable.')
+                'local.properties file or with an ANDROID_NDK_HOME environment variable.')
     }
     def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
@@ -95,4 +97,75 @@ def getNdkBuildExecutablePath() {
         throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
     }
     ndkBuildFile.absolutePath
+}
+
+def siteUrl = 'https://github.com/libpd/pd-for-android'
+def gitUrl = 'https://github.com/libpd/pd-for-android.git'
+
+install {
+    repositories.mavenInstaller {
+
+        pom {
+            project {
+                packaging 'aar'
+
+                name 'Pure Data for Android'
+                url siteUrl
+
+                licenses {
+                    license {
+                        name 'BSD New'
+                        url 'https://raw.githubusercontent.com/libpd/pd-for-android/master/PdCore/LICENSE.txt'
+                    }
+                }
+
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+bintray {
+    if(project.hasProperty("bintray.user") && project.hasProperty("bintray.apikey")) {
+        user = project.property("bintray.user")
+        key = project.property("bintray.apikey")
+    } else {
+        logger.info('Bintray user/apikey not found')
+    }
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "pd-for-android"
+        userOrg = 'pd-for-android'
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["BSD New"]
+        publish = false
+    }
 }
