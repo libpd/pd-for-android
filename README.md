@@ -1,7 +1,12 @@
 [ ![Download](https://api.bintray.com/packages/pd-for-android/maven/pd-for-android/images/download.svg) ](https://bintray.com/pd-for-android/maven/pd-for-android/_latestVersion)
 [![Release](https://img.shields.io/github/release/libpd/pd-for-android.svg?label=JitPack)](https://jitpack.io/#libpd/pd-for-android/v1.0.0-rc3)
 [![Circle CI](https://circleci.com/gh/libpd/pd-for-android/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/libpd/pd-for-android/tree/master)
+
 [![Join the chat at https://gitter.im/libpd/pd-for-android](http://img.shields.io/badge/chat-online-brightgreen.svg)](https://gitter.im/libpd/pd-for-android)
+ \- Try the chat for problems with setting up the library to work with your app
+
+[![StackOverflow](http://img.shields.io/badge/stackoverflow-libpd-blue.svg)]( http://stackoverflow.com/questions/tagged/libpd )
+ \- For questions regarding libpd
 
 ## How to use the library
 
