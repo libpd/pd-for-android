@@ -42,9 +42,14 @@ dependencies {
 1. Assemble the release: `./gradlew PdCore:assembleRelease` (Note: Windows users should run `gradlew`)
 1. Now you have your PdCore .aar file in the folder PdCore/build/outputs/aar
 
-Installation of the Android SDK and NDK is required. Define the NDK location by adding a
-ndk.dir property to the local.properties file or with the ANDROID_NDK_HOME environment variable.
+Installation of the Android SDK and NDK is required. Specify the NDK location by adding an ndk.dir
+property to a local.properties file in the pd-for-android root folder, or by defining an ANDROID_NDK_HOME
+environment variable.
 
-If you have trouble with your gradle setup or setting your ANDROID_HOME and ANDROID_NDK_HOME
-environment variables (step 4), you can alternatively open Android Studio, import as a Gradle
-Project, open the Gradle Toolbar and run the task assembleRelease in the project :PdCore.
+### Using Android Studio
+
+1. Install Android Studio
+1. Make sure the Android SDK and NDK tools are installed and that Android Studio is properly configured to use them
+1. Clone and initialize this repository as per steps 1-3 above
+1. Create a new Android Studio project by importing `settings.gradle` from the pd-for-android root folder: `File > New > Import Project...`
+1. Open the Gradle Toolbar and run the task assembleRelease in the project :PdCore
