@@ -11,6 +11,8 @@ gen/
 build/
 gdbserver
 gdb.setup
+*.o
+*.o.d
 
 # built application files
 *.apk
