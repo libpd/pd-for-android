@@ -31,6 +31,10 @@ dependencies {
 }
 ```
 
+Please note that pd-for-android depends on the vanilla version of Pure Data. Currently this is Pure Data vanilla version 0.46-7. You can get desktop ditributions of it here:
+http://msp.ucsd.edu/software.html
+
+If you're building the patch for your app using the extended distribution of Pure Data, or any other distribution that is not vanilla, you should be careful not to use PD objects that are not part of the vanilla distribution, because these will not work with libpd out of the box. It is however possible to add PD externals to your pd-for-android app. For a simple example as to how this could be done see the PdTest app in this repository, specifically [the jni folder](https://github.com/libpd/pd-for-android/tree/master/PdTest/jni) and the [build.gradle](https://github.com/libpd/pd-for-android/tree/master/PdTest/build.gradle) file. If you take this path, you'll need to clone this repository and use it as the base folder for your app, similarly to the way described in the following section on creating an .aar file.
 
 ## How to create an .aar file of pd-for-android
 
