@@ -1,5 +1,6 @@
 include ':CircleOfFifths'
-include ':PdCore'
+include ':pd-core'
 include ':Voice-O-Rama'
 include ':PdTest'
 include ':ScenePlayer'
+project(':pd-core').projectDir = new File(rootDir, 'PdCore')
