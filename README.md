@@ -25,7 +25,7 @@ Add the dependency to your app:
 
 ```gradle
 dependencies {
-    compile 'org.puredata.android:pd-core:1.0.0-rc4'
+    compile 'org.puredata.android:pd-core:1.0.0'
     
     // ... other dependencies
 }
@@ -43,8 +43,8 @@ If you're building the patch for your app using the extended distribution of Pur
 1. Clone this repository
 1. Go to the repository folder: `cd pd-for-android`
 1. Initialize and udpate the git submodules: `git submodule update --init --recursive`
-1. Assemble the release: `./gradlew PdCore:assembleRelease` (Note: Windows users should run `gradlew`)
-1. Now you have your PdCore .aar file in the folder PdCore/build/outputs/aar
+1. Assemble the release: `./gradlew pd-core:assembleRelease` (Note: Windows users should run `gradlew`)
+1. Now you have your pd-core .aar file in the folder PdCore/build/outputs/aar
 
 Installation of the Android SDK and NDK is required. Specify the NDK location by adding an ndk.dir
 property to a local.properties file in the pd-for-android root folder, or by defining an ANDROID_NDK_HOME
@@ -56,4 +56,4 @@ environment variable.
 1. Make sure the Android SDK and NDK tools are installed and that Android Studio is properly configured to use them
 1. Clone and initialize this repository as per steps 1-3 above
 1. Create a new Android Studio project by importing `settings.gradle` from the pd-for-android root folder: `File > New > Import Project...`
-1. Open the Gradle Toolbar and run the task assembleRelease in the project :PdCore
+1. Open the Gradle Toolbar and run the task assembleRelease in the project :pd-core
