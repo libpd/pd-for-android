@@ -25,7 +25,7 @@ Add the dependency to your app:
 
 ```gradle
 dependencies {
-    compile 'org.puredata.android:pd-core:1.0.0-rc4'
+    compile 'org.puredata.android:pd-core:1.0.0'
     
     // ... other dependencies
 }
