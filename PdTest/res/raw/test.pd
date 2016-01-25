@@ -1,4 +1,4 @@
-#N canvas 305 170 560 426 10;
+#N canvas 582 78 560 426 10;
 #X obj 78 116 dac~;
 #X obj 157 81 *~ 1;
 #X obj 158 37 *~ 0.2;
@@ -15,7 +15,7 @@
 #X obj 11 151 r test;
 #X obj 87 152 loadbang;
 #X obj 87 174 metro 1000;
-#X obj 87 195 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 87 195 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 87 239 realtime;
 #X obj 87 262 print PD_RUNS;
@@ -23,6 +23,19 @@
 #X obj 132 217 sel 1;
 #X obj 228 213 helloworld;
 #X text 223 193 This object is here to test external binding;
+#X obj 229 261 expr~;
+#X obj 270 260 fexpr~;
+#X obj 314 260 sigmund~;
+#X obj 373 260 bob~;
+#X obj 407 259 expr;
+#X obj 440 259 fiddle~;
+#X obj 229 281 bonk~;
+#X obj 271 281 choice;
+#X obj 315 281 loop~;
+#X obj 355 280 lrshift~;
+#X obj 413 282 pique;
+#X text 225 240 test if extra objects can be created;
+#X obj 452 280 stdout;
 #X connect 1 0 0 1;
 #X connect 2 0 1 0;
 #X connect 3 0 0 0;
