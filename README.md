@@ -60,4 +60,4 @@ environment variable.
 
 #### Support for Android Marshmallow (API level 23)
 
-Please note that your app should not target Android API level 23 or above as the support for it still needs to be done. See (this issue)[https://github.com/libpd/pd-for-android/issues/43] for details.
+Please note that your app should not target Android API level 23 or above as the support for it still needs to be done. See [this issue](https://github.com/libpd/pd-for-android/issues/43) for details.
