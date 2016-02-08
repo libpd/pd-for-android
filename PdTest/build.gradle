@@ -53,6 +53,7 @@ android {
                 '-C', file('jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors(),
                 'all',
+                'V=1',
                 'NDK_DEBUG=1'
     }
 
