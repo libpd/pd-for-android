@@ -8,12 +8,12 @@ archivesBaseName = 'pd-core'
 
 dependencies {
     compile 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
-    compile 'com.android.support:support-v4:23.1.0'
+    compile 'com.android.support:support-v4:23.1.1'
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.2'
 
     defaultConfig {
         minSdkVersion 10
