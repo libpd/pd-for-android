@@ -57,7 +57,3 @@ environment variable.
 1. Clone and initialize this repository as per steps 1-3 above
 1. Create a new Android Studio project by importing `settings.gradle` from the pd-for-android root folder: `File > New > Import Project...`
 1. Open the Gradle Toolbar and run the task assembleRelease in the project :PdCore
-
-#### Support for Android Marshmallow (API level 23)
-
-Please note that your app should not target Android API level 23 or above as the support for it still needs to be done. See [this issue](https://github.com/libpd/pd-for-android/issues/43) for details.
