@@ -1,5 +1,5 @@
 [ ![Download](https://api.bintray.com/packages/pd-for-android/maven/pd-for-android/images/download.svg) ](https://bintray.com/pd-for-android/maven/pd-for-android/_latestVersion)
-[![Release](https://img.shields.io/github/release/libpd/pd-for-android.svg?label=JitPack)](https://jitpack.io/#libpd/pd-for-android/1.0.0)
+[![Release](https://img.shields.io/github/release/libpd/pd-for-android.svg?label=JitPack)](https://jitpack.io/#libpd/pd-for-android/1.0.1)
 [![Circle CI](https://circleci.com/gh/libpd/pd-for-android/tree/master.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/libpd/pd-for-android/tree/master)
 
 [![Join the chat at https://gitter.im/libpd/pd-for-android](http://img.shields.io/badge/chat-online-brightgreen.svg)](https://gitter.im/libpd/pd-for-android)
@@ -25,7 +25,7 @@ Add the dependency to your app:
 
 ```gradle
 dependencies {
-    compile 'org.puredata.android:pd-core:1.0.0'
+    compile 'org.puredata.android:pd-core:1.0.1'
     
     // ... other dependencies
 }
