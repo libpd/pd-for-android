@@ -14,8 +14,3 @@ allprojects {
         jcenter()
     }
 }
-
-// Gradle wrapper task
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.9'
-}
