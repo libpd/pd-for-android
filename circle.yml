@@ -1,0 +1,21 @@
+machine:
+
+  # Add ANDROID_NDK_HOME until CircleCI implements this requested feature.
+  environment:
+    ANDROID_NDK_HOME: ${ANDROID_NDK}
+
+checkout:
+  post:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+
+dependencies:
+  pre:
+    - echo y | android update sdk --no-ui --all --filter "tools"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3"
+    - echo y | android update sdk --no-ui --all --filter "extra-android-m2repository"
+
+test:
+  override:
+    - ./gradlew assembleRelease
+    - cp -r PdCore/build/outputs/aar $CIRCLE_ARTIFACTS
