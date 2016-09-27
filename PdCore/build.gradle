@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.0.2-SNAPSHOT'
+version = '1.0.2-rc1'
 group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
 
