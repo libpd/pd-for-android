@@ -1,5 +1,8 @@
 machine:
 
+  java:
+    version: openjdk8
+
   # Add ANDROID_NDK_HOME until CircleCI implements this requested feature.
   environment:
     ANDROID_NDK_HOME: ${ANDROID_NDK}
