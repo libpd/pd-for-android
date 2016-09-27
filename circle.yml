@@ -1,5 +1,8 @@
 machine:
 
+  java:
+    version: openjdk8
+
   # Add ANDROID_NDK_HOME until CircleCI implements this requested feature.
   environment:
     ANDROID_NDK_HOME: ${ANDROID_NDK}
@@ -13,6 +16,7 @@ dependencies:
   pre:
     - echo y | android update sdk --no-ui --all --filter "tools"
     - echo y | android update sdk --no-ui --all --filter "build-tools-24.0.0"
+    - echo y | android update sdk --no-ui --all --filter "android-24"
     - echo y | android update sdk --no-ui --all --filter "extra-android-m2repository"
 
 test:
