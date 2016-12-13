@@ -34,7 +34,7 @@ public class AudioRecordWrapper {
 	private Thread inputThread = null;
 
 	public AudioRecordWrapper(int sampleRate, int inChannels, int bufferSizePerChannel) throws IOException {
-		int channelConfig = VersionedAudioFormat.getInFormat(inChannels);
+		int channelConfig = AudioFormatUtil.getInFormat(inChannels);
 		bufSizeShorts = inChannels * bufferSizePerChannel;
 		int bufSizeBytes = 2 * bufSizeShorts;
 		int recSizeBytes = 2 * bufSizeBytes;

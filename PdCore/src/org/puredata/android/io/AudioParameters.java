@@ -41,14 +41,14 @@ public class AudioParameters {
 	 */
 	public static synchronized void init(Context context) {
 		if (impl != null) return;
-		if (Properties.version > 16 && context != null) {
+		if (Properties.version > Build.VERSION_CODES.JELLY_BEAN && context != null) {
 			impl = JellyBeanMR1OpenSLParameters.getParameters(context);
-		} else if (Properties.version > 16) {
-			Log.w("AudioParameters", "Initializing audio parameters with null context on Android 4.2 or later.");
+		} else if (Properties.version > Build.VERSION_CODES.JELLY_BEAN) {
+			Log.w(TAG, "Initializing audio parameters with null context on Android 4.2 or later.");
 			impl = new BasicOpenSLParameters(64, 64);
-		} else if (Properties.version == 16) {
+		} else if (Properties.version == Build.VERSION_CODES.JELLY_BEAN) {
 			impl = JellyBeanOpenSLParameters.getParameters();
-		} else if (Properties.version > 8) {
+		} else if (Properties.version > Build.VERSION_CODES.FROYO) {
 			impl = new BasicOpenSLParameters(64, 64);
 		} else {
 			impl = new JavaAudioParameters();
@@ -133,7 +133,7 @@ public class AudioParameters {
 		return impl.checkOutputParameters(srate, nout);
 	}
 
-	private static interface AudioParametersImpl {
+	private interface AudioParametersImpl {
 		boolean supportsLowLatency();
 		boolean checkOutputParameters(int srate, int nout);
 		boolean checkInputParameters(int srate, int nin);
@@ -182,7 +182,7 @@ public class AudioParameters {
 		@Override
 		public boolean checkInputParameters(int srate, int nin) {
 			try {
-				return nin == 0 || AudioRecord.getMinBufferSize(srate, VersionedAudioFormat.getInFormat(nin), ENCODING) > 0;
+				return nin == 0 || AudioRecord.getMinBufferSize(srate, AudioFormatUtil.getInFormat(nin), ENCODING) > 0;
 			} catch (Exception e) {
 				return false;
 			}
@@ -191,7 +191,7 @@ public class AudioParameters {
 		@Override
 		public boolean checkOutputParameters(int srate, int nout) {
 			try {
-				return AudioTrack.getMinBufferSize(srate, VersionedAudioFormat.getOutFormat(nout), ENCODING) > 0;
+				return AudioTrack.getMinBufferSize(srate, AudioFormatUtil.getOutFormat(nout), ENCODING) > 0;
 			} catch (Exception e) {
 				return false;
 			}
