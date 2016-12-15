@@ -210,7 +210,7 @@ public class PdService extends Service {
 				IoUtils.extractZipResource(getResources().openRawResource(R.raw.extra_abs), dir, true);
 				abstractionsInstalled = true;
 				PdBase.addToSearchPath(dir.getAbsolutePath());
-				PdBase.addToSearchPath("/data/data/" + getPackageName() + "/lib");  // Location of standard externals.
+				PdBase.addToSearchPath(getApplicationInfo().nativeLibraryDir);  // Location of standard externals.
 			} catch (IOException e) {
 				Log.e(PD_SERVICE, "unable to unpack abstractions:" + e.toString());
 			}
