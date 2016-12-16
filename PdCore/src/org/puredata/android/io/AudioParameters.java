@@ -48,7 +48,7 @@ public class AudioParameters {
 			impl = new BasicOpenSLParameters(64, 64);
 		} else if (Properties.version == Build.VERSION_CODES.JELLY_BEAN) {
 			impl = JellyBeanOpenSLParameters.getParameters();
-		} else if (Properties.version > Build.VERSION_CODES.FROYO) {
+		} else if (Properties.version > Build.VERSION_CODES.GINGERBREAD_MR1) {
 			impl = new BasicOpenSLParameters(64, 64);
 		} else {
 			impl = new JavaAudioParameters();

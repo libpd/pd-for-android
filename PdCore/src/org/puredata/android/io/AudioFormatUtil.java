@@ -16,14 +16,14 @@ import android.util.Log;
  * @author Peter Brinkmann (peter.brinkmann@gmail.com) 
  * 
  */
-public final class AudioFormatUtil {
+public class AudioFormatUtil {
 
 	private AudioFormatUtil() {
 		// do nothing
 	}
 	
 	public static int getInFormat(int inChannels) {
-		switch (inChannels) { // crucial: lazy class loading
+		switch (inChannels) {
 			case 1: return AudioFormat.CHANNEL_IN_MONO;
 			case 2: return AudioFormat.CHANNEL_IN_STEREO;
 			default: throw new IllegalArgumentException("illegal number of input channels: " + inChannels);
