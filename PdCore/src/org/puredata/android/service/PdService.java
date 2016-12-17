@@ -234,13 +234,13 @@ public class PdService extends Service {
 
 	private void startForeground(Intent intent, int icon, String title, String description) {
 		stopForeground();
-		PdService.this.startForeground(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
+		startForeground(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
 		hasForeground = true;
 	}
 
 	private void stopForeground() {
 		if (hasForeground) {
-			PdService.this.stopForeground(true);
+			stopForeground(true);
 			hasForeground = false;
 		}
 	}
