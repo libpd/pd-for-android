@@ -53,7 +53,7 @@ public abstract class AudioWrapper {
 	 * @throws IOException if the audio parameters are not supported by the device
 	 */
 	public AudioWrapper(int sampleRate, int inChannels, int outChannels, int bufferSizePerChannel) throws IOException {
-		int channelConfig = VersionedAudioFormat.getOutFormat(outChannels);
+		int channelConfig = AudioFormatUtil.getOutFormat(outChannels);
 		rec = (inChannels == 0) ? null : new AudioRecordWrapper(sampleRate, inChannels, bufferSizePerChannel);
 		inputSizeShorts = inChannels * bufferSizePerChannel;
 		bufSizeShorts = outChannels * bufferSizePerChannel;
@@ -155,24 +155,12 @@ public abstract class AudioWrapper {
 	}
 	
 	/**
-	 * @return the audio session ID, for Gingerbread and later; will throw an exception on older versions
+	 * @return the audio session ID
 	 */
 	public synchronized int getAudioSessionId() {
-		int version = Properties.version;
-		if (version >= 9) {
-			return AudioSessionHandler.getAudioSessionId(track);  // Lazy class loading trick.
-		} else {
-			throw new UnsupportedOperationException("audio sessions not supported in Android " + version);
-		}
+		return track.getAudioSessionId();
 	}
 	
-	@TargetApi(Build.VERSION_CODES.GINGERBREAD)
-	private static class AudioSessionHandler {
-		private static int getAudioSessionId(AudioTrack track) {
-			return track.getAudioSessionId();
-		}
-	}
-
 	// weird little hack; eliminates the nasty click when AudioTrack (dis)engages by playing
 	// a few milliseconds of silence before starting AudioTrack
 	private void avoidClickHack(Context context) {

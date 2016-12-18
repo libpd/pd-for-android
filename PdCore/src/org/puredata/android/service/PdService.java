@@ -9,25 +9,19 @@ package org.puredata.android.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
-import org.puredata.android.utils.Properties;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -47,12 +41,14 @@ public class PdService extends Service {
 			return PdService.this;
 		}
 	}
-	private final PdBinder binder = new PdBinder();
-	private static final boolean hasEclair = Properties.version >= 5;
-	private static boolean abstractionsInstalled = false;
-	private final ForegroundManager fgManager = hasEclair ? new ForegroundEclair() : new ForegroundCupcake();
 
-	private static final String PD_SERVICE = "PD Service";
+	private static final String TAG = "PD Service";
+	private static final int NOTIFICATION_ID = 1;
+	private static boolean abstractionsInstalled = false;
+
+	private final PdBinder binder = new PdBinder();
+	private boolean hasForeground = false;
+
 	private volatile int sampleRate = 0;
 	private volatile int inputChannels = 0;
 	private volatile int outputChannels = 0;
@@ -98,7 +94,7 @@ public class PdService extends Service {
 	 * @throws IOException  if the audio parameters are not supported by the device
 	 */
 	public synchronized void initAudio(int srate, int nic, int noc, float millis) throws IOException {
-		fgManager.stopForeground();
+		stopForeground();
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if (srate < 0) {
@@ -161,7 +157,7 @@ public class PdService extends Service {
 	 * @param description  description of the notification
 	 */
 	public synchronized void startAudio(Intent intent, int icon, String title, String description) {
-		fgManager.startForeground(intent, icon, title, description);
+		startForeground(intent, icon, title, description);
 		PdAudio.startAudio(this);
 	}
 
@@ -170,7 +166,7 @@ public class PdService extends Service {
 	 */
 	public synchronized void stopAudio() {
 		PdAudio.stopAudio();
-		fgManager.stopForeground();
+		stopForeground();
 	}
 
 	/**
@@ -212,7 +208,7 @@ public class PdService extends Service {
 				PdBase.addToSearchPath(dir.getAbsolutePath());
 				PdBase.addToSearchPath(getApplicationInfo().nativeLibraryDir);  // Location of standard externals.
 			} catch (IOException e) {
-				Log.e(PD_SERVICE, "unable to unpack abstractions:" + e.toString());
+				Log.e(TAG, "unable to unpack abstractions:" + e.toString());
 			}
 		}
 	}
@@ -223,82 +219,29 @@ public class PdService extends Service {
 		release();
 	}
 
-	// Hack to support multiple versions of the Android API, based on an idea
-	// from http://android-developers.blogspot.com/2010/07/how-to-have-your-cupcake-and-eat-it-too.html
-	private interface ForegroundManager {
-		void startForeground(Intent intent, int icon, String title, String description);
-		void stopForeground();
+	private Notification makeNotification(Intent intent, int icon, String title, String description) {
+		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		return new NotificationCompat.Builder(PdService.this)
+				.setSmallIcon(icon)
+				.setContentTitle(title)
+				.setTicker(title)
+				.setContentText(description)
+				.setOngoing(true)
+				.setContentIntent(pi)
+				.setWhen(System.currentTimeMillis())
+				.build();
 	}
 
-	// Another version support hack, this time adapted from
-	// http://tuntis.net/2011/03/06/setforeground-missing-in-android-3-0-services/.
-	// This one works around the disappearance of the setForeground method in Honeycomb.
-	private void invokeSetForeground(boolean foreground) {
-		try {
-			Method method = getClass().getMethod("setForeground", boolean.class);
-			method.invoke(this, foreground);
-		} catch (Exception e) {
-			Log.e(PD_SERVICE, e.toString());
-		}
+	private void startForeground(Intent intent, int icon, String title, String description) {
+		stopForeground();
+		startForeground(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
+		hasForeground = true;
 	}
 
-	private class ForegroundCupcake implements ForegroundManager {
-		protected static final int NOTIFICATION_ID = 1;
-		private boolean hasForeground = false;
-
-		protected Notification makeNotification(Intent intent, int icon, String title, String description) {
-			PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-			Notification notification = new NotificationCompat.Builder(PdService.this)
-					.setSmallIcon(icon)
-					.setContentTitle(title)
-					.setTicker(title)
-					.setContentText(description)
-					.setOngoing(true)
-					.setContentIntent(pi)
-					.setWhen(System.currentTimeMillis())
-					.build();
-
-			return notification;
-		}
-
-		@Override
-		public void startForeground(Intent intent, int icon, String title, String description) {
-			stopForeground();
-			versionedStart(intent, icon, title, description);
-			hasForeground = true;
-		}
-
-		protected void versionedStart(Intent intent, int icon, String title, String description) {
-			invokeSetForeground(true);
-			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-			nm.notify(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
-		}
-
-		@Override
-		public void stopForeground() {
-			if (hasForeground) {
-				versionedStop();
-				hasForeground = false;
-			}
-		}
-
-		protected void versionedStop() {
-			NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-			nm.cancel(NOTIFICATION_ID);
-			invokeSetForeground(false);
-		}
-	}
-
-	@TargetApi(Build.VERSION_CODES.ECLAIR)
-	private class ForegroundEclair extends ForegroundCupcake {
-		@Override
-		protected void versionedStart(Intent intent, int icon, String title, String description) {
-			PdService.this.startForeground(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
-		}
-
-		@Override
-		protected void versionedStop() {
-			PdService.this.stopForeground(true);
+	private void stopForeground() {
+		if (hasForeground) {
+			stopForeground(true);
+			hasForeground = false;
 		}
 	}
 }
