@@ -38,6 +38,8 @@ If you're building the patch for your app using the extended distribution of Pur
 
 ## How to create an .aar file of pd-for-android
 
+[![Join the chat at https://gitter.im/libpd/pd-for-android](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/libpd/pd-for-android?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### Using the terminal
 
 1. Clone this repository
