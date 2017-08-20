@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 dependencies {
     compile project(':PdCore')
+    compile 'com.android.support:support-compat:25.0.0'
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 22
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
