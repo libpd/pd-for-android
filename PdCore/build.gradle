@@ -7,17 +7,17 @@ group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
 
 dependencies {
-    compile 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
-    compile 'com.android.support:support-v4:25.0.0'
+    implementation 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
+    implementation "com.android.support:support-v4:" + rootProject.supportLibVersion
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 25
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion 26
         versionCode 1
         versionName version
     }
@@ -71,12 +71,8 @@ android {
     }
 
     libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            File outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.aar')) {
-                def fileName = "${archivesBaseName}-${version}.aar"
-                output.outputFile = new File(outputFile.parent, fileName)
-            }
+        variant.outputs.all { output ->
+            outputFileName = "${archivesBaseName}-${version}.aar"
         }
     }
 }

@@ -1,17 +1,17 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':PdCore')
-    compile 'com.android.support:support-compat:25.0.0'
+    implementation project(':PdCore')
+    implementation "com.android.support:support-compat:" + rootProject.supportLibVersion
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 25
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }

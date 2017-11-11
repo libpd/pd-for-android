@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile project(':PdCore')
+    implementation project(':PdCore')
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
 
     defaultConfig {
         applicationId "org.puredata.android.fifths"
-        minSdkVersion 10
+        minSdkVersion rootProject.minSdkVersion
         targetSdkVersion 22
         versionCode 3
         versionName "0.3"
