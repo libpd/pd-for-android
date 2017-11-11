@@ -14,15 +14,14 @@ checkout:
 
 dependencies:
   pre:
-    # Install license hashes to enable auto-update feature in android plugin v2.2.x
-    - mkdir "$ANDROID_HOME/licenses" || true
-    - echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME/licenses/android-sdk-license"
-    - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"
+    - echo y | android update sdk --no-ui --all --filter "tools"
+    - echo y | android update sdk --no-ui --all --filter "build-tools-26.0.2"
+    - yes | /usr/local/android-sdk-linux/tools/bin/sdkmanager --update --verbose
   override:
     # Workaround https://code.google.com/p/android/issues/detail?id=212309
-    - ./gradlew dependencies || true
+    - ./gradlew dependencies --console plain || true
   post:
-    - ./gradlew clean assembleRelease
+    - ./gradlew clean assembleRelease --console plain
 
 test:
   override:
