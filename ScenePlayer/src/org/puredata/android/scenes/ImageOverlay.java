@@ -52,7 +52,7 @@ public class ImageOverlay extends Overlay {
 	
 	@Override
 	protected void drawImpl(Canvas canvas) {
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.save();
 		int cw = container.getWidth();
 		int ch = container.getHeight();
 		int xm = (int) (x * cw / SceneView.SIZE);

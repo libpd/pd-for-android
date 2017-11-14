@@ -140,7 +140,7 @@ public final class CircleView extends View {
 	protected void onDraw(Canvas canvas) {
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter * 0.01f, yCenter * 0.01f);
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.save();
 		canvas.rotate(-top * 30);
 		canvas.drawBitmap(wheel, null, outerFrame, null);
 		canvas.restore();
