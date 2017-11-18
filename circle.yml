@@ -5,7 +5,7 @@ machine:
 
   # Add ANDROID_NDK_HOME until CircleCI implements this requested feature.
   environment:
-    ANDROID_NDK_HOME: ${ANDROID_NDK}
+    ANDROID_NDK_HOME: /home/ubuntu/android-ndk-r15c/
 
 checkout:
   post:
@@ -17,6 +17,9 @@ dependencies:
     - echo y | android update sdk --no-ui --all --filter "tools"
     - echo y | android update sdk --no-ui --all --filter "build-tools-26.0.2"
     - yes | /usr/local/android-sdk-linux/tools/bin/sdkmanager --update --verbose
+    - wget https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip; unzip android-ndk-r15c-linux-x86_64.zip:
+        pwd:
+          /home/ubuntu/
   override:
     # Workaround https://code.google.com/p/android/issues/detail?id=212309
     - ./gradlew dependencies --console plain || true
