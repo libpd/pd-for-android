@@ -3,7 +3,6 @@ machine:
   java:
     version: openjdk8
 
-  # Add ANDROID_NDK_HOME until CircleCI implements this requested feature.
   environment:
     ANDROID_NDK_HOME: /home/ubuntu/android-ndk-r15c/
 
