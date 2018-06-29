@@ -15,7 +15,7 @@
 #X obj 11 151 r test;
 #X obj 87 152 loadbang;
 #X obj 87 174 metro 1000;
-#X obj 87 195 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 87 195 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
 1;
 #X obj 87 239 realtime;
 #X obj 87 262 print PD_RUNS;
@@ -37,6 +37,9 @@
 #X text 225 240 test if extra objects can be created;
 #X obj 452 280 stdout;
 #X obj 228 304 clone;
+#X obj 227 345 fudiparse;
+#X obj 297 345 fudiformat;
+#X text 225 325 test that pd 0.48 objects can be created;
 #X connect 1 0 0 1;
 #X connect 2 0 1 0;
 #X connect 3 0 0 0;
