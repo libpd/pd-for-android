@@ -160,7 +160,16 @@ public class PdService extends Service {
 	 * @param description  description of the notification
 	 */
 	public synchronized void startAudio(Intent intent, int icon, String title, String description) {
-		startForeground(intent, icon, title, description);
+		startAudio(makeNotification(intent, icon, title, description));
+	}
+
+	/**
+	 * Start the audio thread with foreground privileges
+	 *
+	 * @param notification notification to display
+	 */
+	public synchronized void startAudio(Notification notification) {
+		startForeground(notification);
 		PdAudio.startAudio(this);
 	}
 
@@ -245,9 +254,9 @@ public class PdService extends Service {
 				.build();
 	}
 
-	private void startForeground(Intent intent, int icon, String title, String description) {
+	private void startForeground(Notification notification) {
 		stopForeground();
-		startForeground(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
+		startForeground(NOTIFICATION_ID, notification);
 		hasForeground = true;
 	}
 
