@@ -7,25 +7,28 @@
 
 package org.puredata.android.service;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
 import org.puredata.core.utils.IoUtils;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * 
@@ -157,7 +160,16 @@ public class PdService extends Service {
 	 * @param description  description of the notification
 	 */
 	public synchronized void startAudio(Intent intent, int icon, String title, String description) {
-		startForeground(intent, icon, title, description);
+		startAudio(makeNotification(intent, icon, title, description));
+	}
+
+	/**
+	 * Start the audio thread with foreground privileges
+	 *
+	 * @param notification notification to display
+	 */
+	public synchronized void startAudio(Notification notification) {
+		startForeground(notification);
 		PdAudio.startAudio(this);
 	}
 
@@ -220,8 +232,18 @@ public class PdService extends Service {
 	}
 
 	private Notification makeNotification(Intent intent, int icon, String title, String description) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			NotificationManager notificationManager =
+					(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			NotificationChannel channel =
+					new NotificationChannel(TAG, TAG, NotificationManager.IMPORTANCE_LOW);
+			if (notificationManager != null) {
+				notificationManager.createNotificationChannel(channel);
+			}
+		}
+
 		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-		return new NotificationCompat.Builder(PdService.this)
+		return new NotificationCompat.Builder(PdService.this, TAG)
 				.setSmallIcon(icon)
 				.setContentTitle(title)
 				.setTicker(title)
@@ -232,9 +254,9 @@ public class PdService extends Service {
 				.build();
 	}
 
-	private void startForeground(Intent intent, int icon, String title, String description) {
+	private void startForeground(Notification notification) {
 		stopForeground();
-		startForeground(NOTIFICATION_ID, makeNotification(intent, icon, title, description));
+		startForeground(NOTIFICATION_ID, notification);
 		hasForeground = true;
 	}
 
