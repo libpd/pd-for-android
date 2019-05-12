@@ -9,7 +9,7 @@ archivesBaseName = 'pd-core'
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
     implementation 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
-    implementation "com.android.support:support-v4:" + rootProject.supportLibVersion
+    implementation "androidx.legacy:legacy-support-v4:" + rootProject.androidxLegacySupportVersion
 }
 
 android {
