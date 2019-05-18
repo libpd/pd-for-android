@@ -55,6 +55,10 @@ android {
     tasks.withType(JavaCompile) {
         compileTask -> compileTask.dependsOn 'buildNative'
     }
+
+    lintOptions {
+        ignore 'ExpiredTargetSdkVersion'
+    }
 }
 
 def getNdkBuildExecutablePath() {
