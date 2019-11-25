@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:title="@string/pref_title" android:summary="@string/pref_sum">
+	<ListPreference android:entryValues="@array/srate_values"
+		android:entries="@array/srate_labels" android:key="@string/pref_key_srate"
+		android:title="@string/pref_title_srate" android:summary="@string/pref_sum_srate">
+	</ListPreference>
+	<ListPreference android:key="@string/pref_key_inchannels"
+		android:entryValues="@array/inchannels_values" android:entries="@array/inchannels_labels"
+		android:title="@string/pref_title_inchannels" android:summary="@string/pref_sum_inchannels"></ListPreference>
+	<ListPreference android:key="@string/pref_key_outchannels"
+		android:entryValues="@array/outchannels_values" android:entries="@array/outchannels_labels"
+		android:title="@string/pref_title_outchannels" android:summary="@string/pref_sum_outchannels"></ListPreference>
+</PreferenceScreen>
