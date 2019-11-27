@@ -18,5 +18,5 @@ jobs:
         JVM_OPTS: -Xmx3200m
     - uses: actions/upload-artifact@v1
       with:
-        name: pd-core
+        name: pd-core-aar
         path: PdCore/build/outputs/aar
