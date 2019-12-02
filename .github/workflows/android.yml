@@ -1,0 +1,22 @@
+name: Android CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - run: |
+        git submodule sync --recursive
+        git submodule update --init --recursive
+        ./gradlew androidDependencies
+        ./gradlew clean assembleRelease
+      env:
+        JVM_OPTS: -Xmx3200m
+    - uses: actions/upload-artifact@v1
+      with:
+        name: pd-core-aar
+        path: PdCore/build/outputs/aar
