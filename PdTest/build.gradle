@@ -15,10 +15,15 @@ android {
         versionCode 1
         versionName "1.0"
 
-        // Uncomment the following 'ndk' section to include only 32-bit CPU architectures in the APK
-        // ndk {
-        //    abiFilters "x86", "armeabi-v7a"
-        // }
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++14"
+                arguments '-DANDROID_STL=c++_static'
+                // armeabi and mips are deprecated in NDK r16 so we don't want to build for them
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            }
+        }
+
     }
 
     buildTypes {
@@ -51,37 +56,9 @@ android {
         release.setRoot('build-types/release')
     }
 
-    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine getNdkBuildExecutablePath(),
-                'V=1',
-                '-C', file('jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors(),
-                'all',
-                'NDK_DEBUG=1'
+    externalNativeBuild {
+        cmake {
+            path 'jni/CMakeLists.txt'
+        }
     }
-
-    tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine getNdkBuildExecutablePath(), 'V=1', '-C', file('jni').absolutePath, 'clean'
-    }
-
-    clean.dependsOn 'cleanNative'
-
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn 'buildNative'
-    }
-}
-
-
-def getNdkBuildExecutablePath() {
-    File ndkDir = android.ndkDirectory
-    if (ndkDir == null) {
-        throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
-                'local.properties file or with an ANDROID_NDK_HOME environment variable.')
-    }
-    def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
-    def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
-    if (!ndkBuildFile.exists()) {
-        throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
-    }
-    ndkBuildFile.absolutePath
 }

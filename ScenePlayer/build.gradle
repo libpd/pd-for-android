@@ -38,39 +38,7 @@ android {
         release.setRoot('build-types/release')
     }
 
-    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine getNdkBuildExecutablePath(),
-                '-C', file('jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors(),
-                'all',
-                'NDK_DEBUG=1'
-    }
-
-    tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine getNdkBuildExecutablePath(), '-C', file('jni').absolutePath, 'clean'
-    }
-
-    clean.dependsOn 'cleanNative'
-
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn 'buildNative'
-    }
-
     lintOptions {
         ignore 'ExpiredTargetSdkVersion'
     }
-}
-
-def getNdkBuildExecutablePath() {
-    File ndkDir = android.ndkDirectory
-    if (ndkDir == null) {
-        throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
-                'local.properties file or with an ANDROID_NDK_HOME environment variable.')
-    }
-    def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
-    def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
-    if (!ndkBuildFile.exists()) {
-        throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
-    }
-    ndkBuildFile.absolutePath
 }

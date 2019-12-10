@@ -21,13 +21,19 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName version
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++14"
+                arguments '-DANDROID_STL=c++_static'
+                // armeabi and mips are deprecated in NDK r16 so we don't want to build for them
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            }
+        }
     }
 
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src/main/java', 'src/main/jni/libpd/java']
-            jniLibs.srcDir 'src/main/libs' //set .so files location to libs
             jni.srcDirs = [] //disable automatic ndk-build call
             res.srcDirs = ['src/main/res']
             assets.srcDirs = ['assets']
@@ -43,32 +49,10 @@ android {
         release.setRoot('build-types/release')
     }
 
-    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine getNdkBuildExecutablePath(),
-                '-C', file('src/main/jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors(),
-                'all',
-                'NDK_DEBUG=1'
-    }
-
-    // After ndk-build, copy libexpr.so to libexpr_tilde.so and libfexpr_tilde.so
-    buildNative.doLast {
-        def src = 'libexpr.so'
-        file('src/main/libs').eachDir() { dir ->
-            println "Cloning $src in $dir"
-            copy { from(dir) into(dir) include(src) rename(src, 'libexpr_tilde.so') }
-            copy { from(dir) into(dir) include(src) rename(src, 'libfexpr_tilde.so') }
+    externalNativeBuild {
+        cmake {
+            path 'src/main/jni/CMakeLists.txt'
         }
-    }
-
-    tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine getNdkBuildExecutablePath(), '-C', file('src/main/jni').absolutePath, 'clean'
-    }
-
-    clean.dependsOn 'cleanNative'
-
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn 'buildNative'
     }
 
     libraryVariants.all { variant ->
@@ -76,20 +60,6 @@ android {
             outputFileName = "${archivesBaseName}-${version}.aar"
         }
     }
-}
-
-def getNdkBuildExecutablePath() {
-    File ndkDir = android.ndkDirectory
-    if (ndkDir == null) {
-        throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
-                'local.properties file or with an ANDROID_NDK_HOME environment variable.')
-    }
-    def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
-    def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
-    if (!ndkBuildFile.exists()) {
-        throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
-    }
-    ndkBuildFile.absolutePath
 }
 
 def siteUrl = 'https://github.com/libpd/pd-for-android'
