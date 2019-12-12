@@ -89,6 +89,9 @@ set(OPENSL_SOURCES
         libpd/libpd_wrapper/util/z_print_util.c
         )
 
+set(LIBPD_C_FLAGS
+        "-DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY -w")
+
 foreach (_BUILD_TYPE RELEASE DEBUG)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${_BUILD_TYPE} ${PROJECT_SOURCE_DIR}../../../libs/${ANDROID_ABI})
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${_BUILD_TYPE} ${PROJECT_SOURCE_DIR}../../../libs/${ANDROID_ABI})
@@ -101,42 +104,42 @@ include_directories(libpd/libpd_wrapper/util)
 include_directories(libpd/jni)
 
 # Build libpd
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY -w")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(pd SHARED
             ${PD_SOURCES}
             )
 target_link_libraries(pd -ldl -latomic)
 
 # Build plain JNI binary
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast")
+set(CMAKE_C_FLAGS "${LIBPD_C_FLAGS} -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast")
 add_library(pdnative SHARED
         libpd/jni/z_jni_plain.c
         )
 target_link_libraries(pdnative PUBLIC pd -lOpenSLES -llog)
 
 # Build OpenSL JNI binary
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast")
+set(CMAKE_C_FLAGS "${LIBPD_C_FLAGS} -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast")
 add_library(pdnativeopensl SHARED
             ${OPENSL_SOURCES}
             )
 target_link_libraries(pdnativeopensl PUBLIC pd -lOpenSLES -llog)
 
 # Build libchoice.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(choice SHARED
         libpd/pure-data/extra/choice/choice.c
         )
 target_link_libraries(choice PUBLIC pd)
 
 # Build libbonk_tilde.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(bonk_tilde SHARED
         libpd/pure-data/extra/bonk~/bonk~.c
         )
 target_link_libraries(bonk_tilde PUBLIC pd)
 
 # Build liblrshift_tilde.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(liblrshift_tilde SHARED
         libpd/pure-data/extra/lrshift~/lrshift~.c
         )
@@ -144,7 +147,7 @@ target_link_libraries(liblrshift_tilde PUBLIC pd)
 
 
 # Build libfiddle_tilde.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(fiddle_tilde SHARED
         libpd/pure-data/extra/fiddle~/fiddle~.c
         )
@@ -152,35 +155,35 @@ target_link_libraries(fiddle_tilde PUBLIC pd)
 
 
 # Build libsigmund_tilde.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(sigmund_tilde SHARED
         libpd/pure-data/extra/sigmund~/sigmund~.c
         )
 target_link_libraries(sigmund_tilde PUBLIC pd)
 
 # Build libpique.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(pique SHARED
         libpd/pure-data/extra/pique/pique.c
         )
 target_link_libraries(pique PUBLIC pd)
 
 # Build libloop_tilde.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(loop_tilde SHARED
         libpd/pure-data/extra/loop~/loop~.c
         )
 target_link_libraries(loop_tilde PUBLIC pd)
 
 # Build bob_tilde.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(bob_tilde SHARED
         libpd/pure-data/extra/bob~/bob~.c
         )
 target_link_libraries(bob_tilde PUBLIC pd)
 
 # Build stdout.so
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DPD")
+set(CMAKE_C_FLAGS ${LIBPD_C_FLAGS})
 add_library(stdout SHARED
         libpd/pure-data/extra/stdout/stdout.c
         )
