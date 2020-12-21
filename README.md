@@ -57,3 +57,11 @@ environment variable.
 1. Clone and initialize this repository as per steps 1-3 above
 1. Create a new Android Studio project by importing `settings.gradle` from the pd-for-android root folder: `File > New > Import Project...`
 1. Open the Gradle Toolbar and run the task assembleRelease in the project :PdCore
+
+## How to update PdCore module to use latest libpd version
+
+1. From the project root folder, step into the libpd submodule folder: `cd PdCore/src/main/jni/libpd`
+1. Update the libpd submodule to the latest commit by running: `git fetch && git checkout origin/master`
+1. Step back to the project root folder and run `git submodule update --init --recursive`
+1. Test that the PdTest app builds and run correctly. This can be done by importing the project in Android Studio and running a clean build ('Build' > 'Rebuild Project', run PdTest).
+
