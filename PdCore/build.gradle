@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.2.0'
+version = '1.2.1-rc1'
 group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
 
@@ -145,9 +145,16 @@ artifacts {
 }
 
 bintray {
-    if (project.hasProperty("bintray.user") && project.hasProperty("bintray.apikey")) {
-        user = project.property("bintray.user")
-        key = project.property("bintray.apikey")
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.newDataInputStream())
+        user = localProperties.getProperty("bintray.user")
+        key = localProperties.getProperty("bintray.apikey")
+    }
+
+    if (user != null &&  key != null) {
+        logger.info('Bintray user/apikey found')
     } else {
         logger.info('Bintray user/apikey not found')
     }
