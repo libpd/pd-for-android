@@ -22,8 +22,5 @@ ext {
     compileSdkVersion = 30
     buildToolsVersion = '30.0.2'
     androidxLegacySupportVersion = '1.0.0'
-
-    // Specifying an NDK version is required for Github CI workflow to work. See:
-    // https://github.com/gradle/gradle/issues/12440#issuecomment-606188282
     ndkVersion = "21.3.6528147"
 }
