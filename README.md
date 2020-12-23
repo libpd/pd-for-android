@@ -41,14 +41,22 @@ If you're building the patch for your app using the extended distribution of Pur
 ### Using the terminal
 
 1. Clone this repository
-1. Go to the repository folder: `cd pd-for-android`
-1. Initialize and udpate the git submodules: `git submodule update --init --recursive`
-1. Assemble the release: `./gradlew PdCore:assembleRelease` (Note: Windows users should run `gradlew`)
-1. Now you have your PdCore .aar file in the folder PdCore/build/outputs/aar
+2. Go to the repository folder:
+```
+cd pd-for-android
+```
+3. Initialize and udpate the git submodules:
+```
+git submodule sync --recursive
+git submodule update --init --recursive
+```
+4. Install dependencies and assemble the release: (Note: Windows users should run `gradlew`)
+```
+./gradlew androidDependencies
+./gradlew clean assembleRelease
+```
 
-Installation of the Android SDK and NDK is required. Specify the NDK location by adding an ndk.dir
-property to a local.properties file in the pd-for-android root folder, or by defining an ANDROID_NDK_HOME
-environment variable.
+Now you have your PdCore .aar file in the folder PdCore/build/outputs/aar
 
 ### Using Android Studio
 
@@ -63,5 +71,5 @@ environment variable.
 1. From the project root folder, step into the libpd submodule folder: `cd PdCore/src/main/jni/libpd`
 1. Update the libpd submodule to the latest commit by running: `git fetch && git checkout origin/master`
 1. Step back to the project root folder and run `git submodule update --init --recursive`
-1. Test that the PdTest app builds and run correctly. This can be done by importing the project in Android Studio and running a clean build ('Build' > 'Rebuild Project', run PdTest).
+1. Test that the PdTest app builds and runs correctly. This can be done by importing the project in Android Studio and running a clean build ('Build' > 'Rebuild Project', run PdTest).
 
