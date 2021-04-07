@@ -7,7 +7,7 @@ dependencies {
 android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
-    ndkVersion rootProject.ndkVersion
+    //ndkVersion rootProject.ndkVersion
 
     defaultConfig {
         applicationId "org.puredata.android.fifths"
