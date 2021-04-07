@@ -8,7 +8,7 @@ dependencies {
 android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
-    ndkVersion rootProject.ndkVersion
+    //ndkVersion rootProject.ndkVersion
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
@@ -74,6 +74,7 @@ android {
 
 
 def getNdkBuildExecutablePath() {
+/*
     File ndkDir = android.ndkDirectory
     if (ndkDir == null) {
         throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
@@ -84,5 +85,7 @@ def getNdkBuildExecutablePath() {
     if (!ndkBuildFile.exists()) {
         throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
     }
-    ndkBuildFile.absolutePath
+*/
+    //ndkBuildFile.absolutePath
+    '/usr/local/lib/android/sdk/ndk-bundle/ndk-build'
 }
