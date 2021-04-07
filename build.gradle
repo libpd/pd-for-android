@@ -1,7 +1,8 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        jcenter() // FIXME:
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
@@ -13,7 +14,8 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        jcenter() // FIXME:
     }
 }
 
@@ -22,5 +24,5 @@ ext {
     compileSdkVersion = 30
     buildToolsVersion = '30.0.2'
     androidxLegacySupportVersion = '1.0.0'
-    ndkVersion = "21.3.6528147"
+    //ndkVersion = "21.3.6528147"
 }
