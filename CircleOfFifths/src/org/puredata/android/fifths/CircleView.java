@@ -23,19 +23,18 @@ import android.graphics.RectF;
 import android.graphics.Shader.TileMode;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.FloatMath;
 import android.view.MotionEvent;
 import android.view.View;
 
 public final class CircleView extends View {
 
-	private static enum State { UP, MAJOR, MINOR, SHIFT };
+	private enum State { UP, MAJOR, MINOR, SHIFT }
 	private static final String[] notesSharp = { "C", "C\u266f", "D", "D\u266f", "E", "F", "F\u266f", "G", "G\u266f", "A", "A\u266f", "B" };
 	private static final String[] notesFlat  = { "C", "D\u266d", "D", "E\u266d", "E", "F", "G\u266d", "G", "A\u266d", "A", "B\u266d", "B" };
 	private static final int[] shifts =        {  0,   -5,   2,   -3,   4,   -1,  6,    1,   -4,   3,   -2,   5  };
 	private static final float R0 = 25;
 	private static final float R2 = 92;
-	private static final float R1 = FloatMath.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
+	private static final float R1 = (float) Math.sqrt((R0 * R0 + R2 * R2) / 2);  // equal area for major and minor fields
 	
 	private CircleOfFifths owner;
 	private int top = 0;
@@ -141,7 +140,7 @@ public final class CircleView extends View {
 	protected void onDraw(Canvas canvas) {
 		canvas.translate(xCenter, yCenter);
 		canvas.scale(xCenter * 0.01f, yCenter * 0.01f);
-		canvas.save(Canvas.MATRIX_SAVE_FLAG);
+		canvas.save();
 		canvas.rotate(-top * 30);
 		canvas.drawBitmap(wheel, null, outerFrame, null);
 		canvas.restore();

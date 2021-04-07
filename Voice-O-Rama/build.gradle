@@ -1,17 +1,17 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-    compile project(':PdCore')
+    implementation project(':PdCore')
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
+    ndkVersion rootProject.ndkVersion
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 21
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion 22
         versionCode 11
         versionName "1.0"
     }
@@ -27,9 +27,6 @@ android {
             assets.srcDirs = ['assets']
         }
 
-        // Move the tests to tests/java, tests/res, etc...
-        instrumentTest.setRoot('tests')
-
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
         // This moves them out of them default location under src/<type>/... which would
@@ -41,6 +38,6 @@ android {
     }
 
     lintOptions {
-        abortOnError false
+        ignore 'ExpiredTargetSdkVersion'
     }
 }

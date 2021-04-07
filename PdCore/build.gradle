@@ -1,21 +1,25 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+version = '1.2.1-rc1'
+group = 'org.puredata.android'
+archivesBaseName = 'pd-core'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-    compile project(':midi:AndroidMidi')
+    api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
+    implementation 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
+    implementation "androidx.legacy:legacy-support-v4:" + rootProject.androidxLegacySupportVersion
 }
 
-group = 'org.puredata.android.service'
-archivesBaseName="PdCore"
-version = '1.0'
-
 android {
-    compileSdkVersion 21
-    buildToolsVersion '21.1.2'
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion rootProject.buildToolsVersion
+    ndkVersion rootProject.ndkVersion
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 21
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion 30
         versionCode 1
         versionName version
     }
@@ -23,15 +27,12 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src', 'jni/libpd/java']
-            jniLibs.srcDir 'libs' //set .so files location to libs
+            java.srcDirs = ['src/main/java', 'src/main/jni/libpd/java']
+            jniLibs.srcDir 'src/main/libs' //set .so files location to libs
             jni.srcDirs = [] //disable automatic ndk-build call
-            res.srcDirs = ['res']
+            res.srcDirs = ['src/main/res']
             assets.srcDirs = ['assets']
         }
-
-        // Move the tests to tests/java, tests/res, etc...
-        instrumentTest.setRoot('tests')
 
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
@@ -45,7 +46,7 @@ android {
 
     tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
         commandLine getNdkBuildExecutablePath(),
-                '-C', file('jni').absolutePath,
+                '-C', file('src/main/jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors(),
                 'all',
                 'NDK_DEBUG=1'
@@ -54,7 +55,7 @@ android {
     // After ndk-build, copy libexpr.so to libexpr_tilde.so and libfexpr_tilde.so
     buildNative.doLast {
         def src = 'libexpr.so'
-        file('libs').eachDir() { dir ->
+        file('src/main/libs').eachDir() { dir ->
             println "Cloning $src in $dir"
             copy { from(dir) into(dir) include(src) rename(src, 'libexpr_tilde.so') }
             copy { from(dir) into(dir) include(src) rename(src, 'libfexpr_tilde.so') }
@@ -62,7 +63,7 @@ android {
     }
 
     tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine getNdkBuildExecutablePath(), '-C', file('jni').absolutePath, 'clean'
+        commandLine getNdkBuildExecutablePath(), '-C', file('src/main/jni').absolutePath, 'clean'
     }
 
     clean.dependsOn 'cleanNative'
@@ -72,22 +73,17 @@ android {
     }
 
     libraryVariants.all { variant ->
-        variant.outputs.each { output ->
-            File outputFile = output.outputFile
-            if (outputFile != null && outputFile.name.endsWith('.aar')) {
-                def fileName = "${archivesBaseName}-${version}.aar"
-                output.outputFile = new File(outputFile.parent, fileName)
-            }
+        variant.outputs.all { output ->
+            outputFileName = "${archivesBaseName}-${version}.aar"
         }
     }
-
 }
 
 def getNdkBuildExecutablePath() {
     File ndkDir = android.ndkDirectory
     if (ndkDir == null) {
         throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
-            'local.properties file or with an ANDROID_NDK_HOME environment variable.')
+                'local.properties file or with an ANDROID_NDK_HOME environment variable.')
     }
     def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
     def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
@@ -95,4 +91,82 @@ def getNdkBuildExecutablePath() {
         throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
     }
     ndkBuildFile.absolutePath
+}
+
+def siteUrl = 'https://github.com/libpd/pd-for-android'
+def gitUrl = 'https://github.com/libpd/pd-for-android.git'
+
+install {
+    repositories.mavenInstaller {
+
+        pom {
+            project {
+                packaging 'aar'
+
+                name 'Pure Data for Android'
+                url siteUrl
+
+                licenses {
+                    license {
+                        name 'BSD New'
+                        url 'https://raw.githubusercontent.com/libpd/pd-for-android/master/PdCore/LICENSE.txt'
+                    }
+                }
+
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+bintray {
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.newDataInputStream())
+        user = localProperties.getProperty("bintray.user")
+        key = localProperties.getProperty("bintray.apikey")
+    }
+
+    if (user != null &&  key != null) {
+        logger.info('Bintray user/apikey found')
+    } else {
+        logger.info('Bintray user/apikey not found')
+    }
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "pd-for-android"
+        userOrg = 'pd-for-android'
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["BSD New"]
+        publish = false
+    }
 }

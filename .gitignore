@@ -11,6 +11,8 @@ gen/
 build/
 gdbserver
 gdb.setup
+*.o
+*.o.d
 
 # built application files
 *.apk
@@ -18,6 +20,9 @@ gdb.setup
 
 # files for the dex VM
 *.dex
+
+# shared object binaries
+*.so
 
 # Java class files
 *.class
