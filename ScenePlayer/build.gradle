@@ -7,7 +7,6 @@ dependencies {
 android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
-    //ndkVersion rootProject.ndkVersion
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
@@ -76,5 +75,5 @@ def getNdkBuildExecutablePath() {
     }
 */
     //ndkBuildFile.absolutePath
-    '/usr/local/lib/android/sdk/ndk-bundle/ndk-build'
+    '/usr/local/lib/android/sdk/ndk-bundle/ndk-build' // FIXME:
 }
