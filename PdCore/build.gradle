@@ -88,6 +88,7 @@ def getNdkBuildName() {
     }
 }
 
+// Adapted from ReactAndroid
 def findNdkBuildFullPath() {
     if (System.getenv('ANDROID_NDK') != null) {
         def ndkDir = System.getenv('ANDROID_NDK')
