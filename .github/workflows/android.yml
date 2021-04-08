@@ -7,6 +7,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      ANDROID_NDK: /usr/local/lib/android/sdk/ndk-bundle
+
     steps:
     - uses: actions/checkout@v2
     - run: |
