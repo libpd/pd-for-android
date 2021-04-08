@@ -24,5 +24,5 @@ ext {
     compileSdkVersion = 30
     buildToolsVersion = '30.0.2'
     androidxLegacySupportVersion = '1.0.0'
-    ndkVersion = '21.4.7075529'
+    ndkVersion = '21.4.7075529' // https://developer.android.com/ndk/downloads#lts-downloads
 }
