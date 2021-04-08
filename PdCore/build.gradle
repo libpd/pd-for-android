@@ -101,24 +101,6 @@ def findNdkBuildFullPath() {
     return null
 }
 
-def getNdkBuildFullPath() {
-    def ndkBuildFullPath = findNdkBuildFullPath()
-    if (ndkBuildFullPath == null) {
-        throw new GradleScriptException(
-                'ndk-build binary cannot be found, check if you've set ' +
-                        '$ANDROID_NDK environment variable correctly or if ndk.dir is ' +
-                        'setup in local.properties',
-                null)
-    }
-    if (!new File(ndkBuildFullPath).canExecute()) {
-        throw new GradleScriptException(
-                "ndk-build binary $ndkBuildFullPath doesn't exist or isn't executable.\n" +
-                        'Check that the $ANDROID_NDK environment variable, or ndk.dir in local.properties, is set correctly.',
-                null)
-    }
-    return ndkBuildFullPath
-}
-
 def getNdkBuildExecutablePath() {
     def ndkBuildFullPath = findNdkBuildFullPath()
     if (ndkBuildFullPath == null || !new File(ndkBuildFullPath).canExecute()) {
