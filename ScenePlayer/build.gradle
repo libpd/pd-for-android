@@ -53,10 +53,12 @@ android {
         commandLine ndkBuildExecutablePath, '-C', file('jni').absolutePath, 'clean'
     }
 
-    clean.dependsOn 'cleanNative'
+    clean.configure {
+        dependsOn tasks.named('cleanNative')
+    }
 
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn 'buildNative'
+    tasks.withType(JavaCompile).configureEach {
+        dependsOn tasks.named('buildNative')
     }
 
     lintOptions {
