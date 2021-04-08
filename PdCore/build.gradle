@@ -97,18 +97,18 @@ def findNdkBuildFullPath() {
     }
 
     // we allow to provide full path to ndk-build tool
-    if (hasProperty("ndk.command")) {
-        return property("ndk.command")
+    if (hasProperty('ndk.command')) {
+        return property('ndk.command')
     }
     // or just a path to the containing directory
-    if (hasProperty("ndk.path")) {
-        ndkDir = property("ndk.path")
+    if (hasProperty('ndk.path')) {
+        ndkDir = property('ndk.path')
         return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
     }
 
     // @FIXME
-    if (System.getenv("ANDROID_NDK_ROOT") != null) {
-        ndkDir = System.getenv("ANDROID_NDK_ROOT")
+    if (System.getenv('ANDROID_NDK_ROOT') != null) {
+        ndkDir = System.getenv('ANDROID_NDK_ROOT')
         return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
     }
 
