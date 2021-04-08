@@ -54,7 +54,7 @@ android {
         release.setRoot('build-types/release')
     }
 
-    tasks.register(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
+    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
         commandLine '/usr/local/lib/android/ndk-bundle/ndk-build', // getNdkBuildExecutablePath()
                 'V=1',
                 '-C', file('jni').absolutePath,
@@ -63,16 +63,20 @@ android {
                 'NDK_DEBUG=1'
     }
 
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.configure {
+            dependsOn tasks.named('buildNative')
+        }
+    }
+
     tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
         commandLine getNdkBuildExecutablePath(), 'V=1', '-C', file('jni').absolutePath, 'clean'
     }
 
-    clean.dependsOn tasks.named('cleanNative')
-
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn tasks.named('buildNative')
+    clean.configure {
+        dependsOn tasks.named('cleanNative')
     }
-}
+]}
 
 def getNdkBuildName() {
     Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
