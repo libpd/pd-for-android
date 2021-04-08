@@ -55,7 +55,7 @@ android {
     }
 
     tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine "${-> new File('/usr/local/lib/android/sdk/ndk-bundle', 'ndk-build').getAbsolutePath()}", // getNdkBuildExecutablePath()
+        commandLine "${-> getNdkBuildExecutablePath()}",
                 'V=1',
                 '-C', file('jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors(),
@@ -68,10 +68,7 @@ android {
     }
 
     tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine "${-> getNdkBuildExecutablePath()}",
-            'V=1',
-            '-C', file('jni').absolutePath,
-            'clean'
+        commandLine "${-> getNdkBuildExecutablePath()}", 'V=1', '-C', file('jni').absolutePath, 'clean'
     }
 
     clean.configure {
@@ -86,7 +83,7 @@ def getNdkBuildName() {
 def findNdkBuildFullPath() {
     // @FIXME
     if (System.getenv('ANDROID_NDK_ROOT') != null) {
-        return new File(System.getenv('ANDROID_NDK_ROOT'), getNdkBuildName()).getAbsolutePath()
+        //return new File(System.getenv('ANDROID_NDK_ROOT'), getNdkBuildName()).getAbsolutePath()
     }
 
     // android.ndkDirectory should return project.android.ndkVersion ndkDirectory
