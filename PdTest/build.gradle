@@ -4,7 +4,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 dependencies {
     implementation project(':PdCore')
-    implementation "androidx.legacy:legacy-support-v4:" + rootProject.androidxLegacySupportVersion
+    implementation 'androidx.legacy:legacy-support-v4:' + rootProject.androidxLegacySupportVersion
 }
 
 android {
@@ -16,11 +16,11 @@ android {
         minSdkVersion rootProject.minSdkVersion
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
 
         // Uncomment the following 'ndk' section to include only 32-bit CPU architectures in the APK
         // ndk {
-        //    abiFilters "x86", "armeabi-v7a"
+        //    abiFilters 'x86', 'armeabi-v7a'
         // }
     }
 
@@ -76,29 +76,13 @@ android {
     }
 }
 
-def getNdkBuildName() {
-    Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
-}
-
-def findNdkBuildFullPath() {
-    // @FIXME
-    if (System.getenv('ANDROID_NDK_ROOT') != null) {
-        //return new File(System.getenv('ANDROID_NDK_ROOT'), getNdkBuildName()).getAbsolutePath()
-    }
-
-    // android.ndkDirectory should return project.android.ndkVersion ndkDirectory
-    def ndkDir = android.ndkDirectory ? android.ndkDirectory.absolutePath : null
-    if (ndkDir) {
-        return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
-    }
-
-    return null
-}
-
-// TODO: Move to convention plugin
+// TODO: Move to convention plugin?
 def getNdkBuildExecutablePath() {
-    def ndkBuildFullPath = findNdkBuildFullPath()
-    if (ndkBuildFullPath == null || !new File(ndkBuildFullPath).canExecute()) {
+    // android.ndkDirectory should return project.android.ndkVersion ndkDirectory
+    def ndkDir = android.ndkDirectory.absolutePath
+    def ndkBuildName = Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
+    def ndkBuildFullPath = new File(ndkDir, ndkBuildName).getAbsolutePath()
+    if (!new File(ndkBuildFullPath).canExecute()) {
         throw new GradleScriptException("ndk-build executable not found: $ndkBuildFullPath")
     }
     return ndkBuildFullPath
