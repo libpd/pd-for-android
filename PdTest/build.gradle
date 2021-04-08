@@ -54,8 +54,8 @@ android {
         release.setRoot('build-types/release')
     }
 
-    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine getNdkBuildExecutablePath(),
+    tasks.register(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
+        commandLine '/usr/local/lib/android/ndk-bundle/ndk-build', // getNdkBuildExecutablePath()
                 'V=1',
                 '-C', file('jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors(),
