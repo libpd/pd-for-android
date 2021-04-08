@@ -55,7 +55,7 @@ android {
     }
 
     tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine '/usr/local/lib/android/ndk-bundle/ndk-build', // getNdkBuildExecutablePath()
+        commandLine new File('/usr/local/lib/android/ndk-bundle', 'ndk-build').getAbsolutePath(), // getNdkBuildExecutablePath()
                 'V=1',
                 '-C', file('jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors(),
@@ -68,7 +68,7 @@ android {
     }
 
     tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine '/usr/local/lib/android/ndk-bundle/ndk-build', // getNdkBuildExecutablePath()
+        commandLine new File('/usr/local/lib/android/ndk-bundle', 'ndk-build').getAbsolutePath(), // getNdkBuildExecutablePath()
             'V=1',
             '-C', file('jni').absolutePath,
             'clean'
