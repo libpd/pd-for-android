@@ -68,10 +68,12 @@ android {
         commandLine ndkBuildExecutablePath, '-C', file('src/main/jni').absolutePath, 'clean'
     }
 
-    clean.dependsOn 'cleanNative'
+    clean.configure {
+        dependsOn tasks.named('cleanNative')
+    }
 
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn 'buildNative'
+    tasks.withType(JavaCompile).configureEach {
+        dependsOn tasks.named('buildNative')
     }
 
     libraryVariants.all { variant ->
@@ -92,6 +94,7 @@ def getNdkBuildExecutablePath() {
     }
     return ndkBuildFullPath
 }
+
 def ndkNBuildExecutablePath = "${{-> getNdkBuildExecutablePath()}.memoize()}"
 
 def siteUrl = 'https://github.com/libpd/pd-for-android'
