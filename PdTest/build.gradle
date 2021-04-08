@@ -67,10 +67,10 @@ android {
         commandLine getNdkBuildExecutablePath(), 'V=1', '-C', file('jni').absolutePath, 'clean'
     }
 
-    clean.dependsOn 'cleanNative'
+    clean.dependsOn tasks.named('cleanNative')
 
     tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn 'buildNative'
+        compileTask -> compileTask.dependsOn tasks.named('buildNative')
     }
 }
 
