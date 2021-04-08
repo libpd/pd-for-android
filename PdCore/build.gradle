@@ -104,6 +104,7 @@ def findNdkBuildFullPath() {
     return null
 }
 
+// TODO: Move to convention plugin
 def getNdkBuildExecutablePath() {
     def ndkBuildFullPath = findNdkBuildFullPath()
     if (ndkBuildFullPath == null || !new File(ndkBuildFullPath).canExecute()) {
