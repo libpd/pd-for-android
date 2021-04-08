@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+import org.apache.tools.ant.taskdefs.condition.Os
+
 dependencies {
     implementation project(':PdCore')
     implementation "androidx.legacy:legacy-support-v4:" + rootProject.androidxLegacySupportVersion
