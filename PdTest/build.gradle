@@ -76,7 +76,7 @@ android {
     clean.configure {
         dependsOn tasks.named('cleanNative')
     }
-]}
+}
 
 def getNdkBuildName() {
     Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
