@@ -74,26 +74,21 @@ android {
 }
 
 def getNdkBuildName() {
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        return 'ndk-build.cmd'
-    } else {
-        return 'ndk-build'
-    }
+    Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
 }
 
-// Adapted from ReactAndroid
 def findNdkBuildFullPath() {
-    if (System.getenv('ANDROID_NDK') != null) {
-        def ndkDir = System.getenv('ANDROID_NDK')
-        return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
+    // @FIXME
+    if (System.getenv('ANDROID_NDK_ROOT') != null) {
+        //return new File(System.getenv('ANDROID_NDK_ROOT'), getNdkBuildName()).getAbsolutePath()
     }
-    def ndkDir = android.hasProperty('plugin') ? android.plugin.ndkFolder :
-            plugins.getPlugin('com.android.library').hasProperty('sdkHandler') ?
-                    plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder() :
-                    android.ndkDirectory ? android.ndkDirectory.absolutePath : null
+
+    // android.ndkDirectory should return project.android.ndkVersion ndkDirectory
+    def ndkDir = android.ndkDirectory ? android.ndkDirectory.absolutePath : null
     if (ndkDir) {
         return new File(ndkDir, getNdkBuildName()).getAbsolutePath()
     }
+
     return null
 }
 
