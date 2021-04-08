@@ -68,7 +68,7 @@ android {
     }
 
     tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine new File('/usr/local/lib/android/sdk/ndk-bundle', 'ndk-build').getAbsolutePath(), // getNdkBuildExecutablePath()
+        commandLine "${-> getNdkBuildExecutablePath()}"
             'V=1',
             '-C', file('jni').absolutePath,
             'clean'
