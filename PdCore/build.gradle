@@ -95,8 +95,6 @@ def getNdkBuildExecutablePath() {
     return ndkBuildFullPath
 }
 
-def ndkNBuildExecutablePath = "${{-> getNdkBuildExecutablePath()}.memoize()}"
-
 def siteUrl = 'https://github.com/libpd/pd-for-android'
 def gitUrl = 'https://github.com/libpd/pd-for-android.git'
 
