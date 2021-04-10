@@ -77,5 +77,3 @@ def getNdkBuildExecutablePath() {
     }
     return ndkBuildFullPath
 }
-
-def ndkNBuildExecutablePath = "${{-> getNdkBuildExecutablePath()}.memoize()}"
