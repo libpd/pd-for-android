@@ -2,7 +2,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = '1.2.1-rc1'
+import org.apache.tools.ant.taskdefs.condition.Os
+
+version = '1.2.1-rc2'
 group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
 
@@ -45,7 +47,7 @@ android {
     }
 
     tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine getNdkBuildExecutablePath(),
+        commandLine ndkBuildExecutablePath,
                 '-C', file('src/main/jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors(),
                 'all',
@@ -63,13 +65,15 @@ android {
     }
 
     tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine getNdkBuildExecutablePath(), '-C', file('src/main/jni').absolutePath, 'clean'
+        commandLine ndkBuildExecutablePath, '-C', file('src/main/jni').absolutePath, 'clean'
     }
 
-    clean.dependsOn 'cleanNative'
+    clean.configure {
+        dependsOn tasks.named('cleanNative')
+    }
 
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn 'buildNative'
+    tasks.withType(JavaCompile).configureEach {
+        dependsOn tasks.named('buildNative')
     }
 
     libraryVariants.all { variant ->
@@ -79,18 +83,16 @@ android {
     }
 }
 
+// TODO: Move to convention plugin?
 def getNdkBuildExecutablePath() {
-    File ndkDir = android.ndkDirectory
-    if (ndkDir == null) {
-        throw new Exception('NDK location not found. Define location with ndk.dir in the ' +
-                'local.properties file or with an ANDROID_NDK_HOME environment variable.')
+    // android.ndkDirectory should return project.android.ndkVersion ndkDirectory
+    def ndkDir = android.ndkDirectory.absolutePath
+    def ndkBuildName = Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
+    def ndkBuildFullPath = new File(ndkDir, ndkBuildName).getAbsolutePath()
+    if (!new File(ndkBuildFullPath).canExecute()) {
+        throw new GradleScriptException("ndk-build executable not found: $ndkBuildFullPath")
     }
-    def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
-    def ndkBuildFile = new File(ndkDir, isWindows ? 'ndk-build.cmd' : 'ndk-build')
-    if (!ndkBuildFile.exists()) {
-        throw new Exception("ndk-build executable not found: $ndkBuildFile.absolutePath")
-    }
-    ndkBuildFile.absolutePath
+    return ndkBuildFullPath
 }
 
 def siteUrl = 'https://github.com/libpd/pd-for-android'

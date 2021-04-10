@@ -8,15 +8,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - run: |
         git submodule sync --recursive
         git submodule update --init --recursive
-        ./gradlew androidDependencies
-        ./gradlew clean assembleRelease
+    - run: ./gradlew androidDependencies
+    - run: ./gradlew clean assembleRelease
       env:
         JVM_OPTS: -Xmx3200m
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
