@@ -5,7 +5,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
-version = 'SNAPSHOT' // ${GITHUB_REF} // FIXME:
+version = System.getenv('GITHUB_REF') ?: 'SNAPSHOT' // FIXME:
 
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
@@ -94,6 +94,26 @@ def getNdkBuildExecutablePath() {
     return ndkBuildFullPath
 }
 
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
 def siteUrl = 'https://github.com/libpd/pd-for-android'
 def gitUrl = 'https://github.com/libpd/pd-for-android.git'
 
@@ -103,7 +123,7 @@ publishing {
             groupId group
             artifactId archivesBaseName
             version version
-            artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar"
+            artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar" // TODO: from components
             //artifact sourcesJar
             //artifact javadocJar
             pom {
@@ -128,24 +148,4 @@ publishing {
             url 'https://maven.pkg.github.com/libpd/pd-for-android'
         }
     }
-}
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
 }
