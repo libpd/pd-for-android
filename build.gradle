@@ -15,7 +15,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        //jcenter() // @FIXME
+        jcenter() // FIXME: com.noisepages.nettoyeur:midi
     }
 }
 
