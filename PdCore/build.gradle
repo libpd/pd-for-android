@@ -5,7 +5,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
-version = findProperty('gpr.version') ?: '1.2.1-rc3'
+version = findProperty('gpr.version') ?: '1.2.1-rc4'
 
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
@@ -124,7 +124,7 @@ publishing {
             artifactId archivesBaseName
             version version
             artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar" // TODO: from components
-            //artifact sourcesJar
+            artifact sourcesJar
             //artifact javadocJar
             pom {
                 name ='Pure Data for Android'
