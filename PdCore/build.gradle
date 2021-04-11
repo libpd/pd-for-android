@@ -104,7 +104,7 @@ publishing {
         myPulication(MavenPublication) {
             groupId group
             version version
-            artifactId archiveBaseName
+            artifactId archivesBaseName
             artifact("$buildDir/outputs/aar/myProject.aar")
         }
     }
