@@ -28,7 +28,7 @@ jobs:
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
-    - if: github.event_name == 'push'
-      run: ./gradlew publish --info
+    # - if: github.event_name == 'push'
+    - run: ./gradlew publish --info
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
