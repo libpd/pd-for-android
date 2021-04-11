@@ -5,7 +5,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
-version = '1.2.1-' + (System.getenv('GITHUB_REF') ?: 'SNAPSHOT') // FIXME:
+version = findProperty('gpr.version') ?: '1.2.1-rc3'
 
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
@@ -124,8 +124,8 @@ publishing {
             artifactId archivesBaseName
             version version
             artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar" // TODO: from components
-            //artifact sourcesJar
-            //artifact javadocJar
+            artifact sourcesJar
+            artifact javadocJar
             pom {
                 name ='Pure Data for Android'
                 url = siteUrl
@@ -148,8 +148,8 @@ publishing {
             name = 'GitHubPackages'
             url = uri('https://maven.pkg.github.com/libpd/pd-for-android')
             credentials {
-                username = project.findProperty('gpr.user') ?: System.getenv('GITHUB_REPOSITORY')
-                password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
+                username = findProperty('gpr.user') ?: System.getenv('GITHUB_REPOSITORY')
+                password = findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
             }
         }
     }
