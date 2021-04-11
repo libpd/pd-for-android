@@ -5,7 +5,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 group = 'org.puredata.android'
 archivesBaseName = 'pd-core'
-version = findProperty('gpr.version') ?: '1.2.1-rc4'
+version = findProperty('gpr.version') ?: '1.2.1-rc5'
 
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
