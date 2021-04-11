@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
@@ -94,9 +94,28 @@ def getNdkBuildExecutablePath() {
     return ndkBuildFullPath
 }
 
+//implementation 'org.puredata.android:pd-core:1.2.1-rc1'
+
 def siteUrl = 'https://github.com/libpd/pd-for-android'
 def gitUrl = 'https://github.com/libpd/pd-for-android.git'
 
+publishing {
+    publications {
+        myPulication(MavenPublication) {
+            groupId group
+            version version
+            artifactId archiveBaseName
+            artifact("$buildDir/outputs/aar/myProject.aar")
+        }
+    }
+    repositories {
+        maven {
+            url "http://www.myrepository.com"
+        }
+    }
+}
+
+/*
 install {
     repositories.mavenInstaller {
 
@@ -124,6 +143,7 @@ install {
         }
     }
 }
+*/
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
