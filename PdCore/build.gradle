@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
@@ -144,31 +143,4 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives javadocJar
     archives sourcesJar
-}
-
-bintray {
-    def localProperties = new Properties()
-    def localPropertiesFile = rootProject.file('local.properties')
-    if (localPropertiesFile.exists()) {
-        localProperties.load(localPropertiesFile.newDataInputStream())
-        user = localProperties.getProperty("bintray.user")
-        key = localProperties.getProperty("bintray.apikey")
-    }
-
-    if (user != null &&  key != null) {
-        logger.info('Bintray user/apikey found')
-    } else {
-        logger.info('Bintray user/apikey not found')
-    }
-
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "pd-for-android"
-        userOrg = 'pd-for-android'
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["BSD New"]
-        publish = false
-    }
 }
