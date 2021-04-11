@@ -3,15 +3,12 @@ name: Android CI
 on:
   push:
     branches:
-      - master
+    - master
+    paths-ignore:
+    - '**/README.md'
   pull_request:
     branches:
-      - master
-  workflow_dispatch:
-    inputs:
-      publish-version:
-        description: 'Enter version to publish'
-        required: true
+    - master
 
 jobs:
   build:
@@ -19,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - run: echo ${{github.event.inputs.publish-version}}
     - uses: actions/checkout@v2
     - run: |
         git submodule sync --recursive
@@ -32,7 +28,7 @@ jobs:
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
-    - if: github.event_name == 'workflow_dispatch'
-      run: ./gradlew publish -Pgpr.version=${{github.event.inputs.publish-version}} --info
+    - if: github.event_name == 'push'
+      run: ./gradlew publish --info
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
