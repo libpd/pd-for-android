@@ -124,7 +124,7 @@ publishing {
             artifactId archivesBaseName
             version version
             artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar" // TODO: from components
-            artifact sourcesJar
+            //artifact sourcesJar
             //artifact javadocJar
             pom {
                 name ='Pure Data for Android'
@@ -151,11 +151,6 @@ publishing {
                 username = findProperty('gpr.user') ?: System.getenv('GITHUB_REPOSITORY')
                 password = findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
             }
-        }
-    }
-    repositories {
-        maven {
-            url 'https://maven.pkg.github.com/libpd/pd-for-android'
         }
     }
 }
