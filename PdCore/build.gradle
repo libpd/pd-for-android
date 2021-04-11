@@ -103,7 +103,7 @@ publishing {
             groupId group
             artifactId archivesBaseName
             version version
-            artifact "$buildDir/outputs/aar/$archivesBaseName.aar"
+            artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar"
             //artifact sourcesJar
             //artifact javadocJar
             pom {
