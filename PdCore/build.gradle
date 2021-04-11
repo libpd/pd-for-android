@@ -5,7 +5,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 groupId = 'org.puredata.android'
 artifactId = 'pd-core'
-version = ${GITHUB_REF} // FIXME:
+version = 'SNAPSHOT' // ${GITHUB_REF} // FIXME:
 
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
