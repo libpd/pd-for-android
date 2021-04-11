@@ -20,6 +20,6 @@ jobs:
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
-    - run: ./gradlew publish
+    - run: ./gradlew publish --info
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
