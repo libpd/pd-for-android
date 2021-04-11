@@ -119,7 +119,7 @@ def gitUrl = 'https://github.com/libpd/pd-for-android.git'
 
 publishing {
     publications {
-        myPulication(MavenPublication) {
+        gpr(MavenPublication) {
             groupId group
             artifactId archivesBaseName
             version version
@@ -140,6 +140,16 @@ publishing {
                     developerConnection = gitUrl
                     url = siteUrl
                 }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url = uri('https://maven.pkg.github.com/libpd/pd-for-android')
+            credentials {
+                username = project.findProperty('gpr.user') ?: System.getenv('GITHUB_REPOSITORY')
+                password = project.findProperty('gpr.key') ?: System.getenv('GITHUB_TOKEN')
             }
         }
     }
