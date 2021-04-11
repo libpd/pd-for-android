@@ -20,3 +20,4 @@ jobs:
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
+    - run: ./gradlew publish --dry-run
