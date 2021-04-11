@@ -1,6 +1,17 @@
 name: Android CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      publish-version:
+        description: 'Enter version to publish'
+        required: true
 
 jobs:
   build:
@@ -20,6 +31,7 @@ jobs:
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
-    - run: ./gradlew publish --info
+    - if: github.event_name == 'workflow_dispatch'
+      run: ./gradlew publish -Pgpr.version={{github.event.inputs.publish-version}} --info
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
