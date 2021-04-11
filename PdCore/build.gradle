@@ -125,7 +125,7 @@ publishing {
             version version
             artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar" // TODO: from components
             artifact sourcesJar
-            artifact javadocJar
+            //artifact javadocJar
             pom {
                 name ='Pure Data for Android'
                 url = siteUrl
