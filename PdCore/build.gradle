@@ -3,9 +3,9 @@ apply plugin: 'maven-publish'
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-version = '1.2.1-rc2'
-group = 'org.puredata.android'
-archivesBaseName = 'pd-core'
+groupId = 'org.puredata.android'
+artifactId = 'pd-core'
+version = ${GITHUB_REF} // FIXME:
 
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
@@ -77,7 +77,7 @@ android {
 
     libraryVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = "${archivesBaseName}-${version}.aar"
+            outputFileName = "${artifactId}.aar"
         }
     }
 }
@@ -94,56 +94,41 @@ def getNdkBuildExecutablePath() {
     return ndkBuildFullPath
 }
 
-//implementation 'org.puredata.android:pd-core:1.2.1-rc1'
-
 def siteUrl = 'https://github.com/libpd/pd-for-android'
 def gitUrl = 'https://github.com/libpd/pd-for-android.git'
 
 publishing {
     publications {
         myPulication(MavenPublication) {
-            groupId group
-            version version
-            artifactId archivesBaseName
-            artifact("$buildDir/outputs/aar/myProject.aar")
-        }
-    }
-    repositories {
-        maven {
-            url "http://www.myrepository.com"
-        }
-    }
-}
-
-/*
-install {
-    repositories.mavenInstaller {
-
-        pom {
-            project {
-                packaging 'aar'
-
-                name 'Pure Data for Android'
-                url siteUrl
-
+            groupId
+            artifactId
+            version
+            artifact "$buildDir/outputs/aar/${artifactId}.aar"
+            //artifact sourcesJar
+            //artifact javadocJar
+            pom {
+                name ='Pure Data for Android'
+                url = siteUrl
                 licenses {
                     license {
-                        name 'BSD New'
-                        url 'https://raw.githubusercontent.com/libpd/pd-for-android/master/PdCore/LICENSE.txt'
+                        name = 'BSD New'
+                        url = 'https://raw.githubusercontent.com/libpd/pd-for-android/master/PdCore/LICENSE.txt'
                     }
                 }
-
                 scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
+                    connection = gitUrl
+                    developerConnection = gitUrl
+                    url = siteUrl
                 }
             }
         }
     }
+    repositories {
+        maven {
+            url "https://maven.pkg.github.com/libpd/pd-for-android"
+        }
+    }
 }
-*/
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
