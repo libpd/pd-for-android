@@ -1,17 +1,17 @@
-apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+plugins {
+    id 'com.android.library'
+    id 'signing'
+    id 'maven-publish'
+}
 
-import org.apache.tools.ant.taskdefs.condition.Os
-
-version = '1.2.1-rc2'
-group = 'org.puredata.android'
+group = rootProject.group
 archivesBaseName = 'pd-core'
+version = rootProject.version
 
 dependencies {
     api 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
     implementation 'com.noisepages.nettoyeur:midi:1.0.0-rc1'
-    implementation "androidx.legacy:legacy-support-v4:" + rootProject.androidxLegacySupportVersion
+    implementation 'androidx.legacy:legacy-support-v4:' + rootProject.androidxLegacySupportVersion
 }
 
 android {
@@ -78,10 +78,12 @@ android {
 
     libraryVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = "${archivesBaseName}-${version}.aar"
+            outputFileName = "${archivesBaseName}.aar"
         }
     }
 }
+
+import org.apache.tools.ant.taskdefs.condition.Os
 
 // TODO: Move to convention plugin?
 def getNdkBuildExecutablePath() {
@@ -95,49 +97,19 @@ def getNdkBuildExecutablePath() {
     return ndkBuildFullPath
 }
 
-def siteUrl = 'https://github.com/libpd/pd-for-android'
-def gitUrl = 'https://github.com/libpd/pd-for-android.git'
-
-install {
-    repositories.mavenInstaller {
-
-        pom {
-            project {
-                packaging 'aar'
-
-                name 'Pure Data for Android'
-                url siteUrl
-
-                licenses {
-                    license {
-                        name 'BSD New'
-                        url 'https://raw.githubusercontent.com/libpd/pd-for-android/master/PdCore/LICENSE.txt'
-                    }
-                }
-
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
-}
-
 task sourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
     from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
 }
 
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    failOnError = false // TODO: fix javadoc issues
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
 
@@ -146,29 +118,85 @@ artifacts {
     archives sourcesJar
 }
 
-bintray {
-    def localProperties = new Properties()
-    def localPropertiesFile = rootProject.file('local.properties')
-    if (localPropertiesFile.exists()) {
-        localProperties.load(localPropertiesFile.newDataInputStream())
-        user = localProperties.getProperty("bintray.user")
-        key = localProperties.getProperty("bintray.apikey")
-    }
+def siteUrl = 'https://github.com/libpd/pd-for-android'
 
-    if (user != null &&  key != null) {
-        logger.info('Bintray user/apikey found')
-    } else {
-        logger.info('Bintray user/apikey not found')
-    }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId group
+            artifactId archivesBaseName
+            version version
+            // TODO: include aar artifact from components?
+            artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar"
+            // ossrh requires javadoc and sources
+            artifact sourcesJar
+            artifact javadocJar
 
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = "pd-for-android"
-        userOrg = 'pd-for-android'
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["BSD New"]
-        publish = false
+            pom {
+                name = "${project.group}:${project.archivesBaseName}"
+			    description = 'Pure Data for Android'
+                url = siteUrl
+                licenses {
+                    license {
+                        name = 'BSD New'
+                        url = 'https://raw.githubusercontent.com/libpd/pd-for-android/master/PdCore/LICENSE.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'joebowbeer'
+                        name = 'Joe Bowbeer'
+                    }
+                    // TODO: Add all other devs here...
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/libpd/pd-for-android'
+                    developerConnection = 'scm:git:ssh://github.com/libpd/pd-for-android.git'
+                    url = siteUrl
+                }
+            }
+        }
     }
+}
+
+// configure publishing to a local directory for testing (not necessary)
+// ./gradlew publishMavenPublicationToLocalRepository
+// tree ./PdCore/build/repos
+publishing {
+    repositories {
+		maven {
+			name = 'local'
+			def releasesRepoUrl = "$buildDir/repos/releases"
+			def snapshotsRepoUrl = "$buildDir/repos/snapshots"
+			url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+		}
+    }
+}
+
+// ossrh requires signed releases, but not snapshots.
+// This configures signing if a key is found.
+// The following environment variables provide a signing key and passphrase:
+// export ORG_GRADLE_PROJECT_signingKey=`cat private.pgp`
+// export ORG_GRADLE_PROJECT_signingPassword="<passphrase>"
+// After making the above available, you can try signing using
+// ./gradlew signMavenPublication
+def hasSigningKey = project.hasProperty('signingKeyId') || project.hasProperty('signingKey')
+if (hasSigningKey) {
+	sign(project)
+}
+void sign(Project project) {
+	project.signing {
+		required { project.gradle.taskGraph.hasTask('required') }
+		def signingKeyId = project.findProperty('signingKeyId')
+		def signingKey = project.findProperty('signingKey')
+		def signingPassword = project.findProperty('signingPassword')
+		if (signingKeyId) {
+            // use in-memory ascii-armored OpenPGP subkey
+			useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+		} else if (signingKey) {
+            // use in-memory ascii-armored key
+			useInMemoryPgpKeys(signingKey, signingPassword)
+		}
+		sign publishing.publications.maven
+	}
 }

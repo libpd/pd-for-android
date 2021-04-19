@@ -1,6 +1,14 @@
 name: Android CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+    - master
+    paths-ignore:
+    - '**/README.md'
+  pull_request:
+    branches:
+    - master
 
 jobs:
   build:
@@ -20,3 +28,10 @@ jobs:
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
+    - if: github.event_name == 'push'
+      run: ./gradlew publishToSonatype
+      env:
+        ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
+        ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
+        #ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY }}
+        #ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_PASSWORD }}
