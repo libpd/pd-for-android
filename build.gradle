@@ -8,6 +8,28 @@ buildscript {
     }
 }
 
+plugins {
+    // must be applied to root project
+    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
+}
+
+// These are specific to PdCode, but nexusPublishing needs them here:
+// https://github.com/gradle-nexus/publish-plugin/issues/84
+group = 'io.github.libpd.android'
+version = '1.2.1-SNAPSHOT'
+
+// Create a Sonatype user token for these environment variables:
+// export ORG_GRADLE_PROJECT_sonatypeUsername="<tokenUsername>"
+// export ORG_GRADLE_PROJECT_sonatypePassword="<tokenPassword>"
+nexusPublishing {
+    repositories {
+        sonatype {
+            nexusUrl.set(uri('https://s01.oss.sonatype.org/service/local/'))
+            snapshotRepositoryUrl.set(uri('https://s01.oss.sonatype.org/content/repositories/snapshots/'))
+        }
+    }
+}
+
 allprojects {
     repositories {
         google()
