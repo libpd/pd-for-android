@@ -1,5 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/pd-for-android/maven/pd-for-android/images/download.svg) ](https://bintray.com/pd-for-android/maven/pd-for-android/_latestVersion)
-[![Release](https://img.shields.io/github/release/libpd/pd-for-android.svg?label=JitPack)](https://jitpack.io/#libpd/pd-for-android/)
+[ ![Download](https://maven-badges.herokuapp.com/maven-central/io.github.libpd.android/pd-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.libpd.android/pd-core)
 ![Build](https://github.com/libpd/pd-for-android/workflows/Android%20CI/badge.svg)
 
 [![Join the chat at https://gitter.im/libpd/pd-for-android](http://img.shields.io/badge/chat-online-brightgreen.svg)](https://gitter.im/libpd/pd-for-android)
@@ -10,12 +9,12 @@
 
 ## How to use the library
 
-Make sure you have JCenter in your repositories:
+Make sure you have Maven Central in your repositories:
 
 ```gradle
 allprojects {
     repositories {
-        jcenter()
+        mavenCentral()
         // ... other repositories
     }
 }
@@ -25,7 +24,7 @@ Add the dependency to your app:
 
 ```gradle
 dependencies {
-    implementation 'org.puredata.android:pd-core:1.2.1-rc1'
+    implementation 'io.github.libpd.android:pd-core:1.2.1-rc6'
     
     // ... other dependencies
 }
