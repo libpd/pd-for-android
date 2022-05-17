@@ -245,8 +245,7 @@ public class PdService extends Service {
             	PendingIntent pi = null;
             	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 	pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            	}
-            	else {
+            	} else {
                 	pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             	}
 		
