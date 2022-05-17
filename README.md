@@ -46,7 +46,7 @@ cd pd-for-android
 ```
 3. Initialize and udpate the git submodules:
 ```
-git submodule sync --recursive
+git submodule sync --recursive # FIXME?
 git submodule update --init --recursive
 ```
 4. Install dependencies and assemble the release: (Note: Windows users should run `gradlew`)
