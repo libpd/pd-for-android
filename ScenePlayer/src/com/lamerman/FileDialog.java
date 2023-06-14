@@ -155,7 +155,9 @@ public class FileDialog extends ListActivity {
 				lastPositions.put(currentPath, position);
 				getDir(path.get(position));
 			} else {
-				new AlertDialog.Builder(this).setIcon(R.drawable.icon).setTitle(
+				new AlertDialog.Builder(this)
+						.setIcon(org.puredata.android.service.R.drawable.icon)
+						.setTitle(
 						"[" + selectedFile.getName() + "] "
 						+ getText(R.string.cant_read_folder))
 						.setPositiveButton("OK",

@@ -18,6 +18,7 @@ android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
     ndkVersion rootProject.ndkVersion
+    namespace = 'org.puredata.android.service'
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
