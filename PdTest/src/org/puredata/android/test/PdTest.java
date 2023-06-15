@@ -27,6 +27,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
@@ -245,7 +246,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
 										   @NonNull int[] grantResults) {
-		if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+		if (recordAudioPermissionGranted()) {
 			startAudio();
 		} else {
 			toast("Can't start audio - microphone permission required!");
@@ -261,7 +262,7 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			} else if (recordAudioPermissionGranted()) {
 				startAudio();
 			} else {
-				requestAudioPermission();
+				requestPermissions();
 			}
 
 			PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
@@ -335,7 +336,13 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 		return permissionResult == PackageManager.PERMISSION_GRANTED;
 	}
 
-	private void requestAudioPermission() {
-		ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 0);
+	private void requestPermissions() {
+		String[] permissions;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			permissions = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS};
+		} else {
+			permissions = new String[]{Manifest.permission.RECORD_AUDIO};
+		}
+		ActivityCompat.requestPermissions(this, permissions, 0);
 	}
 }

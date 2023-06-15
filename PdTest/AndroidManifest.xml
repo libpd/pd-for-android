@@ -3,18 +3,23 @@
 	package="org.puredata.android.test">
 	<application android:icon="@drawable/icon" android:label="@string/app_name" android:theme="@style/DisableSoundEffects">
 		<activity android:label="@string/app_name" android:name=".PdTest"
-			android:screenOrientation="portrait" android:launchMode="singleTask">
+			android:screenOrientation="portrait" android:launchMode="singleTask"
+			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<service android:name="org.puredata.android.service.PdService" />
+		<service android:name="org.puredata.android.service.PdService"
+			android:foregroundServiceType="mediaPlayback|microphone"/>
 		<activity android:label="Pure Data Preferences"
 			android:name="org.puredata.android.service.PdPreferences"
 			android:screenOrientation="portrait" />
 	</application>
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
     	<uses-permission android:name="android.permission.BLUETOOTH" />
-</manifest> 
+</manifest>

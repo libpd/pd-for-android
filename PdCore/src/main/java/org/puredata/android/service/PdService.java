@@ -19,6 +19,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Build;
@@ -232,17 +233,15 @@ public class PdService extends Service {
 	}
 
 	private Notification makeNotification(Intent intent, int icon, String title, String description) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			NotificationManager notificationManager =
-					(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-			NotificationChannel channel =
-					new NotificationChannel(TAG, TAG, NotificationManager.IMPORTANCE_LOW);
-			if (notificationManager != null) {
-				notificationManager.createNotificationChannel(channel);
-			}
+		NotificationManager notificationManager =
+				(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		NotificationChannel channel =
+				new NotificationChannel(TAG, TAG, NotificationManager.IMPORTANCE_LOW);
+		if (notificationManager != null) {
+			notificationManager.createNotificationChannel(channel);
 		}
 
-		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
 		return new NotificationCompat.Builder(PdService.this, TAG)
 				.setSmallIcon(icon)
 				.setContentTitle(title)
@@ -256,7 +255,15 @@ public class PdService extends Service {
 
 	private void startForeground(Notification notification) {
 		stopForeground();
-		startForeground(NOTIFICATION_ID, notification);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+			int foregroundServiceTypes = ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK;
+			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+				foregroundServiceTypes |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+			}
+			startForeground(NOTIFICATION_ID, notification, foregroundServiceTypes);
+		} else {
+			startForeground(NOTIFICATION_ID, notification);
+		}
 		hasForeground = true;
 	}
 
