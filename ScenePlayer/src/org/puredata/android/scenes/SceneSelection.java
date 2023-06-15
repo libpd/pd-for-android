@@ -217,17 +217,13 @@ public class SceneSelection extends Activity implements OnItemClickListener, OnI
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		AlertDialog.Builder ad = new AlertDialog.Builder(this);
-		switch (item.getItemId()) {
-		case R.id.selection_about_item:
+		int itemId = item.getItemId();
+		if (itemId == R.id.selection_about_item) {
 			ad.setTitle(R.string.selection_about_title);
 			ad.setMessage(R.string.selection_about_msg);
-			break;
-		case R.id.selection_help_item:
+		} else if (itemId == R.id.selection_help_item) {
 			ad.setTitle(R.string.selection_help_title);
 			ad.setMessage(R.string.selection_help_msg);
-			break;
-		default:
-			break;
 		}
 		ad.setNeutralButton(android.R.string.ok, null);
 		ad.setCancelable(true);

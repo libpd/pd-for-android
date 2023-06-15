@@ -207,17 +207,13 @@ public class VoiceORama extends Activity implements OnTouchListener, SharedPrefe
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.about_item:
+		if (item.getItemId() == R.id.about_item) {
 			AlertDialog.Builder ad = new AlertDialog.Builder(this);
 			ad.setTitle(R.string.about_title);
 			ad.setMessage(R.string.about_msg);
 			ad.setNeutralButton(android.R.string.ok, null);
 			ad.setCancelable(true);
 			ad.show();
-			break;
-		default:
-			break;
 		}
 		return true;
 	}

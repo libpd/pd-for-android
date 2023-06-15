@@ -129,22 +129,17 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		int newOption;
-		switch (v.getId()) {
-		case R.id.domdim:
+		int id = v.getId();
+		if (id == R.id.domdim) {
 			newOption = 2;
-			break;
-		case R.id.majmin:
+		} else if (id == R.id.majmin) {
 			newOption = 4;
-			break;
-		case R.id.sixth:
+		} else if (id == R.id.sixth) {
 			newOption = 6;
-			break;
-		case R.id.susp:
+		} else if (id == R.id.susp) {
 			newOption = 8;
-			break;
-		default:
+		} else {
 			newOption = 0;
-			break;
 		}
 		if (option == newOption) {
 			resetOptions();
@@ -168,17 +163,13 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		AlertDialog.Builder ad = new AlertDialog.Builder(this);
-		switch (item.getItemId()) {
-		case R.id.about_item:
+		int itemId = item.getItemId();
+		if (itemId == R.id.about_item) {
 			ad.setTitle(R.string.about_title);
 			ad.setMessage(R.string.about_msg);
-			break;
-		case R.id.help_item:
+		} else if (itemId == R.id.help_item) {
 			ad.setTitle(R.string.help_title);
 			ad.setMessage(R.string.help_msg);
-			break;
-		default:
-			break;
 		}
 		ad.setNeutralButton(android.R.string.ok, null);
 		ad.setCancelable(true);

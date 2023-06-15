@@ -231,17 +231,13 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.about_item:
+		if (item.getItemId() == R.id.about_item) {
 			AlertDialog.Builder ad = new AlertDialog.Builder(this);
 			ad.setTitle(R.string.about_title);
 			ad.setMessage(R.string.about_msg);
 			ad.setNeutralButton(android.R.string.ok, null);
 			ad.setCancelable(true);
 			ad.show();
-			break;
-		default:
-			break;
 		}
 		return true;
 	}
@@ -258,8 +254,8 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 
 	@Override
 	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.play_button:
+		int id = v.getId();
+		if (id == R.id.play_button) {
 			if (pdService.isRunning()) {
 				stopAudio();
 			} else if (recordAudioPermissionGranted()) {
@@ -267,20 +263,16 @@ public class PdTest extends Activity implements OnClickListener, OnEditorActionL
 			} else {
 				requestAudioPermission();
 			}
-		case R.id.left_box:
+
 			PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
-			break;
-		case R.id.right_box:
+		} else if (id == R.id.left_box) {
+			PdBase.sendFloat("left", left.isChecked() ? 1 : 0);
+		} else if (id == R.id.right_box) {
 			PdBase.sendFloat("right", right.isChecked() ? 1 : 0);
-			break;
-		case R.id.mic_box:
+		} else if (id == R.id.mic_box) {
 			PdBase.sendFloat("mic", mic.isChecked() ? 1 : 0);
-			break;
-		case R.id.pref_button:
+		} else if (id == R.id.pref_button) {
 			startActivity(new Intent(this, PdPreferences.class));
-			break;
-		default:
-			break;
 		}
 	}
 

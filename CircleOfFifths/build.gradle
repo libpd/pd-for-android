@@ -8,6 +8,7 @@ android {
     compileSdkVersion rootProject.compileSdkVersion
     buildToolsVersion rootProject.buildToolsVersion
     ndkVersion rootProject.ndkVersion
+    namespace = 'org.puredata.android.fifths'
 
     defaultConfig {
         applicationId "org.puredata.android.fifths"
