@@ -29,8 +29,6 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src/main/java', 'src/main/jni/libpd/java']
-            jniLibs.srcDir 'src/main/libs' //set .so files location to libs
-            jni.srcDirs = [] //disable automatic ndk-build call
             res.srcDirs = ['src/main/res']
             assets.srcDirs = ['assets']
         }
@@ -45,34 +43,19 @@ android {
         release.setRoot('build-types/release')
     }
 
-    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine ndkBuildExecutablePath,
-                '-C', file('src/main/jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors(),
-                'all',
-                'NDK_DEBUG=1'
-    }
-
-    // After ndk-build, copy libexpr.so to libexpr_tilde.so and libfexpr_tilde.so
-    buildNative.doLast {
-        def src = 'libexpr.so'
-        file('src/main/libs').eachDir() { dir ->
-            println "Cloning $src in $dir"
-            copy { from(dir) into(dir) include(src) rename(src, 'libexpr_tilde.so') }
-            copy { from(dir) into(dir) include(src) rename(src, 'libfexpr_tilde.so') }
+    defaultConfig {
+        externalNativeBuild {
+            ndkBuild {
+                arguments "NDK_DEBUG=1", "-j" + Runtime.runtime.availableProcessors()
+                cFlags "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang"
+            }
         }
     }
 
-    tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine ndkBuildExecutablePath, '-C', file('src/main/jni').absolutePath, 'clean'
-    }
-
-    clean.configure {
-        dependsOn tasks.named('cleanNative')
-    }
-
-    tasks.withType(JavaCompile).configureEach {
-        dependsOn tasks.named('buildNative')
+    externalNativeBuild {
+        ndkBuild {
+            path "src/main/jni/Android.mk"
+        }
     }
 
     libraryVariants.all { variant ->
@@ -83,18 +66,6 @@ android {
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
-
-// TODO: Move to convention plugin?
-def getNdkBuildExecutablePath() {
-    // android.ndkDirectory should return project.android.ndkVersion ndkDirectory
-    def ndkDir = android.ndkDirectory.absolutePath
-    def ndkBuildName = Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
-    def ndkBuildFullPath = new File(ndkDir, ndkBuildName).getAbsolutePath()
-    if (!new File(ndkBuildFullPath).canExecute()) {
-        throw new GradleScriptException("ndk-build executable not found: $ndkBuildFullPath")
-    }
-    return ndkBuildFullPath
-}
 
 task sourcesJar(type: Jar) {
     archiveClassifier.set('sources')
