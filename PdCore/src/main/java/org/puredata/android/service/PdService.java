@@ -142,6 +142,8 @@ public class PdService extends Service {
 		inputChannels = nic;
 		outputChannels = noc;
 		bufferSizeMillis = millis;
+		boolean verbose = prefs.getBoolean(res.getString(R.string.pref_key_verbose), false);
+		PdBase.setVerbose(verbose);
 	}
 
 	/**
