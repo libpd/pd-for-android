@@ -26,7 +26,11 @@ jobs:
         git submodule sync --recursive
         git submodule update --init --recursive
     - run: ./gradlew androidDependencies
-    - run: ./gradlew clean assembleRelease
+    - run: ./gradlew clean
+    - run: ./gradlew PdCore:build
+      env:
+        JVM_OPTS: -Xmx3200m
+    - run: ./gradlew assembleRelease
       env:
         JVM_OPTS: -Xmx3200m
     - uses: actions/upload-artifact@v4
