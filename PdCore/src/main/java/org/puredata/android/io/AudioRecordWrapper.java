@@ -28,7 +28,7 @@ import android.os.Process;
 public class AudioRecordWrapper {
 
 	private static final int ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-	private final AudioRecord rec;
+	private AudioRecord rec = null;
 	private final int bufSizeShorts;
 	private final BlockingQueue<short[]> queue = new SynchronousQueue<short[]>();
 	private Thread inputThread = null;
@@ -43,14 +43,17 @@ public class AudioRecordWrapper {
 			throw new IOException("bad AudioRecord parameters; sr: " + sampleRate + ", ch: " + inChannels + ", bufSize: " + bufferSizePerChannel);
 		}
 		while (recSizeBytes < minRecSizeBytes) recSizeBytes += bufSizeBytes;
-		rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig, ENCODING, recSizeBytes);
-		if (rec != null && rec.getState() != AudioRecord.STATE_INITIALIZED) {
-			rec.release();
-			throw new IOException("unable to initialize AudioRecord instance for sr: " + sampleRate + ", ch: " + inChannels + ", bufSize: " + bufferSizePerChannel);
-		}
+		try{
+			rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig, ENCODING, recSizeBytes);
+			if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
+				rec.release();
+				throw new IOException("unable to initialize AudioRecord instance for sr: " + sampleRate + ", ch: " + inChannels + ", bufSize: " + bufferSizePerChannel);
+			}
+		} catch(SecurityException e) {}
 	}
 
 	public synchronized void start() {
+		if (rec == null) return;
 		inputThread = new Thread() {
 			@Override
 			public void run() {
@@ -91,6 +94,7 @@ public class AudioRecordWrapper {
 	}
 
 	public synchronized void release() {
+		if (rec == null) return;
 		stop();
 		rec.release();
 		queue.clear();
