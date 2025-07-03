@@ -45,7 +45,7 @@ public class AudioRecordWrapper {
 		while (recSizeBytes < minRecSizeBytes) recSizeBytes += bufSizeBytes;
 		try{
 			rec = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig, ENCODING, recSizeBytes);
-			if (rec != null && rec.getState() != AudioRecord.STATE_INITIALIZED) {
+			if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
 				rec.release();
 				throw new IOException("unable to initialize AudioRecord instance for sr: " + sampleRate + ", ch: " + inChannels + ", bufSize: " + bufferSizePerChannel);
 			}
