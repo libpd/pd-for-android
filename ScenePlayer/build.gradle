@@ -42,6 +42,14 @@ android {
         release.setRoot('build-types/release')
     }
 
+    packagingOptions {
+        jniLibs {
+            // since externals are loaded at native code level, they need to be copied to the actual
+            // filesystem, instead of staying in the apk; so we must set useLegacyPackaging:
+            useLegacyPackaging true
+        }
+    }
+
     tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
         commandLine ndkBuildExecutablePath,
                 '-C', file('jni').absolutePath,
