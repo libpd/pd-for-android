@@ -29,7 +29,7 @@ jobs:
     - run: ./gradlew clean assembleRelease
       env:
         JVM_OPTS: -Xmx3200m
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: pd-core-aar
         path: PdCore/build/outputs/aar
