@@ -11,4 +11,7 @@
 	<string name="pref_key_outchannels">OUTPUT_CHANNELS</string>
 	<string name="pref_title_outchannels">Output channels</string>
 	<string name="pref_sum_outchannels">Number of output channels</string>
+	<string name="pref_key_verbose">PD_VERBOSE</string>
+	<string name="pref_title_verbose">Verbose</string>
+	<string name="pref_sum_verbose">Increase Pd loglevel</string>
 </resources>

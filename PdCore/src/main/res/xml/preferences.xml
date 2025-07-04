@@ -11,4 +11,6 @@
 	<ListPreference android:key="@string/pref_key_outchannels"
 		android:entryValues="@array/outchannels_values" android:entries="@array/outchannels_labels"
 		android:title="@string/pref_title_outchannels" android:summary="@string/pref_sum_outchannels"></ListPreference>
+	<SwitchPreference android:key="@string/pref_key_verbose"
+		android:title="@string/pref_title_verbose" android:summary="@string/pref_sum_verbose"></SwitchPreference>
 </PreferenceScreen>
