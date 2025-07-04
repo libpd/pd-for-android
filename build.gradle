@@ -10,7 +10,7 @@ buildscript {
 
 plugins {
     // must be applied to root project
-    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
 // These are specific to PdCode, but nexusPublishing needs them here:
