@@ -25,6 +25,20 @@ android {
         versionName version
     }
 
+    buildFeatures {
+      prefabPublishing true
+    }
+
+    prefab {
+        pd {
+          headers "src/main/jni/libpd/pure-data/src"
+        }
+    }
+
+    packagingOptions {
+        //exclude("**/*.so")
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -58,12 +72,13 @@ android {
         }
     }
 
-    libraryVariants.all { variant ->
+    android.libraryVariants.all { variant ->
         variant.outputs.all { output ->
-            outputFileName = "${archivesBaseName}.aar"
+            output.outputFileName = "${archivesBaseName}.aar"
         }
     }
 }
+
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
