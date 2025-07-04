@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.2'
+        classpath 'com.android.tools.build:gradle:8.11.0'
     }
 }
 
@@ -34,7 +34,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter() // FIXME: com.noisepages.nettoyeur:midi
     }
 }
 
@@ -43,5 +42,5 @@ ext {
     compileSdkVersion = 34
     buildToolsVersion = '34.0.0'
     androidxLegacySupportVersion = '1.0.0'
-    ndkVersion = '25.2.9519653' // https://developer.android.com/ndk/downloads#lts-downloads
+    ndkVersion = '26.3.11579264' // https://developer.android.com/ndk/downloads#lts-downloads
 }
