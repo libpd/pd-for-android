@@ -6,7 +6,6 @@ dependencies {
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
     namespace = 'at.or.at.voiceorama'
 
     defaultConfig {
