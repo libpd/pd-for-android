@@ -37,10 +37,15 @@ allprojects {
     }
 }
 
+// ndkVersion must be one of those provided by the ubuntu-22.04 runner
+// https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md
+//
+// Full list of NDK versions:
+// https://developer.android.com/ndk/downloads
+
 ext {
     minSdkVersion = 28
     compileSdkVersion = 34
-    buildToolsVersion = '34.0.0'
     androidxLegacySupportVersion = '1.0.0'
-    ndkVersion = '26.3.11579264' // https://developer.android.com/ndk/downloads#lts-downloads
+    ndkVersion = '26.3.11579264'
 }
