@@ -9,7 +9,7 @@ package org.puredata.android.io;
 
 import java.io.IOException;
 
-import org.puredata.android.service.R;
+import org.puredata.android.service.*;
 import org.puredata.android.utils.Properties;
 
 import android.annotation.TargetApi;
