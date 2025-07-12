@@ -5,7 +5,9 @@ import org.apache.tools.ant.taskdefs.condition.Os
 dependencies {
     // in a real project, use something like:
     // implementation 'io.github.libpd.android:pd-core:1.3.0'
-    implementation fileTree(include: ['pd-core.aar'], dir: '../PdCore/build/outputs/aar')
+    implementation files("../PdCore/build/outputs/aar/pd-core.aar") {
+        builtBy ':PdCore:build'
+    }
 }
 
 android {
