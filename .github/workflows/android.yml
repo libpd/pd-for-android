@@ -27,7 +27,7 @@ jobs:
         git submodule update --init --recursive
     - run: ./gradlew androidDependencies
     - run: ./gradlew clean
-    - run: ./gradlew PdCore:build
+    - run: ./gradlew PdCore:pd-core:build
       env:
         JVM_OPTS: -Xmx3200m
     - run: ./gradlew assembleRelease
@@ -36,9 +36,9 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: pd-core-aar
-        path: PdCore/build/outputs/aar
+        path: PdCore/pd-core/build/outputs/aar
     - if: github.event_name == 'push'
-      run: ./gradlew publishToSonatype
+      run: ./gradlew :PdCore:pd-core:publishToSonatype
       env:
         ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
         ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}

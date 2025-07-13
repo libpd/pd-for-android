@@ -5,8 +5,8 @@ plugins {
 }
 
 archivesBaseName = 'pd-core'
-group = 'io.github.libpd.android'
-version = '1.3.0'
+group = rootProject.group
+version = rootProject.version
 
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:' + rootProject.androidxLegacySupportVersion
