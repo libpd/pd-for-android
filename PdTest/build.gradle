@@ -81,9 +81,12 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:' + rootProject.androidxLegacySupportVersion
 
     // in a real project, use something like:
-    // implementation 'io.github.libpd.android:pd-core:1.3.0'
-    implementation files("../PdCore/build/outputs/aar/pd-core.aar") {
+    implementation 'io.github.libpd.android:pd-core:' + rootProject.pdCoreVersion
+
+    /*implementation files("../PdCore/build/outputs/aar/pd-core.aar") {
         builtBy ':PdCore:build'
-    }
+    }*/
+
+    //implementation project( path : ':PdCore', configuration : 'pdcore_aar' )
 }
 

@@ -62,5 +62,5 @@ include $(BUILD_SHARED_LIBRARY)
 ifneq ($(call ndk-major-at-least,21),true)
     $(call import-add-path,$(NDK_GRADLE_INJECTED_IMPORT_PATH))
 endif
-$(call import-module,prefab/PdCore)
+$(call import-module,prefab/pd-core)
 
