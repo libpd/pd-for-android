@@ -20,7 +20,7 @@ allprojects {
     }
 }
 
-// These are specific to PdCode, but nexusPublishing needs them here:
+// These are specific to PdCore, but nexusPublishing needs them here:
 // https://github.com/gradle-nexus/publish-plugin/issues/84
 group = 'io.github.libpd.android'
 version = '1.3.0'

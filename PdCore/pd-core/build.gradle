@@ -78,7 +78,6 @@ android {
             output.outputFileName = "${archivesBaseName}.aar"
         }
     }
-
 }
 
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -99,16 +98,9 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-configurations {
-    pdcore_aar
-}
-
 artifacts {
     archives javadocJar
     archives sourcesJar
-    pdcore_aar file("${buildDir}/outputs/aar/pd-core.aar"), {
-        //builtBy project.tasks["bundleReleaseAar"]
-    }
 }
 
 def siteUrl = 'https://github.com/libpd/pd-for-android'
@@ -194,10 +186,3 @@ void sign(Project project) {
 	}
 }
 
-task dumpPublications {
-    doLast {
-        publishing.publications.withType( MavenPublication ) { pub ->
-            logger.lifecycle "${pub.name} => ${pub.groupId}:${pub.artifactId}:${pub.version}"
-        }
-    }
-}

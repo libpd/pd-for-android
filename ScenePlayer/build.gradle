@@ -3,11 +3,7 @@ apply plugin: 'com.android.application'
 import org.apache.tools.ant.taskdefs.condition.Os
 
 dependencies {
-    // in a real project, use something like:
-    implementation 'io.github.libpd.android:pd-core:1.3.0'
-    /*implementation files("../PdCore/build/outputs/aar/pd-core.aar") {
-        builtBy ':PdCore:build'
-    }*/
+    implementation 'io.github.libpd.android:pd-core:' + rootProject.pdCoreVersion
 }
 
 android {
@@ -46,14 +42,6 @@ android {
 
     lintOptions {
         ignore 'ExpiredTargetSdkVersion'
-    }
-
-    packagingOptions {
-        jniLibs {
-            // since externals are loaded at native code level, they need to be copied to the actual
-            // filesystem, instead of staying in the apk; so we must set useLegacyPackaging:
-            useLegacyPackaging true
-        }
     }
 
     packagingOptions {
