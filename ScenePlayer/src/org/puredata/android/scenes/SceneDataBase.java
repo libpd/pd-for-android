@@ -181,7 +181,9 @@ public class SceneDataBase {
 	}
 	
 	public static String getString(Cursor cursor, String column) {
-		return cursor.getString(cursor.getColumnIndex(column));
+		int column_index = cursor.getColumnIndex(column);
+		if(column_index < 0) column_index = 0;
+		return cursor.getString(column_index);
 	}
 	
 	public static long getLong(Cursor cursor, Column column) {
@@ -189,7 +191,9 @@ public class SceneDataBase {
 	}
 
 	public static long getLong(Cursor cursor, String column) {
-		return cursor.getLong(cursor.getColumnIndex(column));
+		int column_index = cursor.getColumnIndex(column);
+		if(column_index < 0) column_index = 0;
+		return cursor.getLong(column_index);
 	}
 
 	public static double getDouble(Cursor cursor, Column column) {
@@ -197,7 +201,9 @@ public class SceneDataBase {
 	}
 	
 	public static double getDouble(Cursor cursor, String column) {
-		return cursor.getDouble(cursor.getColumnIndex(column));
+		int column_index = cursor.getColumnIndex(column);
+		if(column_index < 0) column_index = 0;
+		return cursor.getDouble(column_index);
 	}
 
 	private static class SceneDataBaseHelper extends SQLiteOpenHelper {
