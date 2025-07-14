@@ -1,0 +1,187 @@
+plugins {
+    id 'com.android.library'
+    id 'signing'
+    id 'maven-publish'
+}
+
+archivesBaseName = 'pd-core'
+group = rootProject.group
+version = rootProject.version
+
+dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:' + rootProject.androidxLegacySupportVersion
+}
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+    ndkVersion rootProject.ndkVersion
+
+    namespace = 'org.puredata.android.service'
+
+    defaultConfig {
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.compileSdkVersion
+        versionCode 1
+        versionName version
+    }
+
+    buildFeatures {
+      prefabPublishing true
+    }
+
+    prefab {
+        pd {
+          headers "src/main/jni/libpd/pure-data/src"
+        }
+    }
+
+    packagingOptions {
+        //exclude("**/*.so")
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src/main/java', 'src/main/jni/libpd/java']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['assets']
+        }
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    defaultConfig {
+        externalNativeBuild {
+            ndkBuild {
+                arguments "NDK_DEBUG=1", "-j" + Runtime.runtime.availableProcessors()
+                cFlags "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        ndkBuild {
+            path "src/main/jni/Android.mk"
+        }
+    }
+
+    android.libraryVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.outputFileName = "${archivesBaseName}.aar"
+        }
+    }
+}
+
+import org.apache.tools.ant.taskdefs.condition.Os
+
+task sourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+    failOnError = false // TODO: fix javadoc issues
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    archiveClassifier.set('javadoc')
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+def siteUrl = 'https://github.com/libpd/pd-for-android'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId group
+            artifactId archivesBaseName
+            version version
+            // TODO: include aar artifact from components?
+            artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar"
+            // ossrh requires javadoc and sources
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = "${project.group}:${project.archivesBaseName}"
+			    description = 'Pure Data for Android'
+                url = siteUrl
+                licenses {
+                    license {
+                        name = 'BSD New'
+                        url = 'https://raw.githubusercontent.com/libpd/pd-for-android/master/PdCore/LICENSE.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'joebowbeer'
+                        name = 'Joe Bowbeer'
+                    }
+                    // TODO: Add all other devs here...
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/libpd/pd-for-android'
+                    developerConnection = 'scm:git:ssh://github.com/libpd/pd-for-android.git'
+                    url = siteUrl
+                }
+            }
+        }
+    }
+}
+
+// configure publishing to a local directory for testing (not necessary)
+// ./gradlew publishMavenPublicationToLocalRepository
+// tree ./PdCore/build/repos
+publishing {
+    repositories {
+		maven {
+			name = 'local'
+			def releasesRepoUrl = "$buildDir/repos/releases"
+			def snapshotsRepoUrl = "$buildDir/repos/snapshots"
+			url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+		}
+    }
+}
+
+// ossrh requires signed releases, but not snapshots.
+// This configures signing if a key is found.
+// The following environment variables provide a signing key and passphrase:
+// export ORG_GRADLE_PROJECT_signingKey=`cat private.pgp`
+// export ORG_GRADLE_PROJECT_signingPassword="<passphrase>"
+// After making the above available, you can try signing using
+// ./gradlew signMavenPublication
+def hasSigningKey = project.hasProperty('signingKeyId') || project.hasProperty('signingKey')
+if (hasSigningKey) {
+	sign(project)
+}
+void sign(Project project) {
+	project.signing {
+		required { project.gradle.taskGraph.hasTask('required') }
+		def signingKeyId = project.findProperty('signingKeyId')
+		def signingKey = project.findProperty('signingKey')
+		def signingPassword = project.findProperty('signingPassword')
+		if (signingKeyId) {
+            // use in-memory ascii-armored OpenPGP subkey
+			useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+		} else if (signingKey) {
+            // use in-memory ascii-armored key
+			useInMemoryPgpKeys(signingKey, signingPassword)
+		}
+		sign publishing.publications.maven
+	}
+}
+
