@@ -18,7 +18,6 @@ allprojects {
 ext {
     minSdkVersion = 28
     compileSdkVersion = 34
-    buildToolsVersion = '35.0.0'
     androidxLegacySupportVersion = '1.0.0'
     ndkVersion = "27.2.12479018" // https://developer.android.com/ndk/downloads#lts-downloads
     pdCoreVersion = '1.3.0' // Must match version in PdCore/build.gradle
