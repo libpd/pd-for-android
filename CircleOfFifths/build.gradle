@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':PdCore')
+    implementation 'io.github.libpd.android:pd-core:' + rootProject.pdCoreVersion
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
-    ndkVersion rootProject.ndkVersion
+    compileSdkVersion = rootProject.compileSdkVersion
+    ndkVersion = rootProject.ndkVersion
     namespace = 'org.puredata.android.fifths'
 
     defaultConfig {

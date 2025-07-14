@@ -3,18 +3,17 @@ apply plugin: 'com.android.application'
 import org.apache.tools.ant.taskdefs.condition.Os
 
 dependencies {
-    implementation project(':PdCore')
+    implementation 'io.github.libpd.android:pd-core:' + rootProject.pdCoreVersion
 }
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
     ndkVersion rootProject.ndkVersion
     namespace = 'org.puredata.android.scenes'
 
     defaultConfig {
         minSdkVersion rootProject.minSdkVersion
-        targetSdkVersion 28
+        targetSdkVersion 33
         versionCode 11
         versionName "0.9.2"
     }
@@ -23,8 +22,6 @@ android {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
-            jniLibs.srcDir 'libs' //set .so files location to libs
-            jni.srcDirs = [] //disable automatic ndk-build call
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
@@ -42,39 +39,36 @@ android {
         release.setRoot('build-types/release')
     }
 
-    tasks.create(name: 'buildNative', type: Exec, description: 'Compile JNI source via NDK') {
-        commandLine ndkBuildExecutablePath,
-                '-C', file('jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors(),
-                'all',
-                'NDK_DEBUG=1'
-    }
-
-    tasks.create(name: 'cleanNative', type: Exec, description: 'Clean JNI object files') {
-        commandLine ndkBuildExecutablePath, '-C', file('jni').absolutePath, 'clean'
-    }
-
-    clean.configure {
-        dependsOn tasks.named('cleanNative')
-    }
-
-    tasks.withType(JavaCompile).configureEach {
-        dependsOn tasks.named('buildNative')
-    }
-
     lintOptions {
         ignore 'ExpiredTargetSdkVersion'
     }
+
+    packagingOptions {
+        jniLibs {
+            // since externals are loaded at native code level, they need to be copied to the actual
+            // filesystem, instead of staying in the apk; so we must set useLegacyPackaging:
+            useLegacyPackaging true
+        }
+    }
+
+    buildFeatures {
+        // Extract native libs from prefab, to be able to access the headers and to link to the libs
+        prefab = true
+        viewBinding = true
+    }
+
+    defaultConfig {
+        externalNativeBuild {
+            ndkBuild {
+                arguments "NDK_DEBUG=1", "-j" + Runtime.runtime.availableProcessors()
+            }
+        }
+    }
+
+    externalNativeBuild {
+        ndkBuild {
+            path "jni/Android.mk"
+        }
+    }
 }
 
-// TODO: Move to convention plugin?
-def getNdkBuildExecutablePath() {
-    // android.ndkDirectory should return project.android.ndkVersion ndkDirectory
-    def ndkDir = android.ndkDirectory.absolutePath
-    def ndkBuildName = Os.isFamily(Os.FAMILY_WINDOWS) ? 'ndk-build.cmd' : 'ndk-build'
-    def ndkBuildFullPath = new File(ndkDir, ndkBuildName).getAbsolutePath()
-    if (!new File(ndkBuildFullPath).canExecute()) {
-        throw new GradleScriptException("ndk-build executable not found: $ndkBuildFullPath")
-    }
-    return ndkBuildFullPath
-}

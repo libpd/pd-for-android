@@ -1,12 +1,11 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':PdCore')
+    implementation 'io.github.libpd.android:pd-core:' + rootProject.pdCoreVersion
 }
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
     namespace = 'at.or.at.voiceorama'
 
     defaultConfig {
