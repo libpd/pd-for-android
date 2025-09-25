@@ -41,5 +41,5 @@ ext {
     minSdkVersion = 28
     compileSdkVersion = 34
     androidxLegacySupportVersion = '1.0.0'
-    ndkVersion = "27.2.12479018" // https://developer.android.com/ndk/downloads#lts-downloads
+    ndkVersion = "28.2.13676358" // https://developer.android.com/ndk/downloads#lts-downloads
 }
