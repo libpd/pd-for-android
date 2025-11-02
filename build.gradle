@@ -4,29 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.2'
-    }
-}
-
-plugins {
-    // must be applied to root project
-    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
-}
-
-// These are specific to PdCode, but nexusPublishing needs them here:
-// https://github.com/gradle-nexus/publish-plugin/issues/84
-group = 'io.github.libpd.android'
-version = '1.2.1-SNAPSHOT'
-
-// Create a Sonatype user token for these environment variables:
-// export ORG_GRADLE_PROJECT_sonatypeUsername="<tokenUsername>"
-// export ORG_GRADLE_PROJECT_sonatypePassword="<tokenPassword>"
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri('https://s01.oss.sonatype.org/service/local/'))
-            snapshotRepositoryUrl.set(uri('https://s01.oss.sonatype.org/content/repositories/snapshots/'))
-        }
+        classpath 'com.android.tools.build:gradle:8.13.0'
     }
 }
 
@@ -34,14 +12,13 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter() // FIXME: com.noisepages.nettoyeur:midi
     }
 }
 
 ext {
-    minSdkVersion = 28
-    compileSdkVersion = 34
-    buildToolsVersion = '34.0.0'
+    minSdk = 28
+    compileSdk = 34
     androidxLegacySupportVersion = '1.0.0'
-    ndkVersion = '25.2.9519653' // https://developer.android.com/ndk/downloads#lts-downloads
+    ndkVersion = libs.versions.ndk.get()
+    pdCoreVersion = '1.3.0' // Must match version in PdCore/build.gradle
 }

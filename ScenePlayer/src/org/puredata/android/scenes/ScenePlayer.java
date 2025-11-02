@@ -398,16 +398,20 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 		if (recFile == null) return;
 		PdBase.sendMessage(TRANSPORT, "record", 0);
 		long duration = System.currentTimeMillis() - recStart;
-        double longitude = 0.0;
-        double latitude = 0.0;
-		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager != null) {  // Paranoid?  Maybe...
-		    Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-            	longitude = location.getLongitude();
-            	latitude = location.getLatitude();
-            }
-        }
+		double longitude = 0.0;
+		double latitude = 0.0;
+		try {
+			LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+			if (locationManager != null) {  // Paranoid?  Maybe...
+				Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+				if (location != null) {
+					longitude = location.getLongitude();
+					latitude = location.getLatitude();
+				}
+			}
+		} catch (SecurityException e) {
+			// ignore
+		}
 		db.addRecording(recFile, recStart, duration, longitude, latitude, sceneId);
 		recFile = null;
 		post("Finished recording");

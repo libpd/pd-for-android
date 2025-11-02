@@ -16,9 +16,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'adopt'
@@ -26,15 +26,19 @@ jobs:
         git submodule sync --recursive
         git submodule update --init --recursive
     - run: ./gradlew androidDependencies
-    - run: ./gradlew clean assembleRelease
+    - run: ./gradlew clean
+    - run: ./gradlew PdCore:pd-core:build
       env:
         JVM_OPTS: -Xmx3200m
-    - uses: actions/upload-artifact@v4
+    - run: ./gradlew assembleRelease
+      env:
+        JVM_OPTS: -Xmx3200m
+    - uses: actions/upload-artifact@v5
       with:
         name: pd-core-aar
-        path: PdCore/build/outputs/aar
+        path: PdCore/pd-core/build/outputs/aar
     - if: github.event_name == 'push'
-      run: ./gradlew publishToSonatype
+      run: ./gradlew :PdCore:pd-core:publishToSonatype
       env:
         ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
         ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}

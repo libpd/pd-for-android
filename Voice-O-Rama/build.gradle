@@ -1,19 +1,19 @@
 apply plugin: 'com.android.application'
 
 dependencies {
-    implementation project(':PdCore')
+    implementation 'io.github.libpd.android:pd-core:' + rootProject.pdCoreVersion
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-    buildToolsVersion rootProject.buildToolsVersion
+    compileSdk = rootProject.compileSdk
     namespace = 'at.or.at.voiceorama'
 
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
+        applicationId 'at.or.at.voiceorama'
+        minSdk rootProject.minSdk
         targetSdkVersion 28
         versionCode 11
-        versionName "1.0"
+        versionName '1.0'
     }
 
     sourceSets {
