@@ -58,7 +58,9 @@ midiManager.openDevice(info, new MidiManager.OnDeviceOpenedListener() {
 
 	@Override
 	public void onSend(byte[] msg, int offset, int count, long timestamp) {
-		while(count-- != 0) processByte(msg[offset++]);
+		while (count-- != 0) {
+			processByte(msg[offset++]);
+		}
 	}
 
 	private void processByte(int b) {

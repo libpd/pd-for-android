@@ -409,7 +409,9 @@ public class ScenePlayer extends Activity implements SensorEventListener, OnTouc
 					latitude = location.getLatitude();
 				}
 			}
-		} catch(SecurityException e) {} // do nothing
+		} catch (SecurityException e) {
+			// ignore
+		}
 		db.addRecording(recFile, recStart, duration, longitude, latitude, sceneId);
 		recFile = null;
 		post("Finished recording");

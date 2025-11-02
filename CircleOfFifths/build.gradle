@@ -5,16 +5,16 @@ dependencies {
 }
 
 android {
-    compileSdkVersion = rootProject.compileSdkVersion
+    compileSdk = rootProject.compileSdk
     ndkVersion = rootProject.ndkVersion
     namespace = 'org.puredata.android.fifths'
 
     defaultConfig {
-        applicationId "org.puredata.android.fifths"
-        minSdkVersion rootProject.minSdkVersion
+        applicationId 'org.puredata.android.fifths'
+        minSdk rootProject.minSdk
         targetSdkVersion 28
         versionCode 3
-        versionName "0.3"
+        versionName '0.3'
     }
 
     sourceSets {

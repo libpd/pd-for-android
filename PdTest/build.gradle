@@ -3,12 +3,13 @@ apply plugin: 'com.android.application'
 import org.apache.tools.ant.taskdefs.condition.Os
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-    ndkVersion rootProject.ndkVersion
+    compileSdk = rootProject.compileSdk
+    ndkVersion = rootProject.ndkVersion
     namespace = 'org.puredata.android.test'
 
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
+        applicationId 'org.puredata.android.test'
+        minSdk rootProject.minSdk
         targetSdkVersion 33
         versionCode 1
         versionName '1.0'
@@ -23,7 +24,7 @@ android {
         jniLibs {
             // since externals are loaded at native code level, they need to be copied to the actual
             // filesystem, instead of staying in the apk; so we must set useLegacyPackaging:
-            useLegacyPackaging true
+            useLegacyPackaging = true
         }
     }
 
@@ -36,8 +37,8 @@ android {
 
     buildFeatures {
         // Extract native libs from prefab, to be able to access the headers and to link to the libs
-        prefab true
-        viewBinding true
+        prefab = true
+        viewBinding = true
     }
 
     sourceSets {
@@ -64,14 +65,14 @@ android {
     defaultConfig {
         externalNativeBuild {
             ndkBuild {
-                arguments "NDK_DEBUG=1", "-j" + Runtime.runtime.availableProcessors()
+                arguments 'NDK_DEBUG=1', '-j' + Runtime.runtime.availableProcessors()
             }
         }
     }
 
     externalNativeBuild {
         ndkBuild {
-            path "jni/Android.mk"
+            path 'jni/Android.mk'
         }
     }
 }
@@ -80,4 +81,3 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:' + rootProject.androidxLegacySupportVersion
     implementation 'io.github.libpd.android:pd-core:' + rootProject.pdCoreVersion
 }
-

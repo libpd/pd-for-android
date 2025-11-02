@@ -5,14 +5,15 @@ dependencies {
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
+    compileSdk = rootProject.compileSdk
     namespace = 'at.or.at.voiceorama'
 
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
+        applicationId 'at.or.at.voiceorama'
+        minSdk rootProject.minSdk
         targetSdkVersion 28
         versionCode 11
-        versionName "1.0"
+        versionName '1.0'
     }
 
     sourceSets {

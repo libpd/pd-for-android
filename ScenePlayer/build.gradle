@@ -7,15 +7,16 @@ dependencies {
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-    ndkVersion rootProject.ndkVersion
+    compileSdk = rootProject.compileSdk
+    ndkVersion = rootProject.ndkVersion
     namespace = 'org.puredata.android.scenes'
 
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
+        applicationId 'org.puredata.android.scenes'
+        minSdk rootProject.minSdk
         targetSdkVersion 33
         versionCode 11
-        versionName "0.9.2"
+        versionName '0.9.2'
     }
 
     sourceSets {
@@ -47,7 +48,7 @@ android {
         jniLibs {
             // since externals are loaded at native code level, they need to be copied to the actual
             // filesystem, instead of staying in the apk; so we must set useLegacyPackaging:
-            useLegacyPackaging true
+            useLegacyPackaging = true
         }
     }
 
@@ -60,14 +61,14 @@ android {
     defaultConfig {
         externalNativeBuild {
             ndkBuild {
-                arguments "NDK_DEBUG=1", "-j" + Runtime.runtime.availableProcessors()
+                arguments 'NDK_DEBUG=1', '-j' + Runtime.runtime.availableProcessors()
             }
         }
     }
 
     externalNativeBuild {
         ndkBuild {
-            path "jni/Android.mk"
+            path 'jni/Android.mk'
         }
     }
 }

@@ -49,7 +49,9 @@ public class AudioRecordWrapper {
 				rec.release();
 				throw new IOException("unable to initialize AudioRecord instance for sr: " + sampleRate + ", ch: " + inChannels + ", bufSize: " + bufferSizePerChannel);
 			}
-		} catch(SecurityException e) {}
+		} catch (SecurityException e) {
+			// ignore
+		}
 	}
 
 	public synchronized void start() {

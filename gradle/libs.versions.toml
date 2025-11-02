@@ -1,0 +1,8 @@
+[versions]
+ndk = '29.0.14206865' # https://developer.android.com/ndk/downloads#lts-downloads
+
+[libraries]
+# (Other libraries can be defined here)
+
+[plugins]
+# (Plugins can be defined here)

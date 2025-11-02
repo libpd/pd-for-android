@@ -62,7 +62,9 @@ midiManager.openDevice(info, new MidiManager.OnDeviceOpenedListener() {
  * @param inputPort input port of the Midi ouput device, that needs to be closed
  */
 	public void close(MidiInputPort inputPort) {
-		if(! inputPorts.containsValue(inputPort)) return;
+		if (!inputPorts.containsValue(inputPort)) {
+			return;
+		}
 		for (Entry<Integer, MidiInputPort> entry : inputPorts.entrySet()) {
 			if (entry.getValue().equals(inputPort)) {
 				close(entry.getKey());
@@ -76,10 +78,12 @@ midiManager.openDevice(info, new MidiManager.OnDeviceOpenedListener() {
  */
 	public void close(int pdPort) {
 		MidiInputPort inputPort = inputPorts.get(pdPort);
-		if(inputPort != null) {
+		if (inputPort != null) {
 			try {
 				inputPort.close();
-			} catch(Exception e) {}
+			} catch (Exception e) {
+				// ignore
+			}
 			inputPorts.remove(pdPort);
 		}
 	}
@@ -144,9 +148,11 @@ midiManager.openDevice(info, new MidiManager.OnDeviceOpenedListener() {
 
 	private void writeMessage(int channel, byte[] message) {
 		MidiInputPort inputPort = inputPorts.get(channel / 16);
-		if(inputPort != null) try {
+		if (inputPort != null) try {
 			inputPort.send(message, 0, message.length);
-		} catch(Exception e) {}
+		} catch (Exception e) {
+			// ignore
+		}
 	}
 
 /** @hidden to javadoc*/

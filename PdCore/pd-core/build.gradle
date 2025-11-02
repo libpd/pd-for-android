@@ -13,30 +13,30 @@ dependencies {
 }
 
 android {
-    compileSdkVersion rootProject.compileSdkVersion
-    ndkVersion rootProject.ndkVersion
+    compileSdk = rootProject.compileSdk
+    ndkVersion = rootProject.ndkVersion
 
     namespace = 'org.puredata.android.service'
 
     defaultConfig {
-        minSdkVersion rootProject.minSdkVersion
-        targetSdkVersion rootProject.compileSdkVersion
+        minSdk rootProject.minSdk
+        targetSdkVersion rootProject.compileSdk
         versionCode 1
         versionName version
     }
 
     buildFeatures {
-      prefabPublishing true
+      prefabPublishing = true
     }
 
     prefab {
         pd {
-          headers "src/main/jni/libpd/pure-data/src"
+          headers = 'src/main/jni/libpd/pure-data/src'
         }
     }
 
     packagingOptions {
-        //exclude("**/*.so")
+        //exclude('**/*.so')
     }
 
     sourceSets {
@@ -60,15 +60,15 @@ android {
     defaultConfig {
         externalNativeBuild {
             ndkBuild {
-                arguments "NDK_DEBUG=1", "-j" + Runtime.runtime.availableProcessors()
-                cFlags "-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang"
+                arguments 'NDK_DEBUG=1', '-j' + Runtime.runtime.availableProcessors()
+                cFlags '-DANDROID_ARM_NEON=TRUE', '-DANDROID_TOOLCHAIN=clang'
             }
         }
     }
 
     externalNativeBuild {
         ndkBuild {
-            path "src/main/jni/Android.mk"
+            path 'src/main/jni/Android.mk'
         }
     }
 
@@ -88,7 +88,7 @@ task sourcesJar(type: Jar) {
 
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
-    classpath += files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+    classpath += files("${android.sdkDirectory}/platforms/${android.compileSdk}/android.jar")
     failOnError = false // TODO: fix javadoc issues
 }
 
@@ -107,9 +107,9 @@ def siteUrl = 'https://github.com/libpd/pd-for-android'
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId group
-            artifactId archivesBaseName
-            version version
+            groupId = group
+            artifactId = archivesBaseName
+            version = version
             // TODO: include aar artifact from components?
             artifact "${buildDir}/outputs/aar/${archivesBaseName}.aar"
             // ossrh requires javadoc and sources
