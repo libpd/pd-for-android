@@ -1,3 +1,4 @@
+![Snapshots](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fcentral.sonatype.com%2Frepository%2Fmaven-snapshots%2Fio%2Fgithub%2Flibpd%2Fandroid%2Fpd-core%2Fmaven-metadata.xml&style=flat-square&label=maven%20snapshots&color=%2315252D&strategy=latestProperty)
 [ ![Download](https://maven-badges.herokuapp.com/maven-central/io.github.libpd.android/pd-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.github.libpd.android/pd-core)
 ![Build](https://github.com/libpd/pd-for-android/workflows/Android%20CI/badge.svg)
 
