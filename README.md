@@ -31,6 +31,24 @@ dependencies {
 }
 ```
 
+To use a snapshot instead:
+
+```gradle
+allprojects {
+    repositories {
+        maven {
+            url 'https://central.sonatype.com/repository/maven-snapshots/'
+        }
+    }
+}
+```
+
+```gradle
+dependencies {
+    implementation 'io.github.libpd.android:pd-core:1.3.0-SNAPSHOT'
+}
+```
+
 Please note that pd-for-android depends on the vanilla version of Pure Data. Currently this is Pure Data vanilla version 0.51-3. You can get desktop distributions of it here:
 http://msp.ucsd.edu/software.html
 
