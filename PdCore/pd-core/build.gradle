@@ -157,11 +157,11 @@ publishing {
     }
 }
 
-// ossrh requires signed releases, but not snapshots.
+// Maven Central requires signed releases, but not snapshots.
 // This configures signing if a key is found.
 // The following environment variables provide a signing key and passphrase:
 // export ORG_GRADLE_PROJECT_signingKey=`cat private.pgp`
-// export ORG_GRADLE_PROJECT_signingPassword="<passphrase>"
+// export ORG_GRADLE_PROJECT_signingPassphrase="<passphrase>"
 // After making the above available, you can try signing using
 // ./gradlew signMavenPublication
 def hasSigningKey = project.hasProperty('signingKeyId') || project.hasProperty('signingKey')
@@ -173,13 +173,13 @@ void sign(Project project) {
 		required { project.gradle.taskGraph.hasTask('required') }
 		def signingKeyId = project.findProperty('signingKeyId')
 		def signingKey = project.findProperty('signingKey')
-		def signingPassword = project.findProperty('signingPassword')
+		def signingPassphrase = project.findProperty('signingPassphrase')
 		if (signingKeyId) {
             // use in-memory ascii-armored OpenPGP subkey
-			useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+			useInMemoryPgpKeys(signingKeyId, signingKey, signingPassphrase)
 		} else if (signingKey) {
             // use in-memory ascii-armored key
-			useInMemoryPgpKeys(signingKey, signingPassword)
+			useInMemoryPgpKeys(signingKey, signingPassphrase)
 		}
 		sign publishing.publications.maven
 	}
