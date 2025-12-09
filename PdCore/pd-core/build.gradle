@@ -10,6 +10,7 @@ version = rootProject.version
 
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:' + rootProject.androidxLegacySupportVersion
+    implementation 'com.google.oboe:oboe:1.10.0'
 }
 
 android {
@@ -26,7 +27,11 @@ android {
     }
 
     buildFeatures {
-      prefabPublishing = true
+        // Export prefab, that will allow apps to compile externals
+        prefabPublishing = true
+
+        // Import prefab: extract native libs (mainly Oboe), to be able to access the headers and to link to the libs
+        prefab = true
     }
 
     prefab {
