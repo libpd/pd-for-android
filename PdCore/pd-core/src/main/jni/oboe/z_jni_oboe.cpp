@@ -108,44 +108,43 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestOutputChannels
   return -1;
 }
 
-#if 0
 
 JNIEXPORT void JNICALL
-Java_com_google_oboe_samples_liveEffect_LiveEffectEngine_setRecordingDeviceId(
+Java_org_puredata_android_io_PdAudio_setRecordingDeviceId(
     JNIEnv *env, jclass, jint deviceId) {
     if (engine == nullptr) {
         LOGE(
-            "Engine is null, you must call createEngine before calling this "
+            "Engine is null, you must call createEngine before calling setRecordingDeviceId "
             "method");
         return;
     }
 
-    engine->setRecordingDeviceId(deviceId);
+    engine->setRecordingDeviceId(deviceId < 0 ? oboe::kUnspecified : deviceId);
 }
 
 JNIEXPORT void JNICALL
-Java_com_google_oboe_samples_liveEffect_LiveEffectEngine_setPlaybackDeviceId(
+Java_org_puredata_android_io_PdAudio_setPlaybackDeviceId(
     JNIEnv *env, jclass, jint deviceId) {
     if (engine == nullptr) {
         LOGE(
-            "Engine is null, you must call createEngine before calling this "
+            "Engine is null, you must call createEngine before calling setPlaybackDeviceId "
             "method");
         return;
     }
-
-    engine->setPlaybackDeviceId(deviceId);
+    engine->setPlaybackDeviceId(deviceId < 0 ? oboe::kUnspecified : deviceId);
 }
 
 JNIEXPORT void JNICALL
-Java_com_google_oboe_samples_liveEffect_LiveEffectEngine_native_1setDefaultStreamValues(JNIEnv *env,
-                                               jclass type,
-                                               jint sampleRate,
-                                               jint framesPerBurst) {
-    oboe::DefaultStreamValues::SampleRate = (int32_t) sampleRate;
-    oboe::DefaultStreamValues::FramesPerBurst = (int32_t) framesPerBurst;
+Java_org_puredata_android_io_PdAudio_setBufferSizeInFrames(
+    JNIEnv *env, jclass, jint frames) {
+    if (engine == nullptr) {
+        LOGE(
+            "Engine is null, you must call createEngine before calling setBufferSizeInFrames "
+            "method");
+        return;
+    }
+    engine->setBufferSizeInFrames(frames);
 }
 
-#endif
-
-}
+} // extern "C"
 

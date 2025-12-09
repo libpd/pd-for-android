@@ -9,6 +9,7 @@ package org.puredata.android.service;
 
 import org.puredata.android.io.AudioParameters;
 import org.puredata.core.PdBase;
+import org.puredata.core.PdBaseLoader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceFragment;
 
 /**
  * 
@@ -27,13 +29,14 @@ import android.preference.PreferenceManager;
  */
 public class PdPreferences extends PreferenceActivity {
 
-	@SuppressWarnings("deprecation")
+	public AudioDevices audioDevices = null;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AudioParameters.init(this);
 		initPreferences(getApplicationContext());
-		addPreferencesFromResource(R.xml.preferences);	
+		getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment(), "prefFragment").commit();
 	}
 	
 	@Override
@@ -41,20 +44,44 @@ public class PdPreferences extends PreferenceActivity {
 		super.onDestroy();
 	}
 	
+	public static class MyPreferenceFragment extends PreferenceFragment
+	{
+		@Override
+		public void onCreate(final Bundle savedInstanceState)
+		{
+			super.onCreate(savedInstanceState);
+			Resources res = getResources();
+			addPreferencesFromResource(R.xml.preferences);
+			((PdPreferences)getActivity()).audioDevices = new AudioDevices(getActivity());
+		}
+	}
+
 	/**
 	 * If no preferences are available, initialize preferences with defaults suggested by {@link PdBase} or {@link AudioParameters}, in that order.
 	 * 
 	 * @param context  current application context
 	 */
 	public static void initPreferences(Context context) {
+		// override native handler because we need PdBase here:
+		PdBaseLoader.loaderHandler = new PdBaseLoader() {
+			@Override
+			public void load() {
+				try {
+					System.loadLibrary("pd");
+					System.loadLibrary("pdnativeoboe");
+				} catch (Exception e) {}
+			}
+		};
 		Resources res = context.getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!prefs.contains(res.getString(R.string.pref_key_srate))) {
 			SharedPreferences.Editor editor = prefs.edit();
 			int srate = PdBase.suggestSampleRate();
 			editor.putString(res.getString(R.string.pref_key_srate), "" + ((srate > 0) ? srate : AudioParameters.suggestSampleRate()));
+			editor.putString(res.getString(R.string.pref_key_indevice), res.getStringArray(R.array.indevice_values)[0]);
 			int nic = PdBase.suggestInputChannels();
 			editor.putString(res.getString(R.string.pref_key_inchannels), "" + ((nic > 0) ? nic : AudioParameters.suggestInputChannels()));
+			editor.putString(res.getString(R.string.pref_key_outdevice), res.getStringArray(R.array.outdevice_values)[0]);
 			int noc = PdBase.suggestOutputChannels();
 			editor.putString(res.getString(R.string.pref_key_outchannels), "" + ((noc > 0) ? noc : AudioParameters.suggestOutputChannels()));
 			editor.commit();

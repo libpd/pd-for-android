@@ -40,6 +40,14 @@ public class PdAudio {
 		// Do nothing; we just don't want instances of this class.
 	}
 
+
+	/* Most audio device control is supplied by PdBase, however some
+	 * additional Oboe settings are made available by PdAudio.
+	 */
+	public native static void setRecordingDeviceId(int deviceId);
+	public native static void setPlaybackDeviceId(int deviceId);
+	public native static void setBufferSizeInFrames(int frames);
+
 	/**
 	 * Initializes Pure Data as well as audio components.
 	 * 
@@ -52,14 +60,21 @@ public class PdAudio {
 	 * @param restart         flag indicating whether the audio thread should be stopped if it is currently running
 	 * @throws IOException    if the audio parameters are not supported by the device
 	 */
-	public synchronized static void initAudio(int sampleRate, int inChannels, int outChannels, final int ticksPerBuffer, boolean restart)
-			throws IOException {
+	public synchronized static void initAudio(
+		int sampleRate,
+		int inDeviceId, int inChannels, 
+		int outDeviceId, int outChannels,
+		final int ticksPerBuffer, boolean restart
+	) throws IOException {
 		if (isRunning() && !restart) return;
 		stopAudio();
-		if (PdBase.openAudio(inChannels, outChannels, sampleRate, null) != 0) {
-			throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
-		}
-		if (!PdBase.implementsAudio()) {
+		if (PdBase.implementsAudio()) {
+			if (PdBase.openAudio(inChannels, outChannels, sampleRate, null) != 0) {
+				throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
+			}
+			setRecordingDeviceId(inDeviceId);
+			setPlaybackDeviceId(outDeviceId);
+		} else {
 			if (!AudioParameters.checkParameters(sampleRate, inChannels, outChannels) || ticksPerBuffer <= 0) {
 				throw new IOException("bad Java audio parameters: " + sampleRate + ", " + inChannels + ", " + outChannels + ", " + ticksPerBuffer);
 			}

@@ -101,6 +101,18 @@ public class PdService extends Service {
 		stopForeground();
 		Resources res = getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		int in_id = -1;
+		int out_id = -1;
+		{
+			String s = prefs.getString(res.getString(R.string.pref_key_indevice), null);
+			if(s != null) {
+				in_id = Integer.parseInt(s);
+			}
+			s = prefs.getString(res.getString(R.string.pref_key_outdevice), null);
+			if(s != null) {
+				out_id = Integer.parseInt(s);
+			}
+		}
 		if (srate < 0) {
 			String s = prefs.getString(res.getString(R.string.pref_key_srate), null);
 			if (s != null) {
@@ -138,7 +150,7 @@ public class PdService extends Service {
 			millis = 50.0f;  // conservative choice
 		}
 		int tpb = (int) (0.001f * millis * srate / PdBase.blockSize()) + 1;
-		PdAudio.initAudio(srate, nic, noc, tpb, true);
+		PdAudio.initAudio(srate, in_id, nic, out_id, noc, tpb, true);
 		sampleRate = srate;
 		inputChannels = nic;
 		outputChannels = noc;
@@ -214,6 +226,7 @@ public class PdService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		// override native handler in case PdPreferences didn't:
 		PdBaseLoader.loaderHandler = new PdBaseLoader() {
 			@Override
 			public void load() {
