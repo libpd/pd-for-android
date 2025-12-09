@@ -44,6 +44,11 @@ void OboeEngine::getAudioParams(int &numInputs, int &numOutputs, int &sampleRate
     sampleRate = mPlayStream->getSampleRate();
 }
 
+void OboeEngine::setAudioCallback(void (*callback)(void*), void *userData) {
+    mAudioCallback = callback;
+    mAudioCallbackUserData = userData;
+}
+
 void OboeEngine::setBufferSizeInFrames(int frames)
 {
     if(mPlayStream) mPlayStream->setBufferSizeInFrames(frames);
@@ -226,6 +231,9 @@ void OboeEngine::warnIfNotLowLatency(std::shared_ptr<oboe::AudioStream> &stream)
  */
 oboe::DataCallbackResult OboeEngine::onAudioReady(
     oboe::AudioStream *oboeStream, void *audioData, int32_t numFrames) {
+    if (mAudioCallback) {
+        mAudioCallback(mAudioCallbackUserData);
+    }
     if (mDuplexStream) {
         return mDuplexStream->onAudioReady(oboeStream, audioData, numFrames);
     } else if (mSimplexStream) {

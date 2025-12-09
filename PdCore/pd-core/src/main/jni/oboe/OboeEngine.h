@@ -21,6 +21,14 @@ public:
 
     void setRecordingDeviceId(int32_t deviceId);
     void setPlaybackDeviceId(int32_t deviceId);
+    bool setAudioApi(oboe::AudioApi);
+    bool isAAudioRecommended(void);
+    void setChannelCounts(int numInputs, int &numOutputs);
+    void getAudioParams(int &numInputs, int &numOutputs, int &sampleRate);
+    void setBufferSizeInFrames(int frames);
+
+    /* optional user audio callback */
+    void setAudioCallback(void (*callback)(void*), void *userData = nullptr);
 
     /**
      * @param isOn
@@ -40,13 +48,6 @@ public:
     void onErrorBeforeClose(oboe::AudioStream *oboeStream, oboe::Result error) override;
     void onErrorAfterClose(oboe::AudioStream *oboeStream, oboe::Result error) override;
 
-    bool setAudioApi(oboe::AudioApi);
-    bool isAAudioRecommended(void);
-
-    void setChannelCounts(int numInputs, int &numOutputs);
-    void getAudioParams(int &numInputs, int &numOutputs, int &sampleRate);
-    void setBufferSizeInFrames(int frames);
-
 private:
     bool              mIsEffectOn = false;
     int32_t           mRecordingDeviceId = oboe::kUnspecified;
@@ -61,6 +62,9 @@ private:
     std::unique_ptr<PdStreamSimplex> mSimplexStream;
     std::shared_ptr<oboe::AudioStream> mRecordingStream;
     std::shared_ptr<oboe::AudioStream> mPlayStream;
+
+    void (*mAudioCallback)(void *data) = nullptr;
+    void *mAudioCallbackUserData = nullptr;
 
     oboe::Result openStreams();
 
