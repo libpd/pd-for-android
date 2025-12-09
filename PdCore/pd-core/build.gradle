@@ -36,7 +36,10 @@ android {
 
     prefab {
         pd {
-          headers = 'src/main/jni/libpd/pure-data/src'
+            headers = 'src/main/jni/libpd/pure-data/src'
+        }
+        pdnativeoboe {
+            headers = 'src/main/jni/oboe'
         }
     }
 
