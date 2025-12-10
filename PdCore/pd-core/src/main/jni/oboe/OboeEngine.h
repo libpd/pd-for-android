@@ -23,7 +23,7 @@ public:
     void setPlaybackDeviceId(int32_t deviceId);
     bool setAudioApi(oboe::AudioApi);
     bool isAAudioRecommended(void);
-    void setChannelCounts(int numInputs, int &numOutputs);
+    void setChannelCounts(int numInputs, int numOutputs);
     void getAudioParams(int &numInputs, int &numOutputs, int &sampleRate);
     void setBufferSizeInFrames(int frames);
 

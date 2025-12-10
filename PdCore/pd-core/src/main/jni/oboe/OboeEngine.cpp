@@ -32,7 +32,7 @@ bool OboeEngine::setAudioApi(oboe::AudioApi api) {
     return true;
 }
 
-void OboeEngine::setChannelCounts(int numInputs, int &numOutputs) {
+void OboeEngine::setChannelCounts(int numInputs, int numOutputs) {
     mInputChannelCount = numInputs;
     mOutputChannelCount = numOutputs;
 }

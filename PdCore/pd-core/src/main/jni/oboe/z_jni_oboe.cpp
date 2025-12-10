@@ -44,7 +44,8 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_openAudio
 jobject options) {
     Java_org_puredata_core_PdBase_closeAudio(env, cls);
     pthread_mutex_lock(&mutex);
-    jint err = libpd_init_audio(inChans, outChans, sRate);
+    // Pd audio parameters will be updated later, in startAudio
+    jint err = libpd_init_audio(2, 2, 48000);
     pthread_mutex_unlock(&mutex);
     if (err) return err;
     if (engine == nullptr) {
@@ -52,7 +53,8 @@ jobject options) {
     }
     if (engine != nullptr) {
         engine->setAudioApi(engine->isAAudioRecommended() ? oboe::AudioApi::AAudio : oboe::AudioApi::OpenSLES);
-        engine->setChannelCounts(inChans, outChans);
+        engine->setChannelCounts(inChans < 0 ? oboe::kUnspecified : inChans,
+                                 outChans < 0 ? oboe::kUnspecified : outChans);
     }
     return (engine == nullptr) ? -1 : 0;
 }
