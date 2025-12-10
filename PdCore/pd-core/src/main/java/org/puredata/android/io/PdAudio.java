@@ -26,6 +26,8 @@ import android.os.Looper;
 public class PdAudio {
 
 	private static AudioWrapper audioWrapper = null;
+	private static int inputDeviceId = -1;
+	private static int outputDeviceId = -1;
 	private static final Handler handler = new Handler(Looper.getMainLooper());
 	private static final Runnable pollRunner = new Runnable() {
 		@Override
@@ -78,6 +80,17 @@ public class PdAudio {
 	}
 
 	/**
+	 * Set the audio input and output devices Id. Call it before startAudio().
+	 * 
+	 * @param inDeviceId      id of the audio input device (-1 means the default device)
+	 * @param outDeviceId     id of the audio output device (-1 means the default device)
+	 */
+	public synchronized static void setDevicesId(int inDeviceId, int outDeviceId) {
+		inputDeviceId = inDeviceId;
+		outputDeviceId = outDeviceId;
+	}
+
+	/**
 	 * Starts the audio components.
 	 * 
 	 * @param context  current application context
@@ -85,6 +98,8 @@ public class PdAudio {
 	public synchronized static void startAudio(Context context) {
 		PdBase.computeAudio(true);
 		if (PdBase.implementsAudio()) {
+			PdBase.setRecordingDeviceId(inputDeviceId);
+			PdBase.setPlaybackDeviceId(outputDeviceId);
 			handler.post(pollRunner);
 			PdBase.startAudio();
 		} else {
