@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import org.puredata.core.PdBase;
+import org.puredata.core.PdBaseLoader;
 
 import android.content.Context;
 import android.os.Handler;
@@ -40,6 +41,22 @@ public class PdAudio {
 		// Do nothing; we just don't want instances of this class.
 	}
 
+	private static PdBaseLoader oboeLoader = new PdBaseLoader() {
+		@Override
+		public void load() {
+			try {
+				System.loadLibrary("pd");
+				System.loadLibrary("pdnativeoboe");
+			} catch (Exception e) {}
+		}
+	};
+
+	/**
+	 * This function must be called before using any PdBase methods.
+	 */
+	public static void setupNativeLoader() {
+		PdBaseLoader.loaderHandler = oboeLoader;
+	}
 
 	/* Most audio device control is supplied by PdBase, however some
 	 * additional Oboe settings are made available by PdAudio.
@@ -66,6 +83,7 @@ public class PdAudio {
 		int outDeviceId, int outChannels,
 		final int ticksPerBuffer, boolean restart
 	) throws IOException {
+		setupNativeLoader();
 		if (isRunning() && !restart) return;
 		stopAudio();
 		if (PdBase.implementsAudio()) {

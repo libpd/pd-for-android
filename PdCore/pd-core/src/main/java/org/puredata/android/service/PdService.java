@@ -10,7 +10,6 @@ package org.puredata.android.service;
 import org.puredata.android.io.AudioParameters;
 import org.puredata.android.io.PdAudio;
 import org.puredata.core.PdBase;
-import org.puredata.core.PdBaseLoader;
 import org.puredata.core.utils.IoUtils;
 
 import android.app.Notification;
@@ -226,16 +225,8 @@ public class PdService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		// override native handler in case PdPreferences didn't:
-		PdBaseLoader.loaderHandler = new PdBaseLoader() {
-			@Override
-			public void load() {
-				try {
-					System.loadLibrary("pd");
-					System.loadLibrary("pdnativeoboe");
-				} catch (Exception e) {}
-			}
-		};
+		// make sure native handler is setup, because we need PdBase here:
+		PdAudio.setupNativeLoader();
 
 		AudioParameters.init(this);
 		if (!abstractionsInstalled) {

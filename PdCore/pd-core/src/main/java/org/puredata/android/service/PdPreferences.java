@@ -9,7 +9,7 @@ package org.puredata.android.service;
 
 import org.puredata.android.io.AudioParameters;
 import org.puredata.core.PdBase;
-import org.puredata.core.PdBaseLoader;
+import org.puredata.android.io.PdAudio;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -62,16 +62,8 @@ public class PdPreferences extends PreferenceActivity {
 	 * @param context  current application context
 	 */
 	public static void initPreferences(Context context) {
-		// override native handler because we need PdBase here:
-		PdBaseLoader.loaderHandler = new PdBaseLoader() {
-			@Override
-			public void load() {
-				try {
-					System.loadLibrary("pd");
-					System.loadLibrary("pdnativeoboe");
-				} catch (Exception e) {}
-			}
-		};
+		// make sure native handler is setup, because we need PdBase here:
+		PdAudio.setupNativeLoader();
 		Resources res = context.getResources();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!prefs.contains(res.getString(R.string.pref_key_srate))) {
