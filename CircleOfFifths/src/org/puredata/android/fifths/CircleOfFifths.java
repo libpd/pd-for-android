@@ -98,7 +98,7 @@ public class CircleOfFifths extends Activity implements OnClickListener {
 	private void initPd() throws IOException {
 		AudioParameters.init(this);
 		int srate = Math.max(MIN_SAMPLE_RATE, AudioParameters.suggestSampleRate());
-		PdAudio.initAudio(srate, 0, 2, 1, true);
+		PdAudio.initAudio(srate, 0, -1, 2, -1, 1, true);
 		
 		File dir = getFilesDir();
 		File patchFile = new File(dir, "chords.pd");
