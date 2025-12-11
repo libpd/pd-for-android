@@ -45,7 +45,7 @@ allprojects {
 
 ```gradle
 dependencies {
-    implementation 'io.github.libpd.android:pd-core:1.3.0-SNAPSHOT'
+    implementation 'io.github.libpd.android:pd-core:1.4.0-SNAPSHOT'
 }
 ```
 
