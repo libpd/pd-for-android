@@ -18,6 +18,12 @@
 		<item>44100</item>
 		<item>48000</item>
 	</string-array>
+	<string-array name="indevice_labels">
+		<item>Default</item>
+	</string-array>
+	<string-array name="indevice_values">
+		<item>-1</item>
+	</string-array>
 	<string-array name="inchannels_labels">
 		<item>None</item>
 		<item>Mono</item>
@@ -27,6 +33,12 @@
 		<item>0</item>
 		<item>1</item>
 		<item>2</item>
+	</string-array>
+	<string-array name="outdevice_labels">
+		<item>Default</item>
+	</string-array>
+	<string-array name="outdevice_values">
+		<item>-1</item>
 	</string-array>
 	<string-array name="outchannels_labels">
 		<item>None</item>
