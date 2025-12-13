@@ -96,8 +96,8 @@ task sourcesJar(type: Jar) {
 
 task javadoc(type: Javadoc) {
     source = android.sourceSets.main.java.srcDirs
-    classpath += files("${android.sdkDirectory}/platforms/${android.compileSdk}/android.jar")
-    failOnError = false // TODO: fix javadoc issues
+    classpath += files("${android.sdkDirectory}/platforms/android-${android.compileSdk}/android.jar")
+    failOnError = true
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
