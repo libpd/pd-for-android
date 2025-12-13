@@ -6,7 +6,6 @@
  */
 
 package org.puredata.android.io;
-import org.puredata.android.service.R;
 
 import android.content.Context;
 import android.app.Activity;
@@ -60,8 +59,10 @@ public class AudioDevices {
 		mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 		PreferenceFragment prefFragment = (PreferenceFragment) context.getFragmentManager().findFragmentByTag("prefFragment");
 		Resources res = context.getResources();
-		mInputDevices = new AudioDeviceList(prefFragment, res.getString(R.string.pref_key_indevice));
-		mOutputDevices = new AudioDeviceList(prefFragment, res.getString(R.string.pref_key_outdevice));
+		final String inputKey = res.getString(org.puredata.android.service.R.string.pref_key_indevice);
+		mInputDevices = new AudioDeviceList(prefFragment, inputKey);
+		final String outputKey = res.getString(org.puredata.android.service.R.string.pref_key_outdevice);
+		mOutputDevices = new AudioDeviceList(prefFragment, outputKey);
 		setupAudioDeviceCallback();
 	}
 
