@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="srate_labels">
+		<item>Default</item>
 		<item>8000Hz</item>
 		<item>11025Hz</item>
 		<item>16000Hz</item>
@@ -10,6 +11,7 @@
 		<item>48000Hz</item>
 	</string-array>
 	<string-array name="srate_values">
+		<item>-1</item>
 		<item>8000</item>
 		<item>11025</item>
 		<item>16000</item>

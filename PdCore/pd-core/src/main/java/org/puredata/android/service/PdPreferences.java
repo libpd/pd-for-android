@@ -66,12 +66,14 @@ public class PdPreferences extends PreferenceActivity {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		if (!prefs.contains(res.getString(R.string.pref_key_srate))) {
 			SharedPreferences.Editor editor = prefs.edit();
-			int srate = PdBase.suggestSampleRate();
-			editor.putString(res.getString(R.string.pref_key_srate), "" + ((srate > 0) ? srate : AudioParameters.suggestSampleRate()));
+
+			// init samplerate and audio device prefs to "Default":
+			editor.putString(res.getString(R.string.pref_key_srate), res.getStringArray(R.array.srate_values)[0]);
 			editor.putString(res.getString(R.string.pref_key_indevice), res.getStringArray(R.array.indevice_values)[0]);
+			editor.putString(res.getString(R.string.pref_key_outdevice), res.getStringArray(R.array.outdevice_values)[0]);
+
 			int nic = PdBase.suggestInputChannels();
 			editor.putString(res.getString(R.string.pref_key_inchannels), "" + ((nic > 0) ? nic : AudioParameters.suggestInputChannels()));
-			editor.putString(res.getString(R.string.pref_key_outdevice), res.getStringArray(R.array.outdevice_values)[0]);
 			int noc = PdBase.suggestOutputChannels();
 			editor.putString(res.getString(R.string.pref_key_outchannels), "" + ((noc > 0) ? noc : AudioParameters.suggestOutputChannels()));
 			editor.commit();
