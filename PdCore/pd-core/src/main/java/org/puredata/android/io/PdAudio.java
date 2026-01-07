@@ -9,6 +9,8 @@ package org.puredata.android.io;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.puredata.core.PdBase;
 
@@ -28,6 +30,7 @@ public class PdAudio {
 	private static AudioWrapper audioWrapper = null;
 	private static int inputDeviceId = -1;
 	private static int outputDeviceId = -1;
+	private static int bufferSizeInFrames = -1;
 	private static final Handler handler = new Handler(Looper.getMainLooper());
 	private static final Runnable pollRunner = new Runnable() {
 		@Override
@@ -58,7 +61,11 @@ public class PdAudio {
 			throws IOException {
 		if (isRunning() && !restart) return;
 		stopAudio();
-		if (PdBase.openAudio(inChannels, outChannels, sampleRate, null) != 0) {
+		Map<String, String> options = new HashMap<String, String>();
+		options.put("inputDeviceId", String.valueOf(inputDeviceId));
+		options.put("outputDeviceId", String.valueOf(outputDeviceId));
+		options.put("bufferSizeInFrames", String.valueOf(bufferSizeInFrames));
+		if (PdBase.openAudio(inChannels, outChannels, sampleRate, options) != 0) {
 			throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
 		}
 		if (!PdBase.implementsAudio()) {
@@ -80,7 +87,7 @@ public class PdAudio {
 	}
 
 	/**
-	 * Set the audio input and output devices Id. Call it before startAudio().
+	 * Set the audio input and output devices Id. Call it before initAudio().
 	 * 
 	 * @param inDeviceId      id of the audio input device (-1 means the default device)
 	 * @param outDeviceId     id of the audio output device (-1 means the default device)
@@ -91,6 +98,15 @@ public class PdAudio {
 	}
 
 	/**
+	 * Set the audio buffer size in frames. Call it before initAudio().
+	 * 
+	 * @param frames      the buffer size, expressed in frames (-1 means the default buffersize)
+	 */
+	public synchronized static void setBufferSizeInFrames(int frames) {
+		bufferSizeInFrames = frames;
+	}
+
+	/**
 	 * Starts the audio components.
 	 * 
 	 * @param context  current application context
@@ -98,8 +114,6 @@ public class PdAudio {
 	public synchronized static void startAudio(Context context) {
 		PdBase.computeAudio(true);
 		if (PdBase.implementsAudio()) {
-			PdBase.setRecordingDeviceId(inputDeviceId);
-			PdBase.setPlaybackDeviceId(outputDeviceId);
 			handler.post(pollRunner);
 			PdBase.startAudio();
 		} else {
