@@ -4,7 +4,10 @@ plugins {
     id 'maven-publish'
 }
 
-archivesBaseName = 'pd-core'
+ext {
+    archivesBaseName = 'pd-core'
+}
+
 group = rootProject.group
 version = rootProject.version
 
@@ -125,7 +128,7 @@ publishing {
             artifact javadocJar
 
             pom {
-                name = "${project.group}:${project.archivesBaseName}"
+                name = "${project.group}:${archivesBaseName}"
 			    description = 'Pure Data for Android'
                 url = siteUrl
                 licenses {
