@@ -25,7 +25,6 @@ jobs:
     - run: |
         git submodule sync --recursive
         git submodule update --init --recursive
-    - run: ./gradlew androidDependencies
     - run: ./gradlew clean
     - run: ./gradlew PdCore:pd-core:build
       env:
