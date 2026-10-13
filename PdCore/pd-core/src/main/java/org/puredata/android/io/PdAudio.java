@@ -31,6 +31,7 @@ public class PdAudio {
 	private static int inputDeviceId = -1;
 	private static int outputDeviceId = -1;
 	private static int bufferSizeInFrames = -1;
+	private static boolean autoReopen = true;
 	private static final Handler handler = new Handler(Looper.getMainLooper());
 	private static final Runnable pollRunner = new Runnable() {
 		@Override
@@ -65,6 +66,7 @@ public class PdAudio {
 		options.put("inputDeviceId", String.valueOf(inputDeviceId));
 		options.put("outputDeviceId", String.valueOf(outputDeviceId));
 		options.put("bufferSizeInFrames", String.valueOf(bufferSizeInFrames));
+		options.put("autoReopen", String.valueOf(autoReopen ? 1 : 0));
 		if (PdBase.openAudio(inChannels, outChannels, sampleRate, options) != 0) {
 			throw new IOException("unable to open Pd audio: " + sampleRate + ", " + inChannels + ", " + outChannels);
 		}
@@ -104,6 +106,15 @@ public class PdAudio {
 	 */
 	public synchronized static void setBufferSizeInFrames(int frames) {
 		bufferSizeInFrames = frames;
+	}
+
+	/**
+	 * Enable the audio wrapper to reopen the default device when the current device has been disconnected
+	 * 
+	 * @param reopen      enable auto-reopening (true by default)
+	 */
+	public synchronized static void setAutoReopen(boolean reopen) {
+		autoReopen = reopen;
 	}
 
 	/**
