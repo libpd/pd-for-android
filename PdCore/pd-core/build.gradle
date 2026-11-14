@@ -72,7 +72,7 @@ android {
         externalNativeBuild {
             ndkBuild {
                 arguments 'NDK_DEBUG=1', '-j' + Runtime.runtime.availableProcessors()
-                cFlags '-DANDROID_ARM_NEON=TRUE', '-DANDROID_TOOLCHAIN=clang'
+                cFlags '-DANDROID_ARM_NEON=TRUE', '-DANDROID_TOOLCHAIN=clang', '-ffast-math', '-O3'
             }
         }
     }
