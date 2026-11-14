@@ -3,20 +3,29 @@
 	android:title="@string/pref_title" android:summary="@string/pref_sum">
 	<ListPreference android:entryValues="@array/srate_values"
 		android:entries="@array/srate_labels" android:key="@string/pref_key_srate"
-		android:title="@string/pref_title_srate" android:summary="@string/pref_sum_srate">
-	</ListPreference>
+		android:title="@string/pref_title_srate" android:summary="@string/pref_sum_srate"
+	/>
 	<ListPreference android:key="@string/pref_key_indevice"
 		android:entryValues="@array/indevice_values" android:entries="@array/indevice_labels"
-		android:title="@string/pref_title_indevice" android:summary="@string/pref_sum_indevice"></ListPreference>
+		android:title="@string/pref_title_indevice" android:summary="@string/pref_sum_indevice"
+	/>
 	<ListPreference android:key="@string/pref_key_inchannels"
 		android:entryValues="@array/inchannels_values" android:entries="@array/inchannels_labels"
-		android:title="@string/pref_title_inchannels" android:summary="@string/pref_sum_inchannels"></ListPreference>
+		android:title="@string/pref_title_inchannels" android:summary="@string/pref_sum_inchannels"
+	/>
 	<ListPreference android:key="@string/pref_key_outdevice"
 		android:entryValues="@array/outdevice_values" android:entries="@array/outdevice_labels"
-		android:title="@string/pref_title_outdevice" android:summary="@string/pref_sum_outdevice"></ListPreference>
+		android:title="@string/pref_title_outdevice" android:summary="@string/pref_sum_outdevice"
+	/>
 	<ListPreference android:key="@string/pref_key_outchannels"
 		android:entryValues="@array/outchannels_values" android:entries="@array/outchannels_labels"
-		android:title="@string/pref_title_outchannels" android:summary="@string/pref_sum_outchannels"></ListPreference>
+		android:title="@string/pref_title_outchannels" android:summary="@string/pref_sum_outchannels"
+	/>
+	<ListPreference android:key="@string/pref_key_buffersize"
+		android:entryValues="@array/buffersize_values" android:entries="@array/buffersize_labels"
+		android:title="@string/pref_title_buffersize" android:summary="@string/pref_sum_buffersize"
+	/>
 	<SwitchPreference android:key="@string/pref_key_verbose"
-		android:title="@string/pref_title_verbose" android:summary="@string/pref_sum_verbose"></SwitchPreference>
+		android:title="@string/pref_title_verbose" android:summary="@string/pref_sum_verbose"
+	/>
 </PreferenceScreen>

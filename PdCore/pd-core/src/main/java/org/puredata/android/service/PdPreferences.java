@@ -71,6 +71,7 @@ public class PdPreferences extends PreferenceActivity {
 			editor.putString(res.getString(R.string.pref_key_srate), res.getStringArray(R.array.srate_values)[0]);
 			editor.putString(res.getString(R.string.pref_key_indevice), res.getStringArray(R.array.indevice_values)[0]);
 			editor.putString(res.getString(R.string.pref_key_outdevice), res.getStringArray(R.array.outdevice_values)[0]);
+			editor.putString(res.getString(R.string.pref_key_buffersize), res.getStringArray(R.array.buffersize_values)[0]);
 
 			int nic = PdBase.suggestInputChannels();
 			editor.putString(res.getString(R.string.pref_key_inchannels), "" + ((nic > 0) ? nic : AudioParameters.suggestInputChannels()));

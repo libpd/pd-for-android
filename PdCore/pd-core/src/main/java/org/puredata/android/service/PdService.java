@@ -148,6 +148,12 @@ public class PdService extends Service {
 				}
 			}
 		}
+		int bufferSizeInFrames = -1;
+		String s = prefs.getString(res.getString(R.string.pref_key_buffersize), null);
+		if (s != null) {
+			bufferSizeInFrames = Integer.parseInt(s);
+		}
+		PdAudio.setBufferSizeInFrames(bufferSizeInFrames);
 		if (millis < 0) {
 			millis = 50.0f;  // conservative choice
 		}
