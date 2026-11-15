@@ -20,6 +20,10 @@ import android.preference.PreferenceFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * AudioDevices creates and maintains the audio devices list, and populates the preferences.
+ * The input and output device lists are automatically updated when a device is connected or disconnected.
+ */
 public class AudioDevices {
 
 	private static final String TAG = "AudioDevices";
@@ -47,12 +51,18 @@ public class AudioDevices {
 			mPref.setEntries(listToArray(mEntries));
 			mPref.setEntryValues(listToArray(mValues));
 		}
+		public String getEntryForValue(String value) {
+			int i = mValues.indexOf(value);
+			if(i < 0) return "unknown";
+			return mEntries.get(i);
+		}
 	}
 
 	private AudioDeviceList mInputDevices = null;
 	private AudioDeviceList mOutputDevices = null;
 
 	/**
+	 * Create and maintain the audio devices list, and populate the preferences
 	 * @param context activity or service that calls this method
 	 */
 	public AudioDevices(Activity context) {
@@ -64,6 +74,24 @@ public class AudioDevices {
 		final String outputKey = res.getString(org.puredata.android.service.R.string.pref_key_outdevice);
 		mOutputDevices = new AudioDeviceList(prefFragment, outputKey);
 		setupAudioDeviceCallback();
+	}
+
+	/**
+	 * For a given preference value, get the human readable name of the input device
+	 * @param value the value representing the input device in the preferences
+	 * @return the human readable name
+	 */
+	public String getInputDeviceNameForPrefValue(String value) {
+		return mInputDevices.getEntryForValue(value);
+	}
+
+	/**
+	 * For a given preference value, get the human readable name of the output device
+	 * @param value the value representing the output device in the preferences
+	 * @return the human readable name
+	 */
+	public String getOutputDeviceNameForPrefValue(String value) {
+		return mOutputDevices.getEntryForValue(value);
 	}
 
 	/**

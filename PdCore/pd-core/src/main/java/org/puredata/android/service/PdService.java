@@ -21,6 +21,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.content.pm.PackageManager;
+import android.content.Context;
+import android.Manifest;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -145,6 +148,12 @@ public class PdService extends Service {
 				}
 			}
 		}
+		int bufferSizeInFrames = -1;
+		String s = prefs.getString(res.getString(R.string.pref_key_buffersize), null);
+		if (s != null) {
+			bufferSizeInFrames = Integer.parseInt(s);
+		}
+		PdAudio.setBufferSizeInFrames(bufferSizeInFrames);
 		if (millis < 0) {
 			millis = 50.0f;  // conservative choice
 		}
@@ -184,7 +193,10 @@ public class PdService extends Service {
 	 * @param notification notification to display
 	 */
 	public synchronized void startAudio(Notification notification) {
-		startForeground(notification);
+		if(checkPermissionGranted(Manifest.permission.FOREGROUND_SERVICE_MICROPHONE)
+		&& checkPermissionGranted(Manifest.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK)) {
+			startForeground(notification);
+		}
 		PdAudio.startAudio(this);
 	}
 
@@ -287,5 +299,9 @@ public class PdService extends Service {
 			stopForeground(true);
 			hasForeground = false;
 		}
+	}
+
+	private boolean checkPermissionGranted(String permission) {
+		return this.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
 	}
 }
